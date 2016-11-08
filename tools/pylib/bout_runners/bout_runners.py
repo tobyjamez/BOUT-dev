@@ -17,8 +17,8 @@ BOUT/examples/bout_runners_example.
 #          parameters
 __authors__ = "Michael Loeiten"
 __email__   = "mmag@fysik.dtu.dk"
-__version__ = "1.061"
-__date__    = "2016.11.05"
+__version__ = "1.0611"
+__date__    = "2016.11.08"
 
 import os
 import sys
@@ -676,7 +676,7 @@ class basic_runner(object):
                     # Call the post processing function
                     self._call_post_processing_function(\
                             function = post_processing_function,\
-                            folders  = tuple(self._dmp_folders),\
+                            folders  = tuple(self._dmp_folder),\
                             **kwargs)
                 else:
                     # Append the dmp folder to the list of dmp folders

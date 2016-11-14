@@ -555,7 +555,9 @@ int Solver::solve(int NOUT, BoutReal TIMESTEP) {
     }
     
     // Call monitors so initial values are written to output dump files
-    call_monitors(simtime, 0, NOUT); 
+    if (call_monitors(simtime, -1, NOUT)){
+      throw BoutException("Monitor signaled to exit before we started. Quitting ...");
+    }
   }
   
   int status;
@@ -814,7 +816,7 @@ int Solver::call_monitors(BoutReal simtime, int iter, int NOUT) {
       // Write restart to a different file
       restart.write("%s/BOUT.final.%s", restartdir.c_str(), restartext.c_str());
     }
-    
+    output.write(e.what());
     output.write("Monitor signalled to quit. Returning\n");
     return 1;
   }

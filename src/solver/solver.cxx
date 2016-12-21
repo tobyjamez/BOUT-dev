@@ -712,7 +712,13 @@ void Solver::removeMonitor(MonitorFunc f) {
   monitors.remove(f);
 }
 
+extern bool user_requested_exit;
 int Solver::call_monitors(BoutReal simtime, int iter, int NOUT) {
+  bool abort;
+  MPI_Allreduce(&user_requested_exit,&abort,1,MPI_C_BOOL,MPI_LOR,MPI_COMM_WORLD);
+  if(abort){
+    NOUT=iter+1;
+  }
   if(mms) {
     // Calculate MMS errors
     calculate_mms_error(simtime);
@@ -747,7 +753,7 @@ int Solver::call_monitors(BoutReal simtime, int iter, int NOUT) {
       // Write restart to a different file
       restart.write("%s/BOUT.final.%s", restartdir.c_str(), restartext.c_str());
     }
-    
+    output.write(e.what());
     output.write("Monitor signalled to quit. Returning\n");
     return 1;
   }
@@ -756,6 +762,17 @@ int Solver::call_monitors(BoutReal simtime, int iter, int NOUT) {
   rhs_ncalls = 0;
   rhs_ncalls_i = 0;
   rhs_ncalls_e = 0;
+
+  if (abort){
+    // User signalled to quit
+    if( enablerestart ) {
+      // Write restart to a different file
+      restart.write("%s/BOUT.final.%s", restartdir.c_str(), restartext.c_str());
+    }
+    
+    output.write("User signalled to quit. Returning\n");
+    return 1;
+  }
   
   return 0;
 }

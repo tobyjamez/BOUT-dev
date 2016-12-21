@@ -500,13 +500,43 @@ int Solver::solve(int NOUT, BoutReal TIMESTEP) {
     OPTION(options, NOUT, NOUT);
     options->get("output_step", TIMESTEP, TIMESTEP);
   }
-  
+
+  /// syncronize timestep with those set to the monitors
+  if (timestep > 0){
+    if (!isMultiple(timestep,TIMESTEP)){
+      throw BoutException("A monitor requested a timestep not compatible with the output_step!");
+    }
+    if (timestep < TIMESTEP*1.5){
+      freqDefault=TIMESTEP/timestep+.5;
+      NOUT*=freqDefault;
+      TIMESTEP=timestep;
+    } else {
+      freqDefault = 1;
+      // update old monitors
+      int fac=timestep/TIMESTEP+.5;
+      for (auto i: monitors){
+        i->freq=i->freq*fac;
+      }
+    }
+  }
+  for (auto i: monitors){
+    if (i->timestep < 0){
+      i->timestep=timestep*freqDefault;
+      i->freq=freqDefault;
+    }
+  }
+
+
   output.write("Solver running for %d outputs with output timestep of %e\n", NOUT, TIMESTEP);
+  if (freqDefault > 1)
+    output.write("Solver running for %d outputs with monitor timestep of %e\n",
+                 NOUT/freqDefault, TIMESTEP*freqDefault);
   
   // Initialise
   if(init(restarting, NOUT, TIMESTEP)) {
     throw BoutException("Failed to initialise solver-> Aborting\n");
   }
+  initCalled=true;
   
   /// Run the solver
   output.write("Running simulation\n\n");
@@ -525,7 +555,7 @@ int Solver::solve(int NOUT, BoutReal TIMESTEP) {
     }
     
     // Call monitors so initial values are written to output dump files
-    call_monitors(simtime, 0, NOUT); 
+    call_monitors(simtime, -1, NOUT); 
   }
   
   int status;
@@ -701,14 +731,48 @@ void Solver::outputVars(Datafile &outputfile) {
 
 /////////////////////////////////////////////////////
 
-void Solver::addMonitor(MonitorFunc f, MonitorPosition pos) {
-  if(pos == Solver::FRONT) {
-    monitors.push_front(f);
-  }else
-    monitors.push_back(f);
+void Solver::addMonitor(int (& MonitorFuncRef )(Solver *solver, BoutReal simtime, int iter, int NOUT)
+                        , MonitorPosition pos) {
+  MonitorFunc * mon = new MonitorFunc(&MonitorFuncRef);
+  mon->timestep=-1;
+  addMonitor(mon,pos);
 }
 
-void Solver::removeMonitor(MonitorFunc f) {
+/// Method to add a Monitor to the Solver
+/// Note that behaviour changes if init() is called,
+/// as the timestep cannot be changed afterwards
+void Solver::addMonitor(Monitor * mon, MonitorPosition pos) {
+  if (mon->timestep > 0){ // not default
+    if (!initCalled && timestep < 0){
+      timestep = mon->timestep;
+    }
+    if (!isMultiple(timestep,mon->timestep))
+      throw BoutException("Couldn't add Monitor: %g is not a multiple of %g!"
+                          ,timestep,mon->timestep);
+    if (mon->timestep > timestep*1.5){
+      mon->freq=(mon->timestep/timestep)+.5;
+    } else { // mon.timestep is truly smaller
+      if (initCalled)
+        throw BoutException("Solver::addMonitor: Cannot reduce timestep \
+(from %g to %g) after init is called!"
+                            ,timestep,mon->timestep);
+      int multi = timestep/mon->timestep+.5;
+      timestep=mon->timestep;
+      for (auto i: monitors){
+        i->freq=i->freq*multi;
+      }
+      mon->freq=1;
+    }
+  } else {
+    mon->freq = freqDefault;
+  }
+  if(pos == Solver::FRONT) {
+    monitors.push_front(mon);
+  }else
+    monitors.push_back(mon);
+}
+
+void Solver::removeMonitor(Monitor * f) {
   monitors.remove(f);
 }
 
@@ -732,20 +796,22 @@ int Solver::call_monitors(BoutReal simtime, int iter, int NOUT) {
       restart.write("%s/BOUT.restart_%04d.%s", restartdir.c_str(), iteration, restartext.c_str());
     }
   }
-  
+  ++iter;
   try {
     // Call physics model monitor
     if(model) {
-      if(model->runOutputMonitor(simtime, iter, NOUT))
+      if(model->runOutputMonitor(simtime, iter-1, NOUT))
         throw BoutException("Monitor signalled to quit");
     }
     
-    // Call C function monitors
-    for(const auto& monitor : monitors) {
-      // Call each monitor one by one
-      int ret = monitor(this, simtime,iter, NOUT);
-      if(ret)
-        throw BoutException("Monitor signalled to quit");
+    // Call monitors
+    for (auto it: monitors){
+      if ((iter % it->freq)==0){
+        // Call each monitor one by one
+        int ret = it->call(this, simtime,iter/it->freq-1, NOUT/it->freq);
+        if(ret)
+          throw BoutException("Monitor signalled to quit");
+      }
     }
   } catch (BoutException &e) {
     // User signalled to quit
@@ -757,11 +823,13 @@ int Solver::call_monitors(BoutReal simtime, int iter, int NOUT) {
     output.write("Monitor signalled to quit. Returning\n");
     return 1;
   }
-  
-  // Reset iteration and wall-time count
-  rhs_ncalls = 0;
-  rhs_ncalls_i = 0;
-  rhs_ncalls_e = 0;
+
+  if ((iter%freqDefault) == 0){
+    // Reset iteration and wall-time count
+    rhs_ncalls = 0;
+    rhs_ncalls_i = 0;
+    rhs_ncalls_e = 0;
+  }
 
   if (abort){
     // User signalled to quit
@@ -773,7 +841,6 @@ int Solver::call_monitors(BoutReal simtime, int iter, int NOUT) {
     output.write("User signalled to quit. Returning\n");
     return 1;
   }
-  
   return 0;
 }
 

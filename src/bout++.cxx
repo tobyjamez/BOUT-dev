@@ -73,18 +73,18 @@ using std::list;
 #include <omp.h>
 #endif
 
-#ifdef SIGHANDLE
 #include <signal.h>
-void bout_signal_handler(int sig);  // Handles segmentation faults
-#endif
+void bout_signal_handler(int sig);  // Handles signals
 #ifdef BOUT_FPE
 #include <fenv.h>
 #endif
+
 
 #include <output.hxx>
 
 BoutReal simtime;
 int iteration;
+int user_requested_exit=0;
 
 const string time_to_hms(BoutReal t);   // Converts to h:mm:ss.s format
 char get_spin();                    // Produces a spinning bar
@@ -117,14 +117,15 @@ int BoutInitialise(int &argc, char **&argv) {
 #ifdef SIGHANDLE
   /// Set a signal handler for segmentation faults
   signal(SIGSEGV, bout_signal_handler);
+#endif
 #ifdef BOUT_FPE
   signal(SIGFPE,  bout_signal_handler);
-#endif
-#endif
-#ifdef BOUT_FPE
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif
-  
+
+  /// Trap SIGUSR1 to allow a clean exit after next write
+  signal(SIGUSR1, bout_signal_handler);
+
   // Set default data directory
   data_dir = DEFAULT_DIR;
   opt_file = DEFAULT_OPT;
@@ -319,6 +320,7 @@ int bout_run(Solver *solver, rhsfunc physics_run) {
   solver->setRHS(physics_run);
   
   /// Add the monitor function
+  Monitor * bout_monitor = new BoutMonitor();
   solver->addMonitor(bout_monitor, Solver::BACK);
 
   /// Run the simulation
@@ -376,13 +378,13 @@ int BoutFinalise() {
  * Called each timestep by the solver
  **************************************************************************/
 
-int bout_monitor(Solver *solver, BoutReal t, int iter, int NOUT) {
+int BoutMonitor::call(Solver *solver, BoutReal t, int iter, int NOUT) {
   // Data used for timing
   static bool first_time = true;
   static BoutReal wall_limit, mpi_start_time; // Keep track of remaining wall time
 
 #ifdef CHECK
-  int msg_point = msg_stack.push("bout_monitor(%e, %d, %d)", t, iter, NOUT);
+  int msg_point = msg_stack.push("BoutMonitor::call(%e, %d, %d)", t, iter, NOUT);
 #endif
 
   // Set the global variables. This is done because they need to be
@@ -490,8 +492,7 @@ void bout_error(const char *str) {
   exit(1);
 }
 
-#ifdef SIGHANDLE
-/// Signal handler - catch segfaults
+/// Signal handler - handles all signals
 void bout_signal_handler(int sig) {
   /// Set signal handler back to default to prevent possible infinite loop
   signal(SIGSEGV, SIG_DFL);
@@ -515,15 +516,14 @@ void bout_signal_handler(int sig) {
   case SIGKILL:
     throw BoutException("\n****** SigKill caught ******\n\n");
     break;
+  case SIGUSR1:
+    user_requested_exit=1;
+    break;
   default:
     throw BoutException("\n****** Signal %d  caught ******\n\n",sig);
     break;
   }
-
-
-  exit(sig);
 }
-#endif
 
 /**************************************************************************
  * Utilities

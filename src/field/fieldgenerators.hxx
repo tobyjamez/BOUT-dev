@@ -7,6 +7,7 @@
 
 #include <field_factory.hxx>
 #include <boutexception.hxx>
+#include <unused.hxx>
 
 #include <cmath>
 
@@ -20,8 +21,8 @@ using std::list;
 class FieldValuePtr : public FieldGenerator {
 public:
   FieldValuePtr(BoutReal *val) : ptr(val) {}
-  FieldGenerator* clone(const list<FieldGenerator*> args) { return new FieldValuePtr(ptr); }
-  BoutReal generate(double x, double y, double z, double t) { return *ptr; }
+  FieldGenerator* clone(const list<FieldGenerator*> UNUSED(args)) { return new FieldValuePtr(ptr); }
+  BoutReal generate(double UNUSED(x), double UNUSED(y), double UNUSED(z), double UNUSED(t)) { return *ptr; }
 private:
   BoutReal *ptr;
 };
@@ -290,8 +291,11 @@ public:
   FieldGenerator* clone(const list<FieldGenerator*> args);
   BoutReal generate(double x, double y, double z, double t);
 private:
-  /// Generate a random number between 0 and 1
+  /// Generate a random number between 0 and 1 (exclusive)
   /// given an arbitrary seed value
+  ///
+  /// This PRNG has no memory, i.e. you need to call it 
+  /// with a different seed each time.
   BoutReal genRand(BoutReal seed);
 
   FieldGenerator *arg;

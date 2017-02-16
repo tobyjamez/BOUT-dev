@@ -3,12 +3,14 @@ from __future__ import division
 try:
     from builtins import str
 except:
-    print("Warning: No str in builtins")
+    #print("Warning: No str in builtins")
+    pass
 
 try:
     from builtins import range
 except:
-    print("Warning: No range in builtins")
+    pass
+    #print("Warning: No range in builtins")
 
 # Requires:
 #  - boututils

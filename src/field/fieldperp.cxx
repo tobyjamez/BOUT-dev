@@ -274,3 +274,13 @@ const IndexRange FieldPerp::region(REGION rgn) const {
   };
   throw BoutException("Field3D::region() : Requested region not implemented");
 }
+
+FieldPerp sqrt(const FieldPerp & f){
+  FieldPerp res;
+  res.allocate();
+  for (auto i:f){
+    res[i]=sqrt(f[i]);
+  }
+  //checkData(res);
+  return res;
+}

@@ -280,4 +280,6 @@ const FieldPerp copy(const FieldPerp &f);
  */
 const FieldPerp sliceXZ(const Field3D& f, int y);
 
+FieldPerp sqrt(const FieldPerp& f);
+
 #endif

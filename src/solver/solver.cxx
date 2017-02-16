@@ -825,9 +825,9 @@ int Solver::call_monitors(BoutReal simtime, int iter, int NOUT) {
     output.write("Monitor signalled to quit. Returning\n");
     return 1;
   }
-
+  
+  // Reset iteration and wall-time count
   if ((iter%freqDefault) == 0){
-    // Reset iteration and wall-time count
     rhs_ncalls = 0;
     rhs_ncalls_i = 0;
     rhs_ncalls_e = 0;
@@ -843,6 +843,7 @@ int Solver::call_monitors(BoutReal simtime, int iter, int NOUT) {
     output.write("User signalled to quit. Returning\n");
     return 1;
   }
+
   return 0;
 }
 

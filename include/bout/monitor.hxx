@@ -2,7 +2,7 @@
 
 template <typename t>
 t bout_abs(t a){
-  return a>0? a:-1;
+  return a>0? a:-a;
 }
 
 template <typename t>

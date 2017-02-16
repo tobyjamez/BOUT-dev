@@ -37,6 +37,7 @@ class Solver;
 
 #include <bout_types.hxx>
 #include <boutexception.hxx>
+#include "bout/monitor.hxx"
 #include <unused.hxx>
 #include "bout/monitor.hxx"
 

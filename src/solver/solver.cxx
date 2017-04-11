@@ -816,16 +816,17 @@ int Solver::call_monitors(BoutReal simtime, int iter, int NOUT) {
       }
     }
   } catch (BoutException &e) {
+
     // User signalled to quit
-    if( enablerestart ) {
+    if (enablerestart) {
       // Write restart to a different file
       restart.write("%s/BOUT.final.%s", restartdir.c_str(), restartext.c_str());
     }
-    output.write(e.what());
-    output.write("Monitor signalled to quit. Returning\n");
-    return 1;
+
+    output.write("Monitor signalled to quit\n");
+    throw e;
   }
-  
+
   // Reset iteration and wall-time count
   if ((iter%freqDefault) == 0){
     rhs_ncalls = 0;

@@ -108,7 +108,6 @@ int bout_run(Solver *solver, rhsfunc physics_run);
  * This is added to the solver in bout_run (for C-style models)
  * or in bout/physicsmodel.hxx
  */
-
 class BoutMonitor: public Monitor{
   int call(Solver *solver, BoutReal t, int iter, int NOUT) override;
 };

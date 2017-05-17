@@ -76,8 +76,8 @@ public:
 #ifndef _OPENMP
     x(xs), y(ys), z(zs),
     xstart(xs),   ystart(ys),   zstart(zs),
-    xend(xe),     yend(ye),     zend(ze),
     xmin(xstart), ymin(ystart), zmin(zstart),
+    xend(xe),     yend(ye),     zend(ze),
     xmax(xend),   ymax(yend),   zmax(zend),
 #else
     xmin(xs),     ymin(ys),     zmin(zs),
@@ -100,8 +100,8 @@ public:
 #ifndef _OPENMP
     x(xe), y(ye), z(ze),
     xstart(xs),   ystart(ys),   zstart(zs),
-    xend(xe),     yend(ye),     zend(ze),
     xmin(xstart), ymin(ystart), zmin(zstart),
+    xend(xe),     yend(ye),     zend(ze),
     xmax(xend),   ymax(yend),   zmax(zend),
 #else
     xmin(xstart), ymin(ys),   zmin(zs),

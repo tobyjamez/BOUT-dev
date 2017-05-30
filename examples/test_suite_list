@@ -22,6 +22,7 @@ MMS/wave-1d
 MMS/wave-1d-y
 MMS/interpolation
 MMS/derivatives
+test-subdir
 # More complex tests
 drift-instability
 interchange-instability

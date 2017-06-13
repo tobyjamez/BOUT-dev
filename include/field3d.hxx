@@ -42,6 +42,8 @@ class Mesh;  // #include "bout/mesh.hxx"
 
 #include "bout/field_visitor.hxx"
 
+#include "bout/varray.hxx"
+
 /// Class for 3D X-Y-Z scalar fields
 /*!
   This class represents a scalar field defined over the mesh.
@@ -497,7 +499,11 @@ class Field3D : public Field, public FieldData {
   void applyParallelBoundary(const char* condition) { applyParallelBoundary(string(condition)); }
   void applyParallelBoundary(const string &region, const string &condition);
   void applyParallelBoundary(const string &region, const string &condition, Field3D *f);
-  
+
+  //Public replacement for Array<BoutReal> data, essentially
+  //just a light wrapper around std::valarray to provide the same
+  //public routines as Array.
+  VArray<BoutReal> data;
 private:
   /// Boundary - add a 2D field
   const Field2D *background;
@@ -506,7 +512,7 @@ private:
   int nx, ny, nz;  ///< Array sizes (from fieldmesh). These are valid only if fieldmesh is not null
   
   /// Internal data array. Handles allocation/freeing of memory
-  Array<BoutReal> data;
+  //Array<BoutReal> data;
 
   CELL_LOC location; ///< Location of the variable in the cell
   

@@ -156,7 +156,8 @@ void Field3D::allocate() {
       ny = fieldmesh->LocalNy;
       nz = fieldmesh->LocalNz;
     }
-    data = Array<BoutReal>(nx*ny*nz);
+    //    data = Array<BoutReal>(nx*ny*nz);
+    data = VArray<BoutReal>(nx*ny*nz);
   }else
     data.ensureUnique();
 }
@@ -1063,12 +1064,11 @@ F3D_OP_FIELD(-, Field2D);   // Field3D - Field2D
 F3D_OP_FIELD(*, Field2D);   // Field3D * Field2D
 F3D_OP_FIELD(/, Field2D);   // Field3D / Field2D
 
+//Tries the use the valarray operation implementation
 #define F3D_OP_REAL(op)                                         \
   const Field3D operator op(const Field3D &lhs, BoutReal rhs) { \
     Field3D result;                                             \
-    result.allocate();                                          \
-    for(auto i : lhs)                                           \
-      result[i] = lhs[i] op rhs;                                \
+    result.data = lhs.data op rhs;\
     result.setLocation( lhs.getLocation() );                    \
     return result;                                              \
   }
@@ -1078,6 +1078,7 @@ F3D_OP_REAL(-); // Field3D - BoutReal
 F3D_OP_REAL(*); // Field3D * BoutReal
 F3D_OP_REAL(/); // Field3D / BoutReal
 
+//Uses DataIterator to apply operation elementally
 #define REAL_OP_F3D(op)                                         \
   const Field3D operator op(BoutReal lhs, const Field3D &rhs) { \
     Field3D result;                                             \

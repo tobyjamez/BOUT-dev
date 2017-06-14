@@ -926,9 +926,7 @@ void derivs_initialise(Options *options, bool StaggerGrids,
 
 /// Initialise the derivative methods. Must be called before any derivatives are used
 void Mesh::derivs_init(Options* options) {
-#ifdef CHECK
-  msg_stack.push("Initialising derivatives");
-#endif
+  TRACE("Initialising derivatives");
 
   output.write("Setting X differencing methods\n");
   derivs_initialise(options->getSection("ddx"), 
@@ -976,10 +974,6 @@ void Mesh::derivs_init(Options* options) {
               fD2DZ2, sfD2DZ2,
               fVDDZ, sfVDDZ,
               fFDDZ, sfFDDZ);
-  
-#ifdef CHECK
-  msg_stack.pop();
-#endif
 }
 
 /*******************************************************************************

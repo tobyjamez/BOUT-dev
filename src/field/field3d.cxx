@@ -148,7 +148,7 @@ Field3D::~Field3D() {
 }
 
 void Field3D::allocate() {
-  if(data.empty()) {
+  if(data.size()==0) {
     if(!fieldmesh) {
       /// If no mesh, use the global
       fieldmesh = mesh;
@@ -156,9 +156,8 @@ void Field3D::allocate() {
       ny = fieldmesh->LocalNy;
       nz = fieldmesh->LocalNz;
     }
-    data = Array<BoutReal>(nx*ny*nz);
-  }else
-    data.ensureUnique();
+    data = std::valarray<BoutReal>(nx*ny*nz);
+  }
 }
 
 Field3D* Field3D::timeDeriv() {
@@ -366,8 +365,7 @@ Field3D & Field3D::operator=(const BoutReal val) {
   if(!finite(val))
     throw BoutException("Field3D: Assignment from non-finite BoutReal\n");
 #endif
-  for(auto i : (*this))
-    (*this)[i] = val;
+  (*this).data = val;
 
   // Only 3D fields have locations
   //location = CELL_CENTRE;
@@ -378,26 +376,30 @@ Field3D & Field3D::operator=(const BoutReal val) {
 
 /////////////////////////////////////////////////////////////////////
 
+#define F3D_UPDATE_FIELDV(op,bop,ftype)                       \
+  Field3D & Field3D::operator op(const ftype &rhs) {         \
+    TRACE("Field3D: %s %s", #op, #ftype);           \
+    checkData(rhs) ;                                         \
+    checkData(*this);                                        \
+    (*this).data op rhs.data;				     \
+    return *this;                                            \
+  }
+
+F3D_UPDATE_FIELDV(+=, +, Field3D);    // operator+= Field3D
+F3D_UPDATE_FIELDV(-=, -, Field3D);    // operator-= Field3D
+F3D_UPDATE_FIELDV(*=, *, Field3D);    // operator*= Field3D
+F3D_UPDATE_FIELDV(/=, /, Field3D);    // operator/= Field3D
+
 #define F3D_UPDATE_FIELD(op,bop,ftype)                       \
   Field3D & Field3D::operator op(const ftype &rhs) {         \
     TRACE("Field3D: %s %s", #op, #ftype);           \
     checkData(rhs) ;                                         \
     checkData(*this);                                        \
-    if(data.unique()) {                                      \
-      /* This is the only reference to this data */          \
-      for(auto i : (*this))                                  \
-        (*this)[i] op rhs[i];                                \
-    }else {                                                  \
-      /* Shared data */                                      \
-      (*this) = (*this) bop rhs;                             \
-    }                                                        \
+    /* This is the only reference to this data */	     \
+    for(auto i : (*this))				     \
+      (*this)[i] op rhs[i];				     \
     return *this;                                            \
   }
-
-F3D_UPDATE_FIELD(+=, +, Field3D);    // operator+= Field3D
-F3D_UPDATE_FIELD(-=, -, Field3D);    // operator-= Field3D
-F3D_UPDATE_FIELD(*=, *, Field3D);    // operator*= Field3D
-F3D_UPDATE_FIELD(/=, /, Field3D);    // operator/= Field3D
 
 F3D_UPDATE_FIELD(+=, +, Field2D);    // operator+= Field2D
 F3D_UPDATE_FIELD(-=, -, Field2D);    // operator-= Field2D
@@ -410,15 +412,8 @@ F3D_UPDATE_FIELD(/=, /, Field2D);    // operator/= Field2D
     if(!finite(rhs))                                         \
       throw BoutException("Field3D: %s operator passed non-finite BoutReal number", #op); \
     checkData(*this);                                        \
-                                                             \
-    if(data.unique()) {                                      \
-      /* This is the only reference to this data */          \
-      for(auto i : (*this))                                  \
-        (*this)[i] op rhs;                                   \
-    }else {                                                  \
-      /* Need to put result in a new block */                \
-      (*this) = (*this) bop rhs;                             \
-    }                                                        \
+    for(auto i : (*this))				     \
+      (*this)[i] op rhs;				     \
     return *this;                                            \
   }
 
@@ -438,7 +433,7 @@ void Field3D::setXStencil(stencil &fval, const bindex &bx, CELL_LOC loc) const {
   
 #if CHECK > 0
   // Check data set
-  if(data.empty())
+  if(data.size()==0)
     throw BoutException("Field3D: Setting X stencil for empty data\n");
 #endif
   
@@ -475,7 +470,7 @@ void Field3D::setXStencil(forward_stencil &fval, const bindex &bx, CELL_LOC loc)
   
 #if CHECK > 0
   // Check data set
-  if(data.empty())
+  if(data.size()==0)
     throw BoutException("Field3D: Setting X stencil for empty data\n");
 #endif
   
@@ -1043,6 +1038,20 @@ F3D_OP_FPERP(-);
 F3D_OP_FPERP(/);
 F3D_OP_FPERP(*);
 
+#define F3D_OP_FIELDV(op, ftype)                                     \
+  const Field3D operator op(const Field3D &lhs, const ftype &rhs) { \
+    Field3D result;                                                 \
+    result.allocate();                                              \
+    result.data = lhs.data op rhs.data;                             \
+    result.setLocation( lhs.getLocation() );                        \
+    return result;                                                  \
+  }
+
+F3D_OP_FIELDV(+, Field3D);   // Field3D + Field3D
+F3D_OP_FIELDV(-, Field3D);   // Field3D - Field3D
+F3D_OP_FIELDV(*, Field3D);   // Field3D * Field3D
+F3D_OP_FIELDV(/, Field3D);   // Field3D / Field3D
+
 #define F3D_OP_FIELD(op, ftype)                                     \
   const Field3D operator op(const Field3D &lhs, const ftype &rhs) { \
     Field3D result;                                                 \
@@ -1053,11 +1062,6 @@ F3D_OP_FPERP(*);
     return result;                                                  \
   }
 
-F3D_OP_FIELD(+, Field3D);   // Field3D + Field3D
-F3D_OP_FIELD(-, Field3D);   // Field3D - Field3D
-F3D_OP_FIELD(*, Field3D);   // Field3D * Field3D
-F3D_OP_FIELD(/, Field3D);   // Field3D / Field3D
-
 F3D_OP_FIELD(+, Field2D);   // Field3D + Field2D
 F3D_OP_FIELD(-, Field2D);   // Field3D - Field2D
 F3D_OP_FIELD(*, Field2D);   // Field3D * Field2D
@@ -1067,8 +1071,7 @@ F3D_OP_FIELD(/, Field2D);   // Field3D / Field2D
   const Field3D operator op(const Field3D &lhs, BoutReal rhs) { \
     Field3D result;                                             \
     result.allocate();                                          \
-    for(auto i : lhs)                                           \
-      result[i] = lhs[i] op rhs;                                \
+    result.data = lhs.data op rhs;					\
     result.setLocation( lhs.getLocation() );                    \
     return result;                                              \
   }
@@ -1082,8 +1085,7 @@ F3D_OP_REAL(/); // Field3D / BoutReal
   const Field3D operator op(BoutReal lhs, const Field3D &rhs) { \
     Field3D result;                                             \
     result.allocate();                                          \
-    for(auto i : rhs)                                           \
-      result[i] = lhs op rhs[i];                                \
+    result.data = lhs op rhs.data;                                \
     result.setLocation( rhs.getLocation() );                    \
     return result;                                              \
   }

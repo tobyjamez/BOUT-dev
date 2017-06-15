@@ -42,6 +42,8 @@ class Mesh;  // #include "bout/mesh.hxx"
 
 #include "bout/field_visitor.hxx"
 
+#include <valarray>
+
 /// Class for 3D X-Y-Z scalar fields
 /*!
   This class represents a scalar field defined over the mesh.
@@ -199,7 +201,7 @@ class Field3D : public Field, public FieldData {
   /*!
    * Test if data is allocated
    */
-  bool isAllocated() const { return !data.empty(); } 
+  bool isAllocated() const { return !data.size()==0; } 
   
   /*!
    * Return a pointer to the time-derivative field
@@ -347,7 +349,7 @@ class Field3D : public Field, public FieldData {
   inline BoutReal& operator()(int jx, int jy, int jz) {
 #if CHECK > 2
     // Perform bounds checking
-    if(data.empty())
+    if(data.size()==0)
       throw BoutException("Field3D: () operator on empty data");
     
     if((jx < 0) || (jx >= nx) || 
@@ -361,7 +363,7 @@ class Field3D : public Field, public FieldData {
   
   inline const BoutReal& operator()(int jx, int jy, int jz) const {
 #if CHECK > 2
-    if(data.empty())
+    if(data.size()==0)
       throw BoutException("Field3D: () operator on empty data");
     
     if((jx < 0) || (jx >= nx) || 
@@ -382,7 +384,7 @@ class Field3D : public Field, public FieldData {
    */
   inline const BoutReal* operator()(int jx, int jy) const {
 #if CHECK > 2
-    if(data.empty())
+    if(data.size()==0)
       throw BoutException("Field3D: () operator on empty data");
 
     if((jx < 0) || (jx >= nx) ||
@@ -395,7 +397,7 @@ class Field3D : public Field, public FieldData {
 
   inline BoutReal* operator()(int jx, int jy) {
 #if CHECK > 2
-    if(data.empty())
+    if(data.size()==0)
       throw BoutException("Field3D: () operator on empty data");
 
     if((jx < 0) || (jx >= nx) ||
@@ -498,6 +500,7 @@ class Field3D : public Field, public FieldData {
   void applyParallelBoundary(const string &region, const string &condition);
   void applyParallelBoundary(const string &region, const string &condition, Field3D *f);
   
+  std::valarray<BoutReal> data;
 private:
   /// Boundary - add a 2D field
   const Field2D *background;
@@ -506,7 +509,7 @@ private:
   int nx, ny, nz;  ///< Array sizes (from fieldmesh). These are valid only if fieldmesh is not null
   
   /// Internal data array. Handles allocation/freeing of memory
-  Array<BoutReal> data;
+  //Array<BoutReal> data;
 
   CELL_LOC location; ///< Location of the variable in the cell
   

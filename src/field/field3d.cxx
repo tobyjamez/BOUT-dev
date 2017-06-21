@@ -417,10 +417,20 @@ F3D_UPDATE_FIELD(/=, /, Field2D);    // operator/= Field2D
     return *this;                                            \
   }
 
-F3D_UPDATE_REAL(+=,+);    // operator+= BoutReal
-F3D_UPDATE_REAL(-=,-);    // operator-= BoutReal
-F3D_UPDATE_REAL(*=,*);    // operator*= BoutReal
-F3D_UPDATE_REAL(/=,/);    // operator/= BoutReal
+#define F3D_UPDATE_REALV(op,bop)                              \
+  Field3D & Field3D::operator op(BoutReal rhs) {      \
+    TRACE("Field3D: %s Field3D", #op);              \
+    if(!finite(rhs))                                         \
+      throw BoutException("Field3D: %s operator passed non-finite BoutReal number", #op); \
+    checkData(*this);                                        \
+    (*this).data op rhs;				     \
+    return *this;                                            \
+  }
+
+F3D_UPDATE_REALV(+=,+);    // operator+= BoutReal
+F3D_UPDATE_REALV(-=,-);    // operator-= BoutReal
+F3D_UPDATE_REALV(*=,*);    // operator*= BoutReal
+F3D_UPDATE_REALV(/=,/);    // operator/= BoutReal
 
 /***************************************************************
  *                         STENCILS

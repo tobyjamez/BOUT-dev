@@ -82,6 +82,7 @@ void bout_signal_handler(int sig);  // Handles segmentation faults
 #include <fenv.h>
 #endif
 
+#include "bout/varray.hxx"
 #include <output.hxx>
 
 BoutReal simtime;
@@ -368,6 +369,7 @@ int BoutFinalise() {
   Laplacian::cleanup();
 
   // Delete field memory
+  VArray<BoutReal>::cleanup();
   Array<double>::cleanup();
 
   // Cleanup boundary factory

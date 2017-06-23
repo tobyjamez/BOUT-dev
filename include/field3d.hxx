@@ -502,7 +502,10 @@ class Field3D : public Field, public FieldData {
   //Routine to return a reference to the underlying data block (valarray) that
   //is for this field -- currently no checking so have to be careful that this
   //has actually been allocated etc.
-  VArray<BoutReal>::dataBlock& get() const {return *data.ptr;}
+  VArray<BoutReal>::dataBlock& get() const {
+    ASSERT2(isAllocated());
+    return *data.ptr;
+  }
   
 private:
   /// Boundary - add a 2D field

@@ -394,10 +394,24 @@ Field3D & Field3D::operator=(const BoutReal val) {
     return *this;                                            \
   }
 
-F3D_UPDATE_FIELD(+=, +, Field3D);    // operator+= Field3D
-F3D_UPDATE_FIELD(-=, -, Field3D);    // operator-= Field3D
-F3D_UPDATE_FIELD(*=, *, Field3D);    // operator*= Field3D
-F3D_UPDATE_FIELD(/=, /, Field3D);    // operator/= Field3D
+#define F3D_UPDATE_FIELDV(op,bop,ftype)                      \
+  Field3D & Field3D::operator op(const ftype &rhs) {         \
+    TRACE("Field3D: %s %s", #op, #ftype);                    \
+    checkData(rhs) ;                                         \
+    checkData(*this);                                        \
+    if(data.unique()) {                                      \
+      (*this).get() op rhs.get();			     \
+    }else {                                                  \
+      /* Shared data */                                      \
+      (*this) = (*this) bop rhs;                             \
+    }                                                        \
+    return *this;                                            \
+  }
+
+F3D_UPDATE_FIELDV(+=, +, Field3D);    // operator+= Field3D
+F3D_UPDATE_FIELDV(-=, -, Field3D);    // operator-= Field3D
+F3D_UPDATE_FIELDV(*=, *, Field3D);    // operator*= Field3D
+F3D_UPDATE_FIELDV(/=, /, Field3D);    // operator/= Field3D
 
 F3D_UPDATE_FIELD(+=, +, Field2D);    // operator+= Field2D
 F3D_UPDATE_FIELD(-=, -, Field2D);    // operator-= Field2D
@@ -422,10 +436,26 @@ F3D_UPDATE_FIELD(/=, /, Field2D);    // operator/= Field2D
     return *this;                                            \
   }
 
-F3D_UPDATE_REAL(+=,+);    // operator+= BoutReal
-F3D_UPDATE_REAL(-=,-);    // operator-= BoutReal
-F3D_UPDATE_REAL(*=,*);    // operator*= BoutReal
-F3D_UPDATE_REAL(/=,/);    // operator/= BoutReal
+#define F3D_UPDATE_REALV(op,bop)                              \
+  Field3D & Field3D::operator op(BoutReal rhs) {      \
+    TRACE("Field3D: %s Field3D", #op);              \
+    if(!finite(rhs))                                         \
+      throw BoutException("Field3D: %s operator passed non-finite BoutReal number", #op); \
+    checkData(*this);                                        \
+                                                             \
+    if(data.unique()) {                                      \
+      (*this).get() op rhs;				     \
+    }else {                                                  \
+      /* Need to put result in a new block */                \
+      (*this) = (*this) bop rhs;                             \
+    }                                                        \
+    return *this;                                            \
+  }
+
+F3D_UPDATE_REALV(+=,+);    // operator+= BoutReal
+F3D_UPDATE_REALV(-=,-);    // operator-= BoutReal
+F3D_UPDATE_REALV(*=,*);    // operator*= BoutReal
+F3D_UPDATE_REALV(/=,/);    // operator/= BoutReal
 
 /***************************************************************
  *                         STENCILS
@@ -1053,10 +1083,19 @@ F3D_OP_FPERP(*);
     return result;                                                  \
   }
 
-F3D_OP_FIELD(+, Field3D);   // Field3D + Field3D
-F3D_OP_FIELD(-, Field3D);   // Field3D - Field3D
-F3D_OP_FIELD(*, Field3D);   // Field3D * Field3D
-F3D_OP_FIELD(/, Field3D);   // Field3D / Field3D
+#define F3D_OP_FIELDV(op, ftype)                                     \
+  const Field3D operator op(const Field3D &lhs, const ftype &rhs) { \
+    Field3D result;                                                 \
+    result.allocate();                                              \
+    result.get() = lhs.get() op rhs.get();			    \
+    result.setLocation( lhs.getLocation() );                        \
+    return result;                                                  \
+  }
+
+F3D_OP_FIELDV(+, Field3D);   // Field3D + Field3D
+F3D_OP_FIELDV(-, Field3D);   // Field3D - Field3D
+F3D_OP_FIELDV(*, Field3D);   // Field3D * Field3D
+F3D_OP_FIELDV(/, Field3D);   // Field3D / Field3D
 
 F3D_OP_FIELD(+, Field2D);   // Field3D + Field2D
 F3D_OP_FIELD(-, Field2D);   // Field3D - Field2D
@@ -1073,10 +1112,19 @@ F3D_OP_FIELD(/, Field2D);   // Field3D / Field2D
     return result;                                              \
   }
 
-F3D_OP_REAL(+); // Field3D + BoutReal
-F3D_OP_REAL(-); // Field3D - BoutReal
-F3D_OP_REAL(*); // Field3D * BoutReal
-F3D_OP_REAL(/); // Field3D / BoutReal
+#define F3D_OP_REALV(op)                                         \
+  const Field3D operator op(const Field3D &lhs, BoutReal rhs) { \
+    Field3D result;                                             \
+    result.allocate();                                          \
+    result.get() = lhs.get() op rhs;				\
+    result.setLocation( lhs.getLocation() );                    \
+    return result;                                              \
+  }
+
+F3D_OP_REALV(+); // Field3D + BoutReal
+F3D_OP_REALV(-); // Field3D - BoutReal
+F3D_OP_REALV(*); // Field3D * BoutReal
+F3D_OP_REALV(/); // Field3D / BoutReal
 
 #define REAL_OP_F3D(op)                                         \
   const Field3D operator op(BoutReal lhs, const Field3D &rhs) { \
@@ -1088,10 +1136,19 @@ F3D_OP_REAL(/); // Field3D / BoutReal
     return result;                                              \
   }
 
-REAL_OP_F3D(+); // BoutReal + Field3D
-REAL_OP_F3D(-); // BoutReal - Field3D
-REAL_OP_F3D(*); // BoutReal * Field3D
-REAL_OP_F3D(/); // BoutReal / Field3D
+#define REAL_OP_F3DV(op)                                         \
+  const Field3D operator op(BoutReal lhs, const Field3D &rhs) { \
+    Field3D result;                                             \
+    result.allocate();                                          \
+    result.get() = lhs op rhs.get();				\
+    result.setLocation( rhs.getLocation() );                    \
+    return result;                                              \
+  }
+
+REAL_OP_F3DV(+); // BoutReal + Field3D
+REAL_OP_F3DV(-); // BoutReal - Field3D
+REAL_OP_F3DV(*); // BoutReal * Field3D
+REAL_OP_F3DV(/); // BoutReal / Field3D
 
 //////////////// NON-MEMBER FUNCTIONS //////////////////
 

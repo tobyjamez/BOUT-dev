@@ -156,7 +156,7 @@ void Field3D::allocate() {
       ny = fieldmesh->LocalNy;
       nz = fieldmesh->LocalNz;
     }
-    data = Array<BoutReal>(nx*ny*nz);
+    data = VArray<BoutReal>(nx*ny*nz);
   }else
     data.ensureUnique();
 }

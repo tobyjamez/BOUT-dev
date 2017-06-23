@@ -118,13 +118,14 @@ public:
     use_store = false;
   }
 
+  //Type defs to help keep things brief
+  typedef std::valarray<T> dataBlock;
+  typedef std::shared_ptr<dataBlock>  dataPtrType;
+
+  dataPtrType ptr; //Shared_ptr to the valarray container
+
 private:
   
-  typedef std::shared_ptr<std::valarray<T>>  dataPtrType;
-  std::valarray<T> VArrayData;
-  
-  dataPtrType ptr;
-
   /*!
    * This maps from array size (int) to vectors of pointers to VArrayData objects
    * For each data type T, an instance should be declared once (and once only)

@@ -1,0 +1,10 @@
+
+[mesh]
+nx = 120
+ny = 120
+zShift = y
+
+var = sin(y - z)
+
+paralleltransform = shifted
+

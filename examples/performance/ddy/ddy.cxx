@@ -53,9 +53,21 @@ const Field3D DDY_inbuilt(const Field3D &f) {
 const Field3D DDY_valarray(const Field3D &f, const std::gslice &yplus,const std::gslice &yminus,const std::gslice &ycen) {
   Field3D result;
   result.allocate();
+  //Unfortuantely slice_arrays don't support direct arithmetic so have to write op in several steps
   result.get()[ycen]  = f.yup().get()  [yplus];
   result.get()[ycen] -= f.ydown().get()[yminus];
   result.get() *= 0.5;
+  return result;
+}
+
+// Y derivative valarray - const approach
+const Field3D DDY_valarrayConst(const Field3D &f, const std::gslice &yplus,const std::gslice &yminus,const std::gslice &ycen) {
+  Field3D result;
+  //By making a const version we can write our slice operations on one line
+  auto const datUp=f.yup().get(); 
+  auto const datDw=f.ydown().get();
+  result.allocate();
+  result.get()[ycen]  = 0.5*(datUp[yplus] - datDw[yminus]);
   return result;
 }
 
@@ -112,7 +124,9 @@ int main(int argc, char** argv) {
 			 {mesh->LocalNx,mesh->LocalNy-2*mesh->ystart,mesh->LocalNz},
 			 {mesh->LocalNz*mesh->LocalNy,mesh->LocalNz,1});
 
+
   Field3D ddy4 = DDY_valarray(var,yPlus,yMinus,yCen);
+  Field3D ddy5 = DDY_valarrayConst(var,yPlus,yMinus,yCen);
   //-----------------------------------------------
 
   
@@ -141,9 +155,15 @@ int main(int argc, char** argv) {
 
   start = steady_clock::now();
   for(int i=0; i<nrepeat; i++){
-    ddy = DDY_valarray(var,yPlus,yMinus,yCen);
+    ddy4 = DDY_valarray(var,yPlus,yMinus,yCen);
   };
   Duration time4 = steady_clock::now() - start;
+
+  start = steady_clock::now();
+  for(int i=0; i<nrepeat; i++){
+    ddy5 = DDY_valarrayConst(var,yPlus,yMinus,yCen);
+  };
+  Duration time5 = steady_clock::now() - start;
 
   output << endl;
   output << "TIMING DDY(var) per call \n==================\n";
@@ -151,6 +171,7 @@ int main(int argc, char** argv) {
   output << "Inbuilt ddy: " << time2.count()/nrepeat << endl;
   output << "Direct to/from aligned: " << time3.count()/nrepeat << endl;
   output << "Valarray slices: " << time4.count()/nrepeat << endl;
+  output << "Valarray const slices: " << time5.count()/nrepeat << endl;
   output << "-------------------------------------\n" << endl;
     
   BoutFinalise();

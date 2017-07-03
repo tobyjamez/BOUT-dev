@@ -1,7 +1,7 @@
 MZ = 64
 [mesh]
-nx = 12
-ny = 12
+nx = 120
+ny = 120
 
 zShift = y
 

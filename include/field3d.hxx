@@ -480,7 +480,7 @@ class Field3D : public Field, public FieldData {
   /// Visitor pattern support
   void accept(FieldVisitor &v) override { v.accept(*this); }
   
-#ifdef CHECK
+#if CHECK > 0
   void doneComms() { bndry_xin = bndry_xout = bndry_yup = bndry_ydown = true; }
 #else
   void doneComms() {}
@@ -691,7 +691,7 @@ const Field3D tanh(const Field3D &f);
 bool finite(const Field3D &var);
 
 
-#ifdef CHECK
+#if CHECK > 0
 void checkData(const Field3D &f); ///< Checks if the data is valid.
 void checkData(BoutReal f); ///< Checks if the data is valid.
 #else

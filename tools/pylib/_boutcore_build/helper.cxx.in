@@ -1,0 +1,81 @@
+cat <<EOF
+#include <field3d.hxx>
+#include <globals.hxx>
+#include <derivs.hxx>
+#include <difops.hxx>
+#include <invert_laplace.hxx>
+
+void c_set_f3d_all(Field3D * f3d, double * data){
+  int j=0;
+  f3d->allocate();
+  auto k=data[j];
+  for (auto i : (*f3d)){
+    (*f3d)[i]=data[j++];
+  }
+  f3d->operator()(0,0,0)=k;
+  printf("%d %d %d  ",f3d->getNx(),f3d->getNy(),f3d->getNz());
+  printf("%d written\n",j);
+}
+void c_get_f3d_all(Field3D * f3d, double * data){
+  int j=0;
+  for (auto i : (*f3d)){
+    data[j++]=(*f3d)[i];
+  }
+  printf("%d read\n",j);
+}
+
+EOF
+
+for f in "add:+" "mul:*" "div:/" "sub:-"
+do
+    n=${f%:*}
+    o=${f#*:}
+    cat <<EOF
+Field3D * f$n( Field3D*a,Field3D*b){
+  Field3D * r=new Field3D(*a);
+  *r $o= *b;
+  return r;
+}
+
+Field3D * f$n( Field3D*a,double b){
+  Field3D * r=new Field3D(*a);
+  *r $o= b;
+  return r;
+}
+
+Field3D * f$n( double b,Field3D*a){
+  return new Field3D(b $o *a);
+}
+
+void fi$n( Field3D*a,Field3D*b){
+  *a $o= *b;
+}
+void fi$n( Field3D*a,double b){
+  *a $o= b;
+}
+EOF
+done
+
+cat <<EOF
+int getNx( Field3D * a){
+  return a->getNx();
+}
+int getNy( Field3D * a){
+  //printf("%d\n",a->getNy());
+  return a->getNy();
+}
+int getNz( Field3D * a){
+  return a->getNz();
+}
+
+Mesh * c_get_global_mesh(){
+  return mesh;
+}
+
+Field3D * c_ddz(Field3D * in, CELL_LOC out,DIFF_METHOD diff, bool inc_x){
+  Field3D * r = new Field3D(*in);
+  *r = DDZ(*in,out,diff,inc_x);
+  return r;
+}
+
+EOF

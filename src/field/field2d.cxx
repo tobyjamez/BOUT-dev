@@ -364,7 +364,7 @@ int Field2D::setData(int x, int y, int UNUSED(z), BoutReal *rptr) {
 void Field2D::applyBoundary(bool init) {
   TRACE("Field2D::applyBoundary()");
 
-#ifdef CHECK > 0
+#if CHECK > 0
   if (init) {
 
     if(!boundaryIsSet)
@@ -379,7 +379,7 @@ void Field2D::applyBoundary(bool init) {
 void Field2D::applyBoundary(const string &condition) {
   TRACE("Field2D::applyBoundary(condition)");
   
-#ifdef CHECK > 0
+#if CHECK > 0
   if(!isAllocated())
     output << "WARNING: Empty data in Field2D::applyBoundary(condition)" << endl;
 #endif
@@ -654,7 +654,7 @@ Field2D pow(BoutReal lhs, const Field2D &rhs) {
   return result;
 }
 
-#ifdef CHECK > 0
+#if CHECK > 0
 /// Check if the data is valid
 void checkData(const Field2D &f) {
   if(!f.isAllocated()) {

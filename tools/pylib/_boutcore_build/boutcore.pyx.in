@@ -1,0 +1,253 @@
+#!/bin/bash
+inc_dirs=
+flags=
+libs=
+lib_dirs=
+for fl in $(bout-config --cflags)
+do
+    if test ".${fl:0:2}" == ".-I"
+    then
+        inc_dirs+=" ${fl:2}"
+    else
+        flags+=" $fl"
+    fi
+done
+for fl in $(bout-config --libs)
+do
+    s=${fl:0:2}
+    if test ".$s" == ".-L"
+    then
+        lib_dirs+=" ${fl:2}"
+    elif test ".$s" == ".-l"
+    then
+        libs+=" ${fl:2}"
+    fi
+done
+
+cat <<EOF
+# distutils: language = c++
+# distutils: include_dirs = $inc_dirs
+# distutils: libraries = $libs
+# distutils: library_dirs = $lib_dirs
+# distutils: sources = helper.cxx
+# distutils: extra_compile_args = $flags
+
+cimport boutcpp as c
+import numpy as np
+cimport numpy as np
+import atexit
+cimport resolve_enum as benum
+from libc.stdlib cimport malloc, free
+
+cdef extern from "helper.h":
+     void c_set_f3d_all(c.Field3D * f3d, double * data)
+     void c_get_f3d_all(c.Field3D * f3d, double * data)
+EOF
+for f in "add:+" "mul:*" "div:/" "sub:-"
+do
+    n=${f%:*}
+    echo "     c.Field3D * f$n( c.Field3D*, c.Field3D*)"
+    echo "     c.Field3D * f$n( c.Field3D*, double)"
+    echo "     c.Field3D * f$n( double, c.Field3D*)"
+    echo "     void fi$n( c.Field3D*, c.Field3D*)"
+    echo "     void fi$n( c.Field3D*, double)"
+done
+cat <<EOF
+     c.Field3D c_minus( c.Field3D )
+     c.Mesh * c_get_global_mesh()
+     c.Field3D * c_ddz( c.Field3D * ,benum.CELL_LOC,benum.DIFF_METHOD,bool)
+     void c_laplacian_solve(c.Laplacian *, c.Field3D *, c.Field3D*)
+     c.Field3D c_Grad_perp_dot_Grad_perp(c.Field3D,c.Field3D);
+     
+cdef Field3D f3dFromObj(c.Field3D i):
+    fu=Field3D()
+    fu.cobj=new c.Field3D(<const c.Field3D & ?>i)
+    return fu
+cdef class Field3D:
+    """A wrapper for the Field3D"""
+    cdef c.Field3D * cobj
+    @classmethod
+    def fromMesh(cls,mesh):
+        fu=Field3D()
+        fu.cobj=new c.Field3D((<Mesh?>mesh).cobj)
+        return fu
+    #@classmethod
+    @classmethod
+    def fromCollect(cls,name,tind=-1,mesh=None, **kwargs):
+        """Create a Field3D from reading in a datafile via collect.
+        Options:
+            tind: time slice to read
+            mesh: if not defined, use global mesh
+        remaining arguments are passed to collect
+        """
+        from boutdata import collect
+        data=collect(name,yguards=True,tind=tind,**kwargs)
+        data=data.reshape(data.shape[1:])
+        if len(data.shape) != 3:
+            raise TypeError("expected 3d data")
+        if mesh is None:
+            mesh=Mesh.getGlobal()
+        f3d=cls.fromMesh(mesh)
+        f3d.setAll(data)
+        return f3d
+            
+    def __cinit__(self,Field3D obj=None):
+        self.cobj=NULL
+        if obj:
+            self.cobj=obj.cobj
+        #self.cobj = (<c.Field3D * ?> cobj_)
+        #if self.cobj == NULL:
+        #    raise MemoryError('Not enough memory, allocation failed.')
+
+    def setAll(self,data):
+        cdef np.ndarray[double, mode="c", ndim=3] data_ = np.ascontiguousarray(data)
+        c_set_f3d_all(self.cobj,&data_[0,0,0]);
+        #self.cobj.setData(0,0,0,data[0,0,0])
+
+    def getAll(self):
+        nx=self.cobj.getNx()
+        ny=self.cobj.getNy()
+        nz=self.cobj.getNz()
+        #print(nx,ny,nz)
+        cdef np.ndarray[double, mode="c", ndim=3] data_ = np.ascontiguousarray(np.zeros((nx,ny,nz)))
+        c_get_f3d_all(self.cobj,&data_[0,0,0]);
+        return data_
+    def interp_to(self,location):
+        cdef benum.CELL_LOC location_ = benum.resolve_cell_loc(location)
+        return f3dFromObj(c.interp_to(self.cobj[0],location_))
+    def __neg__(self):
+        return f3dFromObj(c_minus(self.cobj[0]))
+    def isAllocated(self):
+        return self.cobj.isAllocated()
+EOF
+for f in "add:+" "mul:*" "div:/" "sub:-"
+do
+    n=${f%:*}
+    #o=${f#*:}
+    cat <<EOF
+    def __${n}__(self,other):
+        #print("call __${n}__")
+        fu=Field3D()
+        import numbers
+        if isinstance(self,Field3D) and isinstance(other,Field3D):
+            fu.cobj=f$n((<Field3D?>self).cobj , (<Field3D?>other).cobj)
+        elif isinstance(self,Field3D) and isinstance(other, numbers.Number):
+            fu.cobj=f$n((<Field3D?>self).cobj , (<double?>float(other)))
+        elif isinstance(self,numbers.Number) and isinstance(other, Field3D):
+            fu.cobj=f$n(<double?>float(self),(<Field3D?>other).cobj)
+        else:
+            print("$n",type(self),type(other),isinstance(self,numbers.Number))
+            return NotImplemented
+        return fu
+
+    def __r${n}__(self,lhs):
+        #print("call __r${n}__")
+        fu=Field3D()
+        if isinstance(lhs,float) or isinstance(lhs,int):
+            fu.cobj=f$n(<double?>float(lhs),(<Field3D?>self).cobj)
+        else:
+            raise NotImplemented("Unexpected lhs - not supported (yet?).")
+        return fu
+
+    def __i${n}__(self,other):
+        if isinstance(other,Field3D):
+            fi$n((<Field3D?>self).cobj , (<Field3D?>other).cobj)
+        elif isinstance(other,float) or isinstance(other,int):
+            fi$n((<Field3D?>self).cobj , (<double?>float(other)))
+        else:
+            raise NotImplemented("Unexpected lhs - not supported (yet?).")
+
+EOF
+    
+done
+cat <<EOF
+    def __del__(self):
+        del self.cobj
+        
+cdef class Mesh:
+    cdef c.Mesh * cobj;
+    def __init__(self, create=True):
+        if create:
+            self.cobj = c.Mesh.create()
+            if self.cobj == NULL:
+                raise MemoryError('Not enough memory, allocation failed.')
+            self.cobj.load()
+            self.cobj.setParallelTransform()
+            self.cobj.load()
+            self.cobj.setParallelTransform()
+    @classmethod
+    def getGlobal(cls):
+        msh = Mesh(create=False);
+        msh.cobj = c_get_global_mesh();
+        return msh
+
+cdef class Laplacian:
+    cdef c.Laplacian * cobj
+    def __init__(self):
+        self.cobj = c.Laplacian.create()
+    def solve(self,Field3D a, Field3D b):
+        self.cobj.solve(a.cobj[0],b.cobj[0])
+
+cdef extern from "bout.hxx":
+    int BoutInitialise(int&, char **&)
+    void BoutFinalise()
+    
+isInit=False
+def init(args):
+    cdef char **string_buf = <char **>malloc(len(args) * sizeof(char*))
+    fu=[]
+    cdef char * tmp
+    for i in range(len(args)):
+        t2=str.encode(args[i])
+        tmp=t2
+        fu.append(tmp)
+        string_buf[i]=<char*>fu[i]
+    cdef int fuu=len(args)
+    ret=BoutInitialise(fuu,string_buf)
+    free(string_buf)
+    if ret:
+        BoutFinalise()
+    else:
+        isInit=True
+    atexit.register(finalise)
+
+def finalise():
+    BoutFinalise()
+    isInit=False
+
+def DDZ(Field3D field, outloc="CELL_DEFAULT", method="DIFF_DEFAULT", inc_xbndry=True):
+    cdef benum.CELL_LOC outloc_= benum.resolve_cell_loc(outloc)
+    cdef benum.DIFF_METHOD method_=benum.resolve_diff_method(method)
+    return f3dFromObj(c.DDZ(field.cobj[0],outloc_,method_,inc_xbndry))
+
+def Vpar_Grad_par(Field3D V, Field3D f, outloc="CELL_DEFAULT",method="DIFF_DEFAULT"):
+    cdef benum.CELL_LOC outloc_= benum.resolve_cell_loc(outloc)
+    cdef benum.DIFF_METHOD method_=benum.resolve_diff_method(method)
+    return f3dFromObj(c.Vpar_Grad_par(V.cobj[0],f.cobj[0],outloc_,method_))
+
+def Div_par(Field3D J, outloc="CELL_DEFAULT"):
+    cdef benum.CELL_LOC outloc_=benum.resolve_cell_loc(outloc)
+    return f3dFromObj(c.Div_par((J.cobj)[0],outloc_))
+
+def bracket(Field3D a, Field3D b, method="BRACKET_STD", outloc="CELL_DEFAULT"):
+    cdef benum.CELL_LOC outloc_=benum.resolve_cell_loc(outloc)
+    cdef benum.BRACKET_METHOD method_=benum.resolve_bracket_method(method)
+    return f3dFromObj(c.bracket(a.cobj[0],b.cobj[0],method_,outloc_))
+
+def sqrt(Field3D a):
+    return f3dFromObj(c.sqrt(a.cobj[0]))
+
+def exp(Field3D a):
+    return f3dFromObj(c.exp(a.cobj[0]))
+
+def Delp2(Field3D a, zsmooth=-1):
+    return f3dFromObj(c.Delp2(a.cobj[0],float(zsmooth)))
+
+def Delp2(Field3D a, zsmooth=-1):
+    return f3dFromObj(c.Delp2(a.cobj[0],float(zsmooth)))
+
+def Grad_perp_dot_Grad_perp(Field3D a, Field3D b):
+    return f3dFromObj(c_Grad_perp_dot_Grad_perp(a.cobj[0],b.cobj[0]))
+EOF
+
+#cat resolve_enum.pxd

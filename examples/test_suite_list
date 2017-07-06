@@ -16,6 +16,7 @@ test-vec
 test-griddata
 test-dataiterator
 test-dataiterator2
+!test-fieldgroup
 !test-initial
 MMS/diffusion
 MMS/wave-1d

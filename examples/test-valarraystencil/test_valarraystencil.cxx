@@ -59,16 +59,11 @@ const Field3D DDY_valarray(const Field3D &f, const std::gslice &yplus,const std:
   return result;
 }
 
-//Wrapper to return a const reference
-template<typename T>
-const T& make_const(T& t) { return t;}
-
-// Y derivative valarray - const approach with wrapper
+// Y derivative valarray - const approach
 const Field3D DDY_valarrayConstWrap(const Field3D &f, const std::gslice &yplus,const std::gslice &yminus,const std::gslice &ycen) {
   Field3D result;
-  //By making a const version we can write our slice operations on one line
   result.allocate();
-  result.get()[ycen]  = 0.5*(make_const(f.yup().get())[yplus] - make_const(f.ydown().get())[yminus]);
+  result.get()[ycen]  = 0.5*(f.yup().get()[yplus] - f.ydown().get()[yminus]);
   return result;
 }
 

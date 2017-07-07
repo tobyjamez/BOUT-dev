@@ -17,7 +17,7 @@ s, out = launch("./test_valarraystencil", runcmd=MPIRUN, nproc=1, pipe=True, ver
 with open("run.log", "w") as f:
   f.write(out)
 
-vars = [ ("ddy", "ddy2"), ("ddy", "ddy3")  , ("ddy", "ddy4"), ("ddy2", "ddy3") , ("ddy2", "ddy4") ,  ("ddy3", "ddy4") ]
+vars = [ ("ddy", "ddy2"), ("ddy", "ddy3")  , ("ddy", "ddy4"), ("ddy2", "ddy3") , ("ddy2", "ddy4") ,  ("ddy3", "ddy4"), ("ddy4", "ddy5") ]
 for v1, v2 in vars:
   stdout.write("Testing %s and %s ... " % (v1, v2) )
   ddy = collect(v1, path="data", xguards=False, yguards=False, info=False)

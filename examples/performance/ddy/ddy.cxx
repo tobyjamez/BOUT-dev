@@ -71,6 +71,19 @@ const Field3D DDY_valarrayConst(const Field3D &f, const std::gslice &yplus,const
   return result;
 }
 
+//Wrapper to return a const reference
+template<typename T>
+const T& make_const(T& t) { return t;}
+
+// Y derivative valarray - const approach with wrapper
+const Field3D DDY_valarrayConstWrap(const Field3D &f, const std::gslice &yplus,const std::gslice &yminus,const std::gslice &ycen) {
+  Field3D result;
+  //By making a const version we can write our slice operations on one line
+  result.allocate();
+  result.get()[ycen]  = 0.5*(make_const(f.yup().get())[yplus] - make_const(f.ydown().get())[yminus]);
+  return result;
+}
+
 int main(int argc, char** argv) {
   BoutInitialise(argc, argv);
 
@@ -127,6 +140,7 @@ int main(int argc, char** argv) {
 
   Field3D ddy4 = DDY_valarray(var,yPlus,yMinus,yCen);
   Field3D ddy5 = DDY_valarrayConst(var,yPlus,yMinus,yCen);
+  Field3D ddy6 = DDY_valarrayConstWrap(var,yPlus,yMinus,yCen);
   //-----------------------------------------------
 
   
@@ -165,13 +179,20 @@ int main(int argc, char** argv) {
   };
   Duration time5 = steady_clock::now() - start;
 
+  start = steady_clock::now();
+  for(int i=0; i<nrepeat; i++){
+    ddy6 = DDY_valarrayConstWrap(var,yPlus,yMinus,yCen);
+  };
+  Duration time6 = steady_clock::now() - start;
+
   output << endl;
   output << "TIMING DDY(var) per call \n==================\n";
   output << "Direct with yup/ydown: " << time1.count()/nrepeat << endl;
   output << "Inbuilt ddy: " << time2.count()/nrepeat << endl;
   output << "Direct to/from aligned: " << time3.count()/nrepeat << endl;
   output << "Valarray slices: " << time4.count()/nrepeat << endl;
-  output << "Valarray const slices: " << time5.count()/nrepeat << endl;
+  output << "Valarray const slices (copy): " << time5.count()/nrepeat << endl;
+  output << "Valarray const slices (wrap): " << time6.count()/nrepeat << endl;
   output << "-------------------------------------\n" << endl;
     
   BoutFinalise();

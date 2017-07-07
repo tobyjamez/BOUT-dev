@@ -59,6 +59,19 @@ const Field3D DDY_valarray(const Field3D &f, const std::gslice &yplus,const std:
   return result;
 }
 
+//Wrapper to return a const reference
+template<typename T>
+const T& make_const(T& t) { return t;}
+
+// Y derivative valarray - const approach with wrapper
+const Field3D DDY_valarrayConstWrap(const Field3D &f, const std::gslice &yplus,const std::gslice &yminus,const std::gslice &ycen) {
+  Field3D result;
+  //By making a const version we can write our slice operations on one line
+  result.allocate();
+  result.get()[ycen]  = 0.5*(make_const(f.yup().get())[yplus] - make_const(f.ydown().get())[yminus]);
+  return result;
+}
+
 int main(int argc, char** argv) {
   BoutInitialise(argc, argv);
 
@@ -111,10 +124,11 @@ int main(int argc, char** argv) {
 			 {mesh->LocalNz*mesh->LocalNy,mesh->LocalNz,1});
 
   Field3D ddy4 = DDY_valarray(var,yPlus,yMinus,yCen);
+  Field3D ddy5 = DDY_valarrayConstWrap(var,yPlus,yMinus,yCen);
   //-----------------------------------------------
 
   //Now save and finish
-  SAVE_ONCE4(ddy, ddy2, ddy3, ddy4);
+  SAVE_ONCE5(ddy, ddy2, ddy3, ddy4, ddy5);
   dump.write();
     
   BoutFinalise();

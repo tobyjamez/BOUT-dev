@@ -213,15 +213,15 @@ class Field3D : public Field, public FieldData {
   /*!
    * Return the number of nx points
    */
-  int getNx() const {return nx;};
+  int getNx() const override {return nx;};
   /*!
-   * Return the number of nx points
+   * Return the number of ny points
    */
-  int getNy() const {return ny;};
+  int getNy() const override {return ny;};
   /*!
-   * Return the number of nx points
+   * Return the number of nz points
    */
-  int getNz() const {return nz;};
+  int getNz() const override {return nz;};
 
   /*!
    * Ensure that this field has separate fields
@@ -519,7 +519,6 @@ private:
   /// Internal data array. Handles allocation/freeing of memory
   VArray<BoutReal> data;
 
-  Mesh *fieldmesh; ///< The mesh over which the field is defined
   int nx, ny, nz;  ///< Array sizes (from fieldmesh). These are valid only if fieldmesh is not null
   
   CELL_LOC location; ///< Location of the variable in the cell

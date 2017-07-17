@@ -112,7 +112,7 @@ void Field2D::allocate() {
       nx = fieldmesh->LocalNx;
       ny = fieldmesh->LocalNy;
     }
-    data = Array<BoutReal>(nx*ny);
+    data = VArray<BoutReal>(nx*ny);
   }else
     data.ensureUnique();
 }

@@ -43,7 +43,7 @@ class Field3D; //#include "field3d.hxx"
 
 #include "bout/field_visitor.hxx"
 
-#include "bout/array.hxx"
+#include "bout/varray.hxx"
 
 #include "unused.hxx"
 
@@ -265,11 +265,24 @@ class Field2D : public Field, public FieldData {
   void applyTDerivBoundary() override;
   void setBoundaryTo(const Field2D &f2d); ///< Copy the boundary region
   
+  //Routine to return a reference to the underlying data block (valarray) that
+  //is for this field -- currently no checking so have to be careful that this
+  //has actually been allocated etc.
+  const VArray<BoutReal>::dataBlock& get() const {
+    ASSERT2(isAllocated());
+    return *data.ptr;
+  }
+
+  VArray<BoutReal>::dataBlock& get() {
+    ASSERT2(isAllocated());
+    return *data.ptr;
+  }
+
  private:
   int nx, ny;      ///< Array sizes (from fieldmesh). These are valid only if fieldmesh is not null
   
   /// Internal data array. Handles allocation/freeing of memory
-  Array<BoutReal> data;
+  VArray<BoutReal> data;
   
   Field2D *deriv; ///< Time-derivative, can be NULL
 };

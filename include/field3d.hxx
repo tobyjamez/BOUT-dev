@@ -511,7 +511,28 @@ class Field3D : public Field, public FieldData {
     ASSERT2(isAllocated());
     return *data.ptr;
   }
+
+#if __cplusplus >= 201300
+  //Return a sliced version of the data array.
+  //Note it's generally more efficient to use field.get()[reg] than field.get(reg)
+  //From c++14 onwards can use auto for the return type.
+  const auto get(const std::gslice& reg) const { //RHS use
+    ASSERT2(isAllocated());
+    //Cast to a valarray such that we can do arithmetic with returned value.
+    //Unfortunately not possible to do arithmetic directly with gslice_array.
+    //This will produce a copy of the data. To avoid this must use field.get()[reg]
+    //instead, which is a bit clunkier but avoids the copy.
+    return static_cast<VArray<BoutReal>::dataBlock>((*data.ptr)[reg]);
+  }
+  auto get(const std::gslice& reg) { //LHS use
+    ASSERT2(isAllocated());
+    //No cast allowed here (would create copy of data so no good for updating field).
+    //Just return the gslice_array (array view)
+    return (*data.ptr)[reg];
+  }
+#endif
   
+
 private:
   /// Boundary - add a 2D field
   const Field2D *background;

@@ -1,5 +1,6 @@
 #include <bout.hxx>
 #include <bout/paralleltransform.hxx>
+#include <slicingutils.hxx>
 #include <derivs.hxx>
 
 #include <chrono>
@@ -106,17 +107,9 @@ int main(int argc, char** argv) {
   /////////////////////////////////////////////////
   // Use valarray with slicing method
   //First construct slices
-  const std::gslice yPlus(threeToCompound(0,mesh->ystart+1,0),//Offset jy+1
-			  {mesh->LocalNx,mesh->LocalNy-2*mesh->ystart,mesh->LocalNz}, 
-			  {mesh->LocalNz*mesh->LocalNy,mesh->LocalNz,1});
-
-  const std::gslice yMinus(threeToCompound(0,mesh->ystart-1,0),//Offset jy-1
-			   {mesh->LocalNx,mesh->LocalNy-2*mesh->ystart,mesh->LocalNz}, //How many points in {x,y,z} = {nx,ny-2*MYG,nz}
-			   {mesh->LocalNz*mesh->LocalNy,mesh->LocalNz,1}); //Stride in {x,y,z}={nz*ny,nz,1}
-
-  const std::gslice yCen(threeToCompound(0,mesh->ystart,0),//No offset
-			 {mesh->LocalNx,mesh->LocalNy-2*mesh->ystart,mesh->LocalNz},
-			 {mesh->LocalNz*mesh->LocalNy,mesh->LocalNz,1});
+  const std::gslice yPlus  = getRegionSlice(0,mesh->LocalNx-1,mesh->ystart+1,mesh->yend+1,0,mesh->LocalNz-1);
+  const std::gslice yMinus = getRegionSlice(0,mesh->LocalNx-1,mesh->ystart-1,mesh->yend-1,0,mesh->LocalNz-1);
+  const std::gslice yCen   = getRegionSlice(0,mesh->LocalNx-1,mesh->ystart+0,mesh->yend+0,0,mesh->LocalNz-1);
 
   Field3D ddy4 = DDY_valarray(var,yPlus,yMinus,yCen);
   Field3D ddy5 = DDY_valarrayConstWrap(var,yPlus,yMinus,yCen);

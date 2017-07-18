@@ -18,17 +18,16 @@ const std::gslice getRegionSlice (const int &xStart, const int &xEnd,
 
   //Calculate the effective extent of each of the three dimensions
   //Inclusive of start+end, remove +1 to make exclusive of end point.
-  const int nxTot = xEnd - xStart + 1; 
-  const int nyTot = yEnd - yStart + 1;
-  const int nzTot = zEnd - zStart + 1;
+  const unsigned long nxTot = xEnd - xStart + 1; 
+  const unsigned long nyTot = yEnd - yStart + 1;
+  const unsigned long nzTot = zEnd - zStart + 1;
 
   //Describe the logical stride in each of the three dimensions for the
   //*stored* data (i.e. not the sliced strides).
-  const int zStride = 1;
-  const int yStride = zStride * mesh->LocalNz;
-  const int xStride = yStride * mesh->LocalNy;
+  const unsigned long zStride = 1;
+  const unsigned long yStride = zStride * mesh->LocalNz;
+  const unsigned long xStride = yStride * mesh->LocalNy;
 
-  //Construct and return general slice (gslice). This will currently cause some 
-  //compiler warnings as expects long unsigned int for strides and sizes but given ints.
+  //Construct and return general slice (gslice).
   return std::gslice(startPoint, {nxTot, nyTot, nzTot}, {xStride, yStride, zStride});
 }

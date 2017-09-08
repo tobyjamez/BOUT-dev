@@ -31,10 +31,8 @@
 #    * Searching for libs in lib and lib64
 #
 
-BOUT_VERSION="3.0"
-
 AC_PREREQ(2.59)
-AC_INIT(BOUT++, BOUT_VERSION, bd512@york.ac.uk)
+AC_INIT(BOUT++, 4.0.0, bd512@york.ac.uk)
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -66,6 +64,8 @@ AC_ARG_WITH(mumps,        [AS_HELP_STRING([--with-mumps],
         [Link with MUMPS library for direct matrix inversions])],,[])
 AC_ARG_WITH(arkode,       [AS_HELP_STRING([--with-arkode],
         [Use the SUNDIALS ARKODE solver])],,[])
+AC_ARG_WITH(scorep,       [AS_HELP_STRING([--with-scorep],
+        [Enable support for scorep based instrumentation])],,[])
 
 dnl --with-hdf5 flags are set in AX_LIB_{PARALLEL}HDF5
 
@@ -166,6 +166,27 @@ AC_FUNC_VPRINTF
 # Check for OpenMP support
 : ${enable_openmp=no}  # Disable by default
 AC_OPENMP
+
+#############################################################
+# Code coverage using gcov
+#
+# Mutally exclusive with optimisation, therefore needs to come first
+# so we can turn off optimisation if coverage is enabled
+#############################################################
+
+AX_CODE_COVERAGE()
+AS_IF([test "x$enable_code_coverage" = "xyes"],
+[
+    AS_IF([test "x$enable_optimize"], [
+        AC_MSG_WARN([Code coverage clashes with optimisations, disabling optimisations])
+        enable_optimize="no"
+    ])
+    COVERAGE_FLAGS="--coverage --no-inline"
+    LDFLAGS="$LDFLAGS --coverage"
+], [
+    COVERAGE_FLAGS=
+])
+AC_SUBST([COVERAGE_FLAGS])
 
 #############################################################
 # General Options
@@ -270,6 +291,12 @@ then
 fi
 
 echo
+
+BOUT_VERSION=$PACKAGE_VERSION
+BOUT_VERSION_MAJOR=${PACKAGE_VERSION%%.*}
+BOUT_VERSION_MINOR=${PACKAGE_VERSION#*.}
+BOUT_VERSION_DOUBLE=${BOUT_VERSION_MAJOR}.${BOUT_VERSION_MINOR/./}
+CXXFLAGS+=" -DBOUT_VERSION_STRING=\"\\\"$BOUT_VERSION\\\"\" -DBOUT_VERSION_DOUBLE=$BOUT_VERSION_DOUBLE "
 
 #############################################################
 # Enable Backtrace if possible
@@ -866,8 +893,10 @@ then
     ] )
     AC_CHECK_FILES( $with_ida/lib/libsundials_nvecparallel.a $with_ida/lib/libsundials_ida.a, IDALIBSLIB='lib',
       AC_CHECK_FILES( $with_ida/lib64/libsundials_nvecparallel.a $with_ida/lib64/libsundials_ida.a, IDALIBSLIB='lib64',
+        AC_CHECK_FILES( $with_ida/lib/libsundials_nvecparallel.so $with_ida/lib/libsundials_ida.so, IDALIBSLIB='lib',
+          AC_CHECK_FILES( $with_ida/lib64/libsundials_nvecparallel.so $with_ida/lib64/libsundials_ida.so, IDALIBSLIB='lib64',
         IDALIBS=""
-    ) )
+    ) ) ) )
     if test "$IDALIBS" != ""
     then
     IDAINCS="-I$IDALIBS/include"
@@ -894,10 +923,12 @@ then
     AC_CHECK_FILES( $IDALIBS/include/ida/ida.h $IDALIBS/include/ida/ida_spgmr.h $IDALIBS/include/ida/ida_bbdpre.h $IDALIBS/include/nvector/nvector_parallel.h $IDALIBS/include/sundials/sundials_types.h , , [
           IDALIBS=""
         ] )
-        AC_CHECK_FILES( $IDALIBS/lib/libsundials_nvecparallel.a $IDALIBS/lib/libsundials_ida.a, IDALIBSLIB='lib',
-          AC_CHECK_FILES( $IDALIBS/lib64/libsundials_nvecparallel.a $IDALIBS/lib64/libsundials_ida.a, IDALIBSLIB='lib64',
-           IDALIBS=""
-    ) )
+    AC_CHECK_FILES( $IDALIBS/lib/libsundials_nvecparallel.a $IDALIBS/lib/libsundials_ida.a, IDALIBSLIB='lib',
+      AC_CHECK_FILES( $IDALIBS/lib64/libsundials_nvecparallel.a $IDALIBS/lib64/libsundials_ida.a, IDALIBSLIB='lib64',
+        AC_CHECK_FILES( $IDALIBS/lib/libsundials_nvecparallel.so $IDALIBS/lib/libsundials_ida.so, IDALIBSLIB='lib',
+          AC_CHECK_FILES( $IDALIBS/lib64/libsundials_nvecparallel.so $IDALIBS/lib64/libsundials_ida.so, IDALIBSLIB='lib64',
+            IDALIBS=""
+    ) ) ) )
     fi
 
     if test "$IDALIBS" != ""
@@ -944,9 +975,11 @@ then
       CVODELIBS=""
     ] )
     AC_CHECK_FILES( $with_cvode/lib/libsundials_cvode.a $with_cvode/lib/libsundials_nvecparallel.a, CVODELIBSLIB='lib',
-      AC_CHECK_FILES( $with_cvode/lib64/libsundials_cvode.a $with_cvode/lib64/libsundials_nvecparallel.a, CVODELIBSLIB='lib64',  [
-      CVODELIBS=""
-    ]) )
+      AC_CHECK_FILES( $with_cvode/lib64/libsundials_cvode.a $with_cvode/lib64/libsundials_nvecparallel.a, CVODELIBSLIB='lib64',
+        AC_CHECK_FILES( $with_cvode/lib/libsundials_cvode.so $with_cvode/lib/libsundials_nvecparallel.so, CVODELIBSLIB='lib',
+          AC_CHECK_FILES( $with_cvode/lib64/libsundials_cvode.so $with_cvode/lib64/libsundials_nvecparallel.so, CVODELIBSLIB='lib64', [
+          CVODELIBS=""
+        ]) ) ) )
 
 
     if test "$CVODELIBS" != ""
@@ -976,9 +1009,11 @@ then
       CVODELIBS=""
     ])
         AC_CHECK_FILES( $CVODELIBS/lib/libsundials_cvode.a $CVODELIBS/lib/libsundials_nvecparallel.a, CVODELIBSLIB='lib',
-          AC_CHECK_FILES( $CVODELIBS/lib64/libsundials_cvode.a $CVODELIBS/lib64/libsundials_nvecparallel.a, CVODELIBSLIB='lib64',  [
+          AC_CHECK_FILES( $CVODELIBS/lib64/libsundials_cvode.a $CVODELIBS/lib64/libsundials_nvecparallel.a, CVODELIBSLIB='lib64',
+            AC_CHECK_FILES( $CVODELIBS/lib/libsundials_cvode.so $CVODELIBS/lib/libsundials_nvecparallel.so, CVODELIBSLIB='lib',
+          AC_CHECK_FILES( $CVODELIBS/lib64/libsundials_cvode.so $CVODELIBS/lib64/libsundials_nvecparallel.so, CVODELIBSLIB='lib64', [
             CVODELIBS=""
-          ]) )
+          ]) ) ) )
     fi
     if test "$CVODELIBS" != ""
     then
@@ -1028,9 +1063,12 @@ then
       ARKODELIBS=""
     ] )
     AC_CHECK_FILES( $ARKODELIBS/lib/libsundials_arkode.a $ARKODELIBS/lib/libsundials_nvecparallel.a, ARKODELIBSLIB='lib',
-      AC_CHECK_FILES( $ARKODELIBS/lib64/libsundials_arkode.a $ARKODELIBS/lib64/libsundials_nvecparallel.a, ARKODELIBSLIB='lib64',  [
-        ARKODELIBS=""
-      ]) )
+      AC_CHECK_FILES( $ARKODELIBS/lib64/libsundials_arkode.a $ARKODELIBS/lib64/libsundials_nvecparallel.a, ARKODELIBSLIB='lib64',
+        AC_CHECK_FILES( $ARKODELIBS/lib/libsundials_arkode.so $ARKODELIBS/lib/libsundials_nvecparallel.so, ARKODELIBSLIB='lib',
+          AC_CHECK_FILES( $ARKODELIBS/lib64/libsundials_arkode.so $ARKODELIBS/lib64/libsundials_nvecparallel.so, ARKODELIBSLIB='lib64',
+          [
+            ARKODELIBS=""
+      ]) ) ) )
 
     if test "$ARKODELIBS" != ""
     then
@@ -1059,9 +1097,12 @@ then
           ARKODELIBS=""
         ])
         AC_CHECK_FILES( $ARKODELIBS/lib/libsundials_arkode.a $ARKODELIBS/lib/libsundials_nvecparallel.a, ARKODELIBSLIB='lib',
-          AC_CHECK_FILES( $ARKODELIBS/lib64/libsundials_arkode.a $ARKODELIBS/lib64/libsundials_nvecparallel.a, ARKODELIBSLIB='lib64',  [
-            ARKODELIBS=""
-          ]) )
+          AC_CHECK_FILES( $ARKODELIBS/lib64/libsundials_arkode.a $ARKODELIBS/lib64/libsundials_nvecparallel.a, ARKODELIBSLIB='lib64',
+            AC_CHECK_FILES( $ARKODELIBS/lib/libsundials_arkode.so $ARKODELIBS/lib/libsundials_nvecparallel.so, ARKODELIBSLIB='lib',
+              AC_CHECK_FILES( $ARKODELIBS/lib64/libsundials_arkode.so $ARKODELIBS/lib64/libsundials_nvecparallel.so, ARKODELIBSLIB='lib64',
+              [
+                ARKODELIBS=""
+          ]) ) ) )
     fi
 
     if test "$ARKODELIBS" != ""
@@ -1179,6 +1220,53 @@ extern int arkode_bbd_rhs(ARKODEINT Nlocal,
                void *user_data);
       ], [ARKBBDPrecInit(nullptr, 0, 0, 0, 0, 0, 0, arkode_bbd_rhs, nullptr);])
 ], [])
+
+
+#############################################################
+# Scorep setup
+#############################################################
+
+HAS_SCOREP="no"
+AS_IF([test "$with_scorep" != "no"], [
+  AC_MSG_NOTICE(["Searching for Scorep executable"])
+
+  AS_IF([test "$with_scorep" != ""], [
+    # Given a path to the library
+    AC_CHECK_FILES($with_scorep/scorep, SCOREPPATH=$with_scorep,)
+    AS_IF([test "$SCOREPPATH" == ""],[
+      AC_MSG_NOTICE(["scorep not found in given directory"])
+    ],[])
+  ], 
+  [])
+
+  # Find the scorep binary
+  AS_IF([test "$SCOREPPATH" == ""], [
+    path=`which scorep`
+    AS_IF([test "$path" != ""], [
+      path=`dirname $path`
+      path=$path/..
+      AC_CHECK_FILES($path/bin/scorep , SCOREPPATH=$path,)
+      ], [])
+  ],
+  [])
+
+
+  AS_IF([test "$SCOREPPATH" == ""], [
+      AC_MSG_NOTICE(["SCOREP support disabled"])
+  ],[
+      # Set a compile-time flag
+      CXXFLAGS="$CXXFLAGS -DBOUT_HAS_SCOREP"
+      MPICXX="scorep --user --nocompiler $MPICXX"
+      BOUT_CHECK_PRETTYFUNCTION
+      HAS_SCOREP="yes"
+      AC_MSG_NOTICE(["Scorep support enabled"])
+  ])
+
+  ],[
+  AC_MSG_NOTICE([Scorep support disabled])
+])
+
+echo ""
 
 #############################################################
 # Download + Build PVODE '98
@@ -1347,6 +1435,8 @@ echo "  HDF5 support: $HAS_HDF5 (parallel: $HAS_PHDF5)" | tee -a config-build.lo
 echo "  Hypre support: $HAS_HYPRE" | tee -a config-build.log
 
 echo "  MUMPS support: $HAS_MUMPS" | tee -a config-build.log
+
+echo "  Scorep support: $HAS_SCOREP" | tee -a config-build.log
 
 echo ""
 echo

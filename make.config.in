@@ -22,7 +22,7 @@
 
 # Created this variable so that a user won't overwrite the CXXFLAGS variable
 # on the command line, just add to this one
-BOUT_FLAGS		= $(CXXFLAGS) @CXXFLAGS@ @OPENMP_CXXFLAGS@ @CXX11_FLAGS@
+BOUT_FLAGS		= $(CXXFLAGS) @CXXFLAGS@ @OPENMP_CXXFLAGS@ @CXX11_FLAGS@ @COVERAGE_FLAGS@
 
 # Specify the MPI C++ compiler in CXX
 
@@ -60,7 +60,9 @@ FACETS_SOURCE   = @FACETS_SOURCE@
 # Files that are needed by configure and should be dependencies for 'all'
 
 OBJ						= $(SOURCEC:%.cxx=%.o)
+ifndef RELEASE
 LIB						= $(BOUT_TOP)/lib/libbout++.a
+endif
 
 BOUT_INCLUDE	= -I$(BOUT_TOP)/include $(CXXINCLUDE) $(EXTRA_INCS)
 BOUT_LIBS			= -lm -L$(BOUT_TOP)/lib -lbout++ $(EXTRA_LIBS)
@@ -82,7 +84,11 @@ endif
 .PHONY: $(DIRS) lib install libfast runtest
 
 ifneq ("$(TARGET)","libfast")
+ifndef RELEASE
 all: $(BOUT_TOP)/config.status $(BOUT_TOP)/make.config $(DIRS) $(TARGET)
+else
+all: $(BOUT_TOP)/make.config $(DIRS) $(TARGET)
+endif
 else
 all: $(BOUT_TOP)/config.status $(BOUT_TOP)/make.config $(DIRS)
 endif
@@ -130,13 +136,20 @@ $(BOUT_TOP)/include $(BOUT_TOP)/lib:
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 install: libfast
-	@$(MKDIR) $(DESTDIR)${prefix}
-	@$(MKDIR) $(DESTDIR)${prefix}/include
-	@$(MKDIR) $(DESTDIR)${prefix}/lib
+	@$(MKDIR) $(DESTDIR)@includedir@
+	@$(MKDIR) $(DESTDIR)@includedir@/bout
+	@$(MKDIR) $(DESTDIR)@includedir@/bout/sys
+	@$(MKDIR) $(DESTDIR)@libdir@
+	@$(MKDIR) $(DESTDIR)@bindir@
 	@echo "Installing header files into $(DESTDIR)@includedir@"
 	@cp include/*.hxx $(DESTDIR)@includedir@
+	@cp include/bout/*.hxx $(DESTDIR)@includedir@/bout
+	@cp include/bout/sys/*.hxx $(DESTDIR)@includedir@/bout/sys
+	@cp make.config $(DESTDIR)@includedir@/bout/make.config
 	@echo "Installing library files into $(DESTDIR)@libdir@"
 	@cp lib/*.a $(DESTDIR)@libdir@
+	@echo "Installing scripts into $(DESTDIR)@bindir@"
+	@cp bin/* $(DESTDIR)@bindir@
 
 ####################################################################
 # A bit of a clever hack that determines wheter the TARGET variable is 'lib'
@@ -258,7 +271,7 @@ clean::
 	-@$(RM) -rf $(OBJ) $(DEPS) $(TARGET)
 	@for pp in $(DIRS); do echo "  " $$pp cleaned; $(MAKE) --no-print-directory -C $$pp clean; done
 
-distclean: clean
+distclean:: clean clean-tests
 	@echo include cleaned
 # Removing the externalpackage installation. When we have more packages, need a better way
 	@$(RM) -rf $(BOUT_TOP)/include/pvode
@@ -271,6 +284,9 @@ distclean: clean
 	@echo externalpackages cleaned
 	@touch $(BOUT_TOP)/configure
 	@echo autom4te.cache cleaned
+
+clean-tests: clean
+	@$(MAKE) --no-print-directory -C tests clean
 
 ####################################################################
 # Documentation
@@ -292,3 +308,14 @@ sphinx-docs-latex: breathe-autogen
 
 python:
 	$(MAKE) -C tools/pylib
+
+######################################################################
+# Code coverage
+######################################################################
+
+GCOV = @GCOV@
+LCOV = @LCOV@
+GENHTML = @GENHTML@
+abs_builddir = @abs_builddir@
+
+@CODE_COVERAGE_RULES@

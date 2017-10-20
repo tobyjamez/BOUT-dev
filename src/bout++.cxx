@@ -326,13 +326,13 @@ int BoutInitialise(int &argc, char **&argv) {
   }
   
   /// Print intro
-  output_progress.write("BOUT++ version %s\n", BOUT_VERSION_STRING);
-#ifdef REVISION
-  output_progress.write("Revision: %s\n", REV);
-#endif
-#ifdef MD5SUM
-  output_progress.write("MD5 checksum: %s\n", CHECKSUM);
-#endif
+  output_progress.write("BOUT++ version %s\n", "4.1.1");
+// #ifdef REVISION
+//   output_progress.write("Revision: %s\n", REV);
+// #endif
+// #ifdef MD5SUM
+//   output_progress.write("MD5 checksum: %s\n", CHECKSUM);
+// #endif
   output_progress.write("Code compiled on %s at %s\n\n", __DATE__, __TIME__);
   output_info.write("B.Dudson (University of York), M.Umansky (LLNL) 2007\n");
   output_info.write("Based on BOUT by Xueqiao Xu, 1999\n\n");

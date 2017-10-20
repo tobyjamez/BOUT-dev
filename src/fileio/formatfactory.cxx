@@ -1,3 +1,4 @@
+#include "boutconfig.hxx"
 
 #include <globals.hxx>
 

@@ -18,7 +18,7 @@ dy=Ly/ny
 Lx=1
 dx=Lx/(nx-2*MXG)
 Lz=2*pi
-dz=mz/Lz
+dz=Lz/mz
 nx=5
 ny=6
 
@@ -28,10 +28,10 @@ ixseps2		= -1
 StaggerGrids=true
 
 [MESH:diff]
-all=c4
-Second=C2
-SecondStag=C2
-FluxStag=U1
+#all=c4
+#Second=C2
+#SecondStag=C2
+#FluxStag=U1
 
 [All]
 bndry_all = none

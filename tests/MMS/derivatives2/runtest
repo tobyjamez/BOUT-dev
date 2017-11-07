@@ -90,7 +90,7 @@ for i in [1]:
 for i in [1]:
     t_desc.append("L->L d_%d"%i)
 
-doPlot = 2 # 0, 1 or 2
+doPlot = 0 # 0, 1 or 2
 if doPlot == 0:
     nxlist=nxlist[-2:] # just need behaviour in limit
 for dir,sizes in inputs:
@@ -118,6 +118,7 @@ for dir,sizes in inputs:
 
                 # Command to run
                 cmd = "./test "+args
+                print(cmd)
                 # Launch using MPI
                 s, out = launch(cmd, runcmd=MPIRUN, nproc=nproc, pipe=True)
 
@@ -129,6 +130,7 @@ for dir,sizes in inputs:
 
                 if s:
                     print("Run failed! Output written to %s."%fname)
+                    print("Command was: %s"%cmd)
                     exit(2)
                 # Collect data
                 tr=[0,tmax-1]
@@ -202,7 +204,7 @@ for dir,sizes in inputs:
                 order = log(error_2[-1,t] / error_2[-2,t]) / log(dx[-1] / dx[-2])
 
                 print("Convergence order = %f" % (order))
-                if setOrder-.5 > order: # < setOrder+.5:
+                if not setOrder-.5 < order < setOrder+.5:
                     print(args, " - t=",t_desc[t])
                     print("=> FAILED\n")
                     success = False

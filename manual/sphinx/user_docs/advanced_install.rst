@@ -21,7 +21,7 @@ widely used format. If you have multiple libraries installed then BOUT++
 can use them simultaneously, for example reading in grid files in NetCDF
 format, but writing output data in HDF5 format.
 
-.. _NetCDF-4: http://www.unidata.ucar.edu/software/netcdf/
+.. _NetCDF-4: https://www.unidata.ucar.edu/software/netcdf/
 .. _HDF5: https://www.hdfgroup.org/HDF5/
 
 To enable NetCDF support, you will need to install NetCDF version 4.0.1
@@ -103,7 +103,7 @@ SUNDIALS will allow you to select at run-time which solver to use. See
 PETSc
 -----
 
-BOUT++ can use PETSc http://www.mcs.anl.gov/petsc/ for time-integration
+BOUT++ can use PETSc https://www.mcs.anl.gov/petsc/ for time-integration
 and for solving elliptic problems, such as inverting Poisson and
 Helmholtz equations.
 
@@ -132,12 +132,12 @@ To build PETSc without SUNDIALS, configure with
       --with-scalar-type=real \
       --with-shared-libraries=0
 
-Add ``–with-debugging=yes`` to ``./configure`` in order to allow
+Add ``--with-debugging=yes`` to ``./configure`` in order to allow
 debugging.
 
 | To build PETSc with SUNDIALS, install SUNDIALS as explained in section
   :ref:`sec-sundials`, and append ``./configure`` with
-  ``–with-sundials-dir=$HOME/local``
+  ``--with-sundials-dir=$HOME/local``
 |  
 | It is also possible to get PETSc to download and install MUMPS (see
   :ref:`sec-MUMPS`), by adding
@@ -160,7 +160,7 @@ to ``./configure`` To make PETSc, type
 
 Should blas, lapack or any other packages be missing, you will get an
 error, and a suggestion that you can append
-``–download-name-of-package`` to the ``./configure`` line. You may want
+``--download-name-of-package`` to the ``./configure`` line. You may want
 to test that everything is configured properly. To do this, type
 
 .. code-block:: bash

@@ -118,11 +118,12 @@ for dir,sizes in inputs:
                 f.close()
 
                 if s:
-                    print("Run failed!")
+                    print("Run failed!\nPrinting log:\n\n")
+                    print(out)
                     exit(2)
                 # Collect data
                 tr=[0,tmax-1]
-                incGuards=True
+                incGuards=False
                 E_N = collect("error", path='data', tind=tr,info=False,xguards=incGuards,yguards=incGuards)
 
 
@@ -142,7 +143,7 @@ for dir,sizes in inputs:
                         plt.figure()
                         import numpy
                         dim=numpy.shape(E_N)
-                        for i in range(dim[0])[1::2]:
+                        for i in range(dim[0]):
                             ix=1
                             iy=1
                             iz=1
@@ -157,7 +158,7 @@ for dir,sizes in inputs:
                             #plot error:
                             plt.plot( E_N[i,:ix,:iy,:iz].flatten(), '-o', label=r'$e: %s$'%t_desc[i])
                             #plot result:
-                            plt.plot( N  [i,:ix,:iy,:iz].flatten(), '-o', label=r'$d: %s$'%t_desc[i])
+                            #plt.plot( N  [i,:ix,:iy,:iz].flatten(), '-o', label=r'$d: %s$'%t_desc[i])
                             #plot expcected result:
                             #plt.plot( N_ [i,:ix,:iy,:iz].flatten(), '-o', label=r'$a_%d$'%i)
                         plt.legend(loc="upper left")
@@ -168,6 +169,7 @@ for dir,sizes in inputs:
 
                         mkdir_p(join("data",dir,fun))
                         plt.savefig(join("data",dir,fun,"%d_%d.pdf"%(nx,setOrder)))
+                        print("saved to %s",join("data",dir,fun,"%d_%d.pdf"%(nx,setOrder)))
 
                         #plt.show()
                         plt.close()
@@ -187,12 +189,12 @@ for dir,sizes in inputs:
             for t in range(tmax):
                 order = log(error_2[-1,t] / error_2[-2,t]) / log(dx[-1] / dx[-2])
 
-                if setOrder-.5 > order: # < setOrder+.5:
+                if not setOrder-.5 < order < setOrder+.5:
                     if t == 3 or t == 5:
                         print("Convergence order = %f" % (order))
                         print("C4 for staggered 2nd diff not implemented")
                     else:
-                        print("Convergence order = %f" % (order))
+                        print("Convergence order = %f (expected %.1f)" % (order,setOrder))
                         print(args, " - t=",t_desc[t])
                         print("=> FAILED\n")
                         success = False
@@ -204,7 +206,7 @@ for dir,sizes in inputs:
                                 plt.figure()
                                 import numpy
                                 dim=numpy.shape(E_N)
-                                for i in range(dim[0])[1::2]:
+                                for i in range(dim[0]):
                                     ix=1
                                     iy=1
                                     iz=1
@@ -219,7 +221,7 @@ for dir,sizes in inputs:
                                     #plot error:
                                     plt.plot( E_N[i,:ix,:iy,:iz].flatten(), '-o', label=r'$e: %s$'%t_desc[i])
                                     #plot result:
-                                    plt.plot( N  [i,:ix,:iy,:iz].flatten(), '-o', label=r'$d: %s$'%t_desc[i])
+                                    #plt.plot( N  [i,:ix,:iy,:iz].flatten(), '-o', label=r'$d: %s$'%t_desc[i])
                                     #plot expcected result:
                                     #plt.plot( N_ [i,:ix,:iy,:iz].flatten(), '-o', label=r'$a_%d$'%i)
                                 plt.legend(loc="upper left")

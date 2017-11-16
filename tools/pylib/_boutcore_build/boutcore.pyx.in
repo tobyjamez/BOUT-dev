@@ -25,7 +25,7 @@ do
 done
 
 cat <<EOF
-# distutils: language = c++
+# distutils: language=c++
 # distutils: include_dirs = $inc_dirs
 # distutils: libraries = $libs
 # distutils: library_dirs = $lib_dirs
@@ -42,8 +42,13 @@ from libc.stdlib cimport malloc, free
 cdef extern from "helper.h":
      void c_set_f3d_all(c.Field3D * f3d, double * data)
      void c_get_f3d_all(c.Field3D * f3d, double * data)
+     void c_get_f3d_part(c.Field3D * f3d, double * data,int xs,int xe, int dx,int ys,int ye, int dy,int zs,int ze, int dz)
+     void c_set_f3d_part(c.Field3D * f3d, double * data,int xs,int xe, int dx,int ys,int ye, int dy,int zs,int ze, int dz)
+     void c_set_f3d_part_(c.Field3D * f3d, double data,int xs,int xe, int dx,int ys,int ye, int dy,int zs,int ze, int dz)
+     void c_set_f3d_all_(c.Field3D * f3d, double data)
+     void c_set_f3d_from_f3d(c.Field3D * f3d, c.Field3D * f3d)
 EOF
-for f in "add:+" "mul:*" "div:/" "sub:-"
+for f in "add:+" "mul:*" "truediv:/" "div:/" "sub:-"
 do
     n=${f%:*}
     echo "     c.Field3D * f$n( c.Field3D*, c.Field3D*)"
@@ -61,12 +66,18 @@ cat <<EOF
      void c_mesh_normalise(c.Mesh* , double)
      
 cdef Field3D f3dFromObj(c.Field3D i):
-    fu=Field3D()
-    fu.cobj=new c.Field3D(<const c.Field3D & ?>i)
-    return fu
+    f3d=Field3D()
+    f3d.cobj=new c.Field3D(<const c.Field3D & ?>i)
+    return f3d
+cdef Field3D f3dFromPtr(c.Field3D * i):
+    f3d=Field3D()
+    f3d.cobj=i
+    f3d.isSelfOwned=False
+    return f3d
 cdef class Field3D:
     """A wrapper for the Field3D"""
     cdef c.Field3D * cobj
+    cdef c.bool isSelfOwned
     @classmethod
     def fromMesh(cls,mesh):
         fu=Field3D()
@@ -82,13 +93,36 @@ cdef class Field3D:
         remaining arguments are passed to collect
         """
         from boutdata import collect
+
+        if mesh is None:
+            mesh=Mesh.getGlobal()
+        f3d=cls.fromMesh(mesh)
+        # Make it MPI aware
+        cdef c.Mesh* mesh_ = (<Mesh?>mesh).cobj
+        nxpe=mesh_.getNXPE()
+        nype=mesh_.getNYPE()
+        if (nxpe):
+            if "xind" in kwargs.keys():
+                raise "Error: Do not support xind slicing with MPI"
+            nxi=mesh_.getXProcIndex()
+            nxg=mesh_.xstart
+            nx=mesh_.LocalNx
+            nx_=nx-2*nxg
+            xstart=nx_*nxi
+            kwargs['xind']=[xstart,xstart+nx]
+        if (nype):
+            if "yind" in kwargs.keys():
+                raise "Error: Do not support yind slicing with MPI"
+            nyi=mesh_.getYProcIndex()
+            nyg=mesh_.ystart
+            ny=mesh_.LocalNy
+            ny_=ny-2*nyg
+            ystart=ny_*nyi
+            kwargs['yind']=[ystart,ystart+ny]
         data=collect(name,yguards=True,tind=tind,**kwargs)
         data=data.reshape(data.shape[1:])
         if len(data.shape) != 3:
             raise TypeError("expected 3d data")
-        if mesh is None:
-            mesh=Mesh.getGlobal()
-        f3d=cls.fromMesh(mesh)
         f3d.setAll(data)
         return f3d
             
@@ -96,6 +130,7 @@ cdef class Field3D:
         self.cobj=NULL
         if obj:
             self.cobj=obj.cobj
+        self.isSelfOwned=True
         #self.cobj = (<c.Field3D * ?> cobj_)
         #if self.cobj == NULL:
         #    raise MemoryError('Not enough memory, allocation failed.')
@@ -116,12 +151,67 @@ cdef class Field3D:
     def interp_to(self,location):
         cdef benum.CELL_LOC location_ = benum.resolve_cell_loc(location)
         return f3dFromObj(c.interp_to(self.cobj[0],location_))
+    def setLocation(self,location):
+        cdef benum.CELL_LOC location_ = benum.resolve_cell_loc(location)
+        self.cobj[0].setLocation(location_)
+        return self
+
+    def ddt(self,val=None):
+        if val:
+            c_set_f3d_from_f3d(&c.ddt(self.cobj[0]),(<Field3D?>val).cobj)
+        return f3dFromPtr(&c.ddt(self.cobj[0]))
+
     def __neg__(self):
         return f3dFromObj(c_minus(self.cobj[0]))
     def isAllocated(self):
         return self.cobj.isAllocated()
+    def __getitem__(self,slices):
+        if len(slices)!=3:
+            raise IndexError("This is a 3D object, but got %d slics"%len(slices))
+        inds=resolve_slices(slices,
+                            [self.cobj.getNx()
+                             ,self.cobj.getNy()
+                             ,self.cobj.getNz()])
+        dims=[]
+        for i in inds:
+            dims.append((i[1]-i[0])//i[2])
+        cdef np.ndarray[double, mode="c", ndim=3] data_ = np.ascontiguousarray(np.zeros(dims))
+        c_get_f3d_part(self.cobj,&data_[0,0,0],inds[0][0],inds[0][1],inds[0][2],inds[1][0],inds[1][1],inds[1][2],inds[2][0],inds[2][1],inds[2][2]);
+        return data_
+
+    def set(self,data_):
+        self.__setitem__([slice(None)]*3,data_)
+
+    def __setitem__(self,slices,data_):
+        if len(slices)!=3:
+            raise IndexError("This is a 3D object!")
+        inds=resolve_slices(slices,
+                            [self.cobj.getNx()
+                             ,self.cobj.getNy()
+                             ,self.cobj.getNz()])
+        dims=[]
+        import numbers
+        if isinstance(data_,Field3D):
+            # get all to get a numpy array
+            data_=data_[:,:,:]
+        elif isinstance(data_,numbers.Number):
+            c_set_f3d_part_(self.cobj,<double>data_,inds[0][0],inds[0][1],inds[0][2],inds[1][0],inds[1][1],inds[1][2],inds[2][0],inds[2][1],inds[2][2])
+            return
+        try:
+            dims_in=data_.shape
+        except:
+            raise TypeError("Expected a Field3D or a numpy array")
+        for i in inds:
+            dims.append((i[1]-i[0])//i[2])
+        if len(dims_in) != 3:
+            raise IndexError("This is a 3D object, but got %d dimensions"%len(dims_in))
+        for i in range(3):
+            if dims[i] != dims_in[i]:
+                raise IndexError("Expected %s but got %s."%(dims,dims_in))
+        cdef np.ndarray[double, mode="c", ndim=3] data__ = np.ascontiguousarray(data_)
+        c_set_f3d_part(self.cobj,&data__[0,0,0],inds[0][0],inds[0][1],inds[0][2],inds[1][0],inds[1][1],inds[1][2],inds[2][0],inds[2][1],inds[2][2]);
 EOF
-for f in "add:+" "mul:*" "div:/" "sub:-"
+for f in "add:+" "mul:*" "truediv:/" "div:/" "sub:-"
 do
     n=${f%:*}
     #o=${f#*:}
@@ -142,7 +232,6 @@ do
         return fu
 
     def __r${n}__(self,lhs):
-        #print("call __r${n}__")
         fu=Field3D()
         if isinstance(lhs,float) or isinstance(lhs,int):
             fu.cobj=f$n(<double?>float(lhs),(<Field3D?>self).cobj)
@@ -157,37 +246,43 @@ do
             fi$n((<Field3D?>self).cobj , (<double?>float(other)))
         else:
             raise NotImplemented("Unexpected lhs - not supported (yet?).")
+        return self
 
 EOF
     
 done
 cat <<EOF
     def __dealloc__(self):
-        del self.cobj
+        if self.isSelfOwned and self.cobj!=NULL:
+            del self.cobj
+            self.cobj=NULL
         
 cdef class Mesh:
     cdef c.Mesh * cobj;
     cdef c.bool isGlobal
     cdef double isNormalised
-    factory=FieldFactory()
+    cdef FieldFactory factory
+    #factory=FieldFactory()
     def __init__(self, create=True,OptionSection=None):
         self.cobj=<c.Mesh*>0
         cdef c.string tmp
+        cdef c.Options * opt
         self.isGlobal=False
         self.isNormalised=-1
-        #self.fact=<c.FieldFactory*>0
+        self.factory = FieldFactory()
         if create:
             if OptionSection:
-                tmp = str.encode(OptionSection)
-                self.cobj=c.Mesh.create(c.Options.getRoot().getSection(tmp))
+                opt = c.Options.getRoot()
+                for sec in OptionSection.split(":"):
+                    tmp=sec.encode('ascii')
+                    opt=opt.getSection(tmp)
+                self.cobj=c.Mesh.create(opt)
             else:
                 self.cobj = c.Mesh.create(<c.Options *>0)
             if self.cobj == NULL:
                 raise MemoryError('Not enough memory, allocation failed.')
             self.cobj.load()
             self.cobj.setParallelTransform()
-            #self.cobj.load()
-            #self.cobj.setParallelTransform()
 
     @classmethod
     def getGlobal(cls):
@@ -210,11 +305,22 @@ cdef class Mesh:
             norm=norm/self.isNormalised
             self.isNormalised=t
         c_mesh_normalise(self.cobj,norm)
-        
+    def communicate(self,*args):
+        cdef c.FieldGroup * fg = new c.FieldGroup()
+        for f in args:
+            fg.add((<Field3D?> f).cobj[0])
+        self.cobj.communicate(fg[0])
+        del fg
+        return self
+
 cdef class Laplacian:
     cdef c.Laplacian * cobj
-    def __init__(self):
-        self.cobj = c.Laplacian.create()
+    def __init__(self,section=None):
+        if section:
+           self.cobj = c.Laplacian.create((<Options?>section).cobj)
+        else:
+           self.cobj = c.Laplacian.create(NULL)
+        
     def solve(self,Field3D a, Field3D b):
         return f3dFromObj(self.cobj.solve(a.cobj[0],b.cobj[0]))
 
@@ -230,6 +336,71 @@ cdef class FieldFactory:
     #     fu=cls()
     #     fu.cobj=cobj_
     #     return fu
+
+cdef void callback(void * parameter, void * method) with gil:
+    cdef double time = (<double*>parameter)[0]
+    cdef c.string str_
+    try:
+        (<object?>method)(time)
+    except BaseException, e:
+        str__="Exception in Python callback: type:%s info:%s %s"%(str(type(e)),str(e),str(e.args))
+        print(str__)
+        str_=str__.encode('ascii')
+        c.throw_BoutException(str_)
+
+
+ctypedef void (*Method)(void *param)
+#, void *user_data)
+
+cdef class PythonModelCallback:
+    cdef c.PythonModelCallback * cobj
+
+    def __cinit__(self, method):
+        # 'callback' :: The pattern/converter method to fire a Python 
+        #               object method from C typed infos
+        # 'method'   :: The effective method passed by the Python user 
+       self.cobj = new c.PythonModelCallback(callback, <void*>method)
+
+    def __dealloc__(self):
+       if self.thisptr:
+           del self.thisptr
+
+    cpdef void execute(self, parameter):
+        # 'parameter' :: The parameter to be passed to the 'method'
+        self.cobj.cy_execute(<void*>parameter)
+
+cdef class PhysicsModel:
+    cdef c.PythonModel * cmodel
+    cdef c.PythonModelCallback * callback
+    def __init__(self):
+        self.cmodel  = new c.PythonModel()
+        self.cmodel.pyinit()
+        self.callback= <c.PythonModelCallback*> 0
+
+    def solve(self):
+        self.cmodel.solve()
+        #self.cmodel.getSolver().solve()
+
+    def solve_for(self,**kwargs):
+        cdef char * tmp
+        cdef c.Field3D * f3d
+        for key in kwargs:
+            t2=str.encode(key)
+            tmp=t2
+            f3d=(<Field3D?>kwargs[key]).cobj
+            self.cmodel.getSolver().add(f3d[0],tmp)
+
+    def setRhs(self,rhs):
+        if self.callback != <c.PythonModelCallback*>0:
+           del self.callback
+        self.callback = new c.PythonModelCallback(callback, <void*> rhs)
+        self.cmodel.set_rhs_func(self.callback)
+
+    def __dealloc__(self):
+        self.cmodel.free()
+        del self.cmodel
+        del self.callback
+
 cdef extern from "bout.hxx":
     int BoutInitialise(int&, char **&)
     void BoutFinalise()
@@ -283,14 +454,18 @@ def bracket(Field3D a, Field3D b, method="BRACKET_STD", outloc="CELL_DEFAULT"):
     cdef benum.BRACKET_METHOD method_=benum.resolve_bracket_method(method)
     return f3dFromObj(c.bracket(a.cobj[0],b.cobj[0],method_,outloc_))
 
-def sqrt(Field3D a):
-    return f3dFromObj(c.sqrt(a.cobj[0]))
+EOF
+for fun in sqrt exp
+do
+    echo "def $fun(Field3D a):
+    return f3dFromObj(c.$fun(a.cobj[0]))
 
-def exp(Field3D a):
-    return f3dFromObj(c.exp(a.cobj[0]))
+"
+done
+cat <<EOF
 
-def Delp2(Field3D a, zsmooth=-1):
-    return f3dFromObj(c.Delp2(a.cobj[0],float(zsmooth)))
+def pow(Field3D a, exponent):
+    return f3dFromObj(c.pow(a.cobj[0],float(exponent)))
 
 def Delp2(Field3D a, zsmooth=-1):
     return f3dFromObj(c.Delp2(a.cobj[0],float(zsmooth)))
@@ -298,16 +473,78 @@ def Delp2(Field3D a, zsmooth=-1):
 def Grad_perp_dot_Grad_perp(Field3D a, Field3D b):
     return f3dFromObj(c_Grad_perp_dot_Grad_perp(a.cobj[0],b.cobj[0]))
 
-#from libcpp.string cimport string as cppstring
-
 def create3D(string, Mesh msh,outloc="CELL_DEFAULT",time=0):
     cdef benum.CELL_LOC outloc_=benum.resolve_cell_loc(outloc)
-    fact=msh.getFactory()
+    cdef FieldFactory fact=msh.getFactory()
     cdef c.string str_=string.encode('ascii')
     #cdef char * func=string_
     return f3dFromObj(
-        (<FieldFactory>fact).cobj.create3D(str_,<c.Options*>0,<c.Mesh*>0,outloc_,time))
-    
+        (<FieldFactory>fact).cobj.create3D(str_,<c.Options*>0,<c.Mesh*>0
+                                           ,outloc_,time))
+
+
+def setOption(name, value):
+    cdef c.Options * opt = c.Options.getRoot()
+    cdef c.string sec_
+    for sec in name.split(":")[:-1]:
+        sec_=sec.encode('ascii')
+        opt=opt.getSection(sec_)
+    cdef c.string key = name.split(":")[-1].encode('ascii')
+    cdef c.string value_ = value.encode('ascii')
+    cdef c.string source = "PyInterface".encode('ascii')
+    opt.set(key,value_, source)
+
+cdef class Options:
+    cdef c.Options * cobj
+
+    def __init__(self,name):
+        self.cobj = c.Options.getRoot()
+        cdef c.string sec_
+        for sec in name.split(":"):
+            sec_=sec.encode('ascii')
+            self.cobj=self.cobj.getSection(sec_)
+
+    def set(self,name,value,source="PyInterface"):
+        cdef c.Options * opt=self.cobj
+        cdef c.string sec_
+        for sec in name.split(":")[:-1]:
+            sec_=sec.encode('ascii')
+            opt=opt.getSection(sec_)
+        cdef c.string key = name.split(":")[-1].encode('ascii')
+        cdef c.string value_ = value.encode('ascii')
+        cdef c.string source_ = source.encode('ascii')
+        opt.set(key,value_, source_)
+        return self
+
+    def get(self,name,default):
+        cdef c.Options * opt=self.cobj
+        cdef c.string sec_
+        for sec in name.split(":")[:-1]:
+            sec_=sec.encode('ascii')
+            opt=opt.getSection(sec_)
+        cdef c.string key = name.split(":")[-1].encode('ascii')
+        import numbers
+        
+        cdef double ret_real=0
+        cdef c.bool ret_bool=False
+        cdef c.string default_
+        cdef c.string ret_str
+
+        if isinstance(default,bool):
+            #print("isbool")
+            opt.get(key,ret_bool, <c.bool> default)
+            return ret_bool
+        elif isinstance(default,numbers.Number):
+            #print("isreal")
+            opt.get(key,ret_real,<double> default)
+            return ret_real
+        else:
+            #print("isstr")
+            default_= str(default).encode('ascii')
+            opt.get(key,ret_str, default_)
+            return ret_str
+
+
 EOF
 
-#cat resolve_enum.pxd
+cat helper.py

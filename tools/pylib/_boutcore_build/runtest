@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 
 import boutcore
-
+import numpy as np
 from boutdata import collect
 
+errorlist=""
+
 boutcore.init(["-d","data"])#,"-f","BOUT.settings"])
-n=collect("f2d",path='data',tind=-1,yguards=True)
+n=collect("f2d",path='input',tind=-1,yguards=True)
 print(n.shape)
-T=collect("f3d",path='data',tind=-1,yguards=True)
+T=collect("f3d",path='input',tind=-1,yguards=True)
 print(n.shape)
 
 print("initialized mesh")
@@ -16,33 +18,72 @@ mesh=boutcore.Mesh.getGlobal();
 print("initialized mesh")
 
 dens=boutcore.Field3D.fromMesh(mesh)
-dens.setAll(n.reshape((1,1,1)))
+dens[:,:,:]=n.reshape((1,1,1))
 #temp=boutcore.Field3D.fromMesh(mesh)
 #temp.setAll(T.reshape(T.shape[1:]))
-temp=boutcore.Field3D.fromCollect("f3d",path="data")
+temp=boutcore.Field3D.fromCollect("f3d",path="input")
 pres=dens+temp
-
-p=pres.getAll()
+print(slice(None,None,-2).indices(5))
+p=pres[::5,0,::-2]
 pn=(n+T)
 pn=pn.reshape(p.shape)
 #print(p [::50,::10,::20])
 #print(pn[::50,::10,::20])
 if not ((p==pn).all()):
-    error
+    errorlist+="addition not working\n"
 pres=dens*temp*1
 p=pres.getAll()
 pn=n*T
 pn=pn.reshape(p.shape)
 if not ((p==pn).all()):
-    error
+    errorlist+="multiplication not working\n"
 print(p.shape)
 print(pn.shape)
 diff=boutcore.DDZ(pres)
 
+shapes=[]
+errors=[]
+#nzs=[4 , 8, 16,32,64,128,256,512,1024,2048,4096,8192,16000,32000,64000,128e3,2**]
+mmax=7
+start=6
+doPlot=False
+nzs=np.logspace(start,mmax,num=mmax-start+1,base=2)
+for nz in nzs:
+    boutcore.setOption("meshz:nz","%d"%nz)
+    boutcore.setOption("meshz:dz","2*Pi/%d"%nz)#%.30g"%(2*np.pi/nz))# better pass calculation to bout ...
+    mesh=boutcore.Mesh(OptionSection="meshz")
+    f=boutcore.create3D("sin(z)",mesh)
+    sim=boutcore.DDZ(f)
+    ana=boutcore.create3D("cos(z)",mesh)
+    err=sim-ana
+    err=np.max(np.abs(err.getAll()))
+    errors.append(err)
+if doPlot:
+    from matplotlib import pyplot as plt
+    plt.plot(1/np.array(nzs),errors,'-o')
+    plt.show()
+errc=np.log(errors[-2]/errors[-1])
+difc=np.log(nzs[-1]/nzs[-2])
+conv=errc/difc
+if 1.9 < conv < 2.1:
+    print("The convergence is: %f"%conv)
+else:
+    errorlist+="DDZ is not working\n"
 
-mesh2=boutcore.Mesh("mesh2")
-f=boutcore.create3D("x+y",mesh2)
-print(f.getAll())
+if errorlist != "":
+    print("Found errors:\n%s"%errorlist)
+    exit(1)
 
+
+def rhs(time):
+    #print("Whaa")
+    n_ddt=dens.ddt()
+    n_ddt[:,:,:]=dens*0
+    n_ddt+=1
+
+model=boutcore.PhysicsModel()
+model.setRhs(rhs)
+model.solve_for(n=dens)
+model.solve()
 
 #boutcore.finalise()

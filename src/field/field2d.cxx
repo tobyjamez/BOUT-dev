@@ -45,7 +45,7 @@
 
 #include <bout/assert.hxx>
 
-Field2D::Field2D(Mesh *msh) : Field(msh), deriv(nullptr) {
+Field2D::Field2D(Mesh *localmesh) : Field(localmesh), deriv(nullptr) {
 
   boundaryIsSet = false;
 
@@ -113,10 +113,9 @@ Field2D::Field2D(Field2D&& f) : Field(f.fieldmesh), // The mesh containing array
   *this = f; //This line is probably not required as we init data from f.data above.
 }
 
-Field2D::Field2D(BoutReal val, Mesh * msh) : Field(msh), deriv(nullptr) {
+Field2D::Field2D(BoutReal val, Mesh *localmesh) : Field(localmesh), deriv(nullptr) {
   boundaryIsSet = false;
 
-  fieldmesh = mesh;
   nx = fieldmesh->LocalNx;
   ny = fieldmesh->LocalNy;
 
@@ -235,6 +234,9 @@ Field2D & Field2D::operator=(const BoutReal rhs) {
 
   return *this;
 }
+
+/////////////////////////////////////////////////////////////////////
+
 
 ////////////////////// STENCILS //////////////////////////
 
@@ -522,21 +524,21 @@ bool finite(const Field2D &f) {
  * and if CHECK >= 3 then checks result for non-finite numbers
  *
  */
-#define F2D_FUNC(name, func)                               \
-  const Field2D name(const Field2D &f) {                   \
-    TRACE(#name "(Field2D)");                     \
-    /* Check if the input is allocated */                  \
-    ASSERT1(f.isAllocated());                              \
-    /* Define and allocate the output result */            \
-    Field2D result(f.getMesh());			   \
-    result.allocate();                                     \
-    /* Loop over domain */                                 \
-    for(const auto& d : result) {                                 \
-      result[d] = func(f[d]);                              \
-      /* If checking is set to 3 or higher, test result */ \
-      ASSERT3(finite(result[d]));                          \
-    }                                                      \
-    return result;                                         \
+#define F2D_FUNC(name, func)                                                             \
+  const Field2D name(const Field2D &f) {                                                 \
+    TRACE(#name "(Field2D)");                                                            \
+    /* Check if the input is allocated */                                                \
+    ASSERT1(f.isAllocated());                                                            \
+    /* Define and allocate the output result */                                          \
+    Field2D result(f.getMesh());                                                         \
+    result.allocate();                                                                   \
+    /* Loop over domain */                                                               \
+    for (const auto &d : result) {                                                       \
+      result[d] = func(f[d]);                                                            \
+      /* If checking is set to 3 or higher, test result */                               \
+      ASSERT3(finite(result[d]));                                                        \
+    }                                                                                    \
+    return result;                                                                       \
   }
 
 F2D_FUNC(abs, ::fabs);
@@ -577,7 +579,7 @@ Field2D pow(const Field2D &lhs, const Field2D &rhs) {
   ASSERT1(rhs.isAllocated());
 
   // Define and allocate the output result
-  ASSERT1(lhs.getMesh()==rhs.getMesh());
+  ASSERT1(lhs.getMesh() == rhs.getMesh());
   Field2D result(lhs.getMesh());
   result.allocate();
 

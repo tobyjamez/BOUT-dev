@@ -194,10 +194,10 @@ const IndexRange Field2D::region(REGION rgn) const {
 
 ///////////// OPERATORS ////////////////
 
-Field2D & Field2D::operator=(const Field2D &rhs) {
+Field2D &Field2D::operator=(const Field2D &rhs) {
   // Check for self-assignment
-  if(this == &rhs)
-    return(*this); // skip this assignment
+  if (this == &rhs)
+    return (*this); // skip this assignment
 
   TRACE("Field2D: Assignment from Field2D");
 
@@ -209,7 +209,8 @@ Field2D & Field2D::operator=(const Field2D &rhs) {
 
   // Copy the data and data sizes
   fieldmesh = rhs.fieldmesh;
-  nx = rhs.nx; ny = rhs.ny;
+  nx = rhs.nx;
+  ny = rhs.ny;
 
   // Copy reference to data
   data = rhs.data;
@@ -217,7 +218,7 @@ Field2D & Field2D::operator=(const Field2D &rhs) {
   return *this;
 }
 
-Field2D & Field2D::operator=(const BoutReal rhs) {
+Field2D &Field2D::operator=(const BoutReal rhs) {
 #ifdef TRACK
   name = "<r2D>";
 #endif
@@ -226,10 +227,10 @@ Field2D & Field2D::operator=(const BoutReal rhs) {
   allocate();
 
 #if CHECK > 0
-  if(!finite(rhs))
+  if (!finite(rhs))
     throw BoutException("Field2D: Assignment from non-finite BoutReal\n");
 #endif
-  for(const auto& i : (*this))
+  for (const auto &i : (*this))
     (*this)[i] = rhs;
 
   return *this;
@@ -439,6 +440,7 @@ void Field2D::setBoundaryTo(const Field2D &f2d) {
 }
 
 ////////////// NON-MEMBER OVERLOADED OPERATORS //////////////
+
 
 // Unary minus
 Field2D operator-(const Field2D &f) {

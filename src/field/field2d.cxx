@@ -235,9 +235,6 @@ Field2D & Field2D::operator=(const BoutReal rhs) {
   return *this;
 }
 
-/////////////////////////////////////////////////////////////////////
-
-
 ////////////////////// STENCILS //////////////////////////
 
 void Field2D::getXArray(int y, int UNUSED(z), rvec &xv) const {

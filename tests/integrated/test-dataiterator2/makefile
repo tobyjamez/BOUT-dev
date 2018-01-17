@@ -6,7 +6,7 @@ SOURCEC		= test_dataiterator.cxx
 include $(BOUT_TOP)/make.config
 
 test3d.cxx:gen.py
-	python2 $< > $@
+	python3 $< > $@
 
 test_dataiterator.o:test3d.cxx
 

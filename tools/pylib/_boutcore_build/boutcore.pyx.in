@@ -60,10 +60,10 @@ done
 cat <<EOF
      c.Field3D c_minus( c.Field3D )
      c.Mesh * c_get_global_mesh()
-     c.Field3D * c_ddz( c.Field3D * ,benum.CELL_LOC,benum.DIFF_METHOD,bool)
      void c_laplacian_solve(c.Laplacian *, c.Field3D *, c.Field3D*)
      c.Field3D c_Grad_perp_dot_Grad_perp(c.Field3D,c.Field3D);
      void c_mesh_normalise(c.Mesh* , double)
+     c.Datafile * c_get_global_datafile()
      
 cdef Field3D f3dFromObj(c.Field3D i):
     f3d=Field3D()
@@ -79,19 +79,26 @@ cdef class Field3D:
     cdef c.Field3D * cobj
     cdef c.bool isSelfOwned
     @classmethod
-    def fromMesh(cls,mesh):
-        fu=Field3D()
-        fu.cobj=new c.Field3D((<Mesh?>mesh).cobj)
-        return fu
-    #@classmethod
+    def fromMesh(cls,mesh=None):
+        """ Create a Field3D.
+        mesh: The mesh of the Field3D. If none, use global mesh
+        """
+        checkInit()
+        f3d=Field3D()
+        if mesh is None:
+            mesh=Mesh.getGlobal()
+        f3d.cobj=new c.Field3D((<Mesh?>mesh).cobj)
+        return f3d
     @classmethod
-    def fromCollect(cls,name,tind=-1,mesh=None, **kwargs):
+    def fromCollect(cls,name,tind=-1,mesh=None,ignoreDataType=False, **kwargs):
         """Create a Field3D from reading in a datafile via collect.
         Options:
             tind: time slice to read
             mesh: if not defined, use global mesh
+            ignoreDataType: Do not fail if data is not float64
         remaining arguments are passed to collect
         """
+        checkInit()
         from boutdata import collect
 
         if mesh is None:
@@ -123,7 +130,7 @@ cdef class Field3D:
         data=data.reshape(data.shape[1:])
         if len(data.shape) != 3:
             raise TypeError("expected 3d data")
-        f3d.setAll(data)
+        f3d.setAll(data,ignoreDataType=ignoreDataType)
         return f3d
             
     def __cinit__(self,Field3D obj=None):
@@ -135,10 +142,14 @@ cdef class Field3D:
         #if self.cobj == NULL:
         #    raise MemoryError('Not enough memory, allocation failed.')
 
-    def setAll(self,data):
+    def setAll(self,data,ignoreDataType=False):
+        if data.dtype != np.dtype('float64'):
+            if ignoreDataType:
+                data=data.astype('float64')
+            else:
+                raise TypeError("expected float64 data - add ignoreDataType=True to cast")
         cdef np.ndarray[double, mode="c", ndim=3] data_ = np.ascontiguousarray(data)
         c_set_f3d_all(self.cobj,&data_[0,0,0]);
-        #self.cobj.setData(0,0,0,data[0,0,0])
 
     def getAll(self):
         nx=self.cobj.getNx()
@@ -148,6 +159,7 @@ cdef class Field3D:
         cdef np.ndarray[double, mode="c", ndim=3] data_ = np.ascontiguousarray(np.zeros((nx,ny,nz)))
         c_get_f3d_all(self.cobj,&data_[0,0,0]);
         return data_
+
     def setLocation(self,location):
         cdef benum.CELL_LOC location_ = benum.resolve_cell_loc(location)
         self.cobj[0].setLocation(location_)
@@ -262,6 +274,7 @@ cdef class Mesh:
     cdef FieldFactory factory
     #factory=FieldFactory()
     def __init__(self, create=True,OptionSection=None):
+        checkInit()
         self.cobj=<c.Mesh*>0
         cdef c.string tmp
         cdef c.Options * opt
@@ -284,6 +297,7 @@ cdef class Mesh:
 
     @classmethod
     def getGlobal(cls):
+        checkInit()
         msh = Mesh(create=False);
         msh.cobj = c_get_global_mesh();
         msh.isGlobal=True
@@ -314,6 +328,7 @@ cdef class Mesh:
 cdef class Laplacian:
     cdef c.Laplacian * cobj
     def __init__(self,section=None):
+        checkInit()
         if section:
            self.cobj = c.Laplacian.create((<Options?>section).cobj)
         else:
@@ -325,6 +340,7 @@ cdef class Laplacian:
 cdef class FieldFactory:
     cdef c.FieldFactory * cobj
     def __init__(self):
+        checkInit()
         cobj=< c.FieldFactory*>0
     def __dealloc__(self):
         if self.cobj != <c.FieldFactory*>0:
@@ -357,11 +373,12 @@ cdef class PythonModelCallback:
         # 'callback' :: The pattern/converter method to fire a Python 
         #               object method from C typed infos
         # 'method'   :: The effective method passed by the Python user 
-       self.cobj = new c.PythonModelCallback(callback, <void*>method)
+        checkInit()
+        self.cobj = new c.PythonModelCallback(callback, <void*>method)
 
     def __dealloc__(self):
-       if self.thisptr:
-           del self.thisptr
+        if self.thisptr:
+            del self.thisptr
 
     cpdef void execute(self, parameter):
         # 'parameter' :: The parameter to be passed to the 'method'
@@ -371,6 +388,7 @@ cdef class PhysicsModel:
     cdef c.PythonModel * cmodel
     cdef c.PythonModelCallback * callback
     def __init__(self):
+        checkInit()
         self.cmodel  = new c.PythonModel()
         self.cmodel.pyinit()
         self.callback= <c.PythonModelCallback*> 0
@@ -404,7 +422,10 @@ cdef extern from "bout.hxx":
     void BoutFinalise()
     
 isInit=False
-def init(args):
+def init(args=[]):
+    global isInit
+    if isInit:
+        raise RuntimeError("The BOUT++ library was already initialised - please call boutcore.init(args) only once")
     args.insert(0,"boutcore")
     cdef char **string_buf = <char **>malloc(len(args) * sizeof(char*))
     fu=[]
@@ -424,30 +445,54 @@ def init(args):
     #atexit.register(finalise)
 
 def finalise():
+    checkInit()
     BoutFinalise()
+    global isInit
     isInit=False
 
-def DDZ(Field3D field, outloc="CELL_DEFAULT", method="DIFF_DEFAULT", inc_xbndry=True):
+def checkInit():
+    global isInit
+    if not isInit:
+       raise RuntimeError("The BOUT++ library was not initialised - please call boutcore.init(args) first")
+
+EOF
+for d in Z
+do
+    for f in DDd
+    do
+        DD=${f/d/$d}
+        cat <<EOF
+def $DD(Field3D field, outloc="CELL_DEFAULT", method="DIFF_DEFAULT", inc_xbndry=True):
+    checkInit()
     cdef benum.CELL_LOC outloc_= benum.resolve_cell_loc(outloc)
     cdef benum.DIFF_METHOD method_=benum.resolve_diff_method(method)
-    return f3dFromObj(c.DDZ(field.cobj[0],outloc_,method_,inc_xbndry))
+    return f3dFromObj(c.$DD(field.cobj[0],outloc_,method_,inc_xbndry))
+
+EOF
+    done
+done
+cat <<EOF
 
 def Vpar_Grad_par(Field3D V, Field3D f, outloc="CELL_DEFAULT",method="DIFF_DEFAULT"):
+    checkInit()
     cdef benum.CELL_LOC outloc_= benum.resolve_cell_loc(outloc)
     cdef benum.DIFF_METHOD method_=benum.resolve_diff_method(method)
     return f3dFromObj(c.Vpar_Grad_par(V.cobj[0],f.cobj[0],outloc_,method_))
 
 def Div_par(Field3D J, outloc="CELL_DEFAULT",method="DIFF_DEFAULT"):
+    checkInit()
     cdef benum.CELL_LOC outloc_=benum.resolve_cell_loc(outloc)
     cdef benum.DIFF_METHOD method_=benum.resolve_diff_method(method)
     return f3dFromObj(c.Div_par((J.cobj)[0],outloc_,method_))
 
 def Grad_par(Field3D J, outloc="CELL_DEFAULT",method="DIFF_DEFAULT"):
+    checkInit()
     cdef benum.CELL_LOC outloc_=benum.resolve_cell_loc(outloc)
     cdef benum.DIFF_METHOD method_=benum.resolve_diff_method(method)
     return f3dFromObj(c.Grad_par((J.cobj)[0],outloc_,method_))
 
 def bracket(Field3D a, Field3D b, method="BRACKET_STD", outloc="CELL_DEFAULT"):
+    checkInit()
     cdef benum.CELL_LOC outloc_=benum.resolve_cell_loc(outloc)
     cdef benum.BRACKET_METHOD method_=benum.resolve_bracket_method(method)
     return f3dFromObj(c.bracket(a.cobj[0],b.cobj[0],method_,outloc_))
@@ -472,26 +517,30 @@ def max(Field3D a):
     return c.max(a.cobj[0])
 
 def Delp2(Field3D a, zsmooth=-1):
+    checkInit()
     return f3dFromObj(c.Delp2(a.cobj[0],float(zsmooth)))
 
 def Grad_perp_dot_Grad_perp(Field3D a, Field3D b):
+    checkInit()
     return f3dFromObj(c_Grad_perp_dot_Grad_perp(a.cobj[0],b.cobj[0]))
 
 def create3D(string, Mesh msh,outloc="CELL_DEFAULT",time=0):
+    checkInit()
     cdef benum.CELL_LOC outloc_=benum.resolve_cell_loc(outloc)
     cdef FieldFactory fact=msh.getFactory()
     cdef c.string str_=string.encode('ascii')
-    #cdef char * func=string_
     return f3dFromObj(
         (<FieldFactory>fact).cobj.create3D(str_,<c.Options*>0,<c.Mesh*>0
                                            ,outloc_,time))
 
 def interp_to(Field3D f3d,location):
+    checkInit()
     cdef benum.CELL_LOC location_ = benum.resolve_cell_loc(location)
     return f3dFromObj(c.interp_to(f3d.cobj[0],location_))
 
 
 def setOption(name, value):
+    checkInit()
     cdef c.Options * opt = c.Options.getRoot()
     cdef c.string sec_
     for sec in name.split(":")[:-1]:
@@ -506,6 +555,7 @@ cdef class Options:
     cdef c.Options * cobj
 
     def __init__(self,name):
+        checkInit()
         self.cobj = c.Options.getRoot()
         cdef c.string sec_
         for sec in name.split(":"):
@@ -551,6 +601,36 @@ cdef class Options:
             default_= str(default).encode('ascii')
             opt.get(key,ret_str, default_)
             return ret_str
+
+cdef class Datafile:
+     cdef c.Datafile * cobj
+     def __init__(self):
+         self.cobj = c_get_global_datafile()
+     def add(self,save_repeat=False,**kwargs):
+         for key in kwargs:
+             self._add(kwargs[key],key,save_repeat)
+
+     def _add(self,data,name,save_repeat):
+         cdef char * tmp
+         cdef double * dbl
+         cdef c.Field3D * f3d
+         t2=str.encode(name)
+         tmp=t2
+         # import numbers
+         # if isinstance(data,int):
+         #     #c_datafile_add_int(self.cobj,
+         #     self.cobj.add(<int>data,tmp,<c.bool>save_repeat)
+         # elif isinstance(data,numbers.Number):
+         #     self.cobj.add(dbl,tmp,<c.bool>save_repeat)
+         # el
+         if isinstance(data,Field3D):
+             f3d=(<Field3D>data).cobj
+             self.cobj.add(f3d[0],tmp,<c.bool>save_repeat)
+         else:
+             raise TypeError("unsupported datatype")
+     def write(self):
+         self.cobj.write()
+
 
 
 EOF

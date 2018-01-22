@@ -688,7 +688,7 @@ void Mesh::derivs_init(Options *options) {
 
 const Field2D Mesh::applyXdiff(const Field2D &var, Mesh::deriv_func func, CELL_LOC loc,
                                REGION region) {
-  if (var.getNx() == 1){
+  if (var.getNx() == 1) {
     return Field2D(0., this);
   }
 
@@ -948,8 +948,9 @@ const Field2D Mesh::applyYdiff(const Field2D &var, Mesh::deriv_func func, CELL_L
   return result;
 }
 
-const Field3D Mesh::applyYdiff(const Field3D &var, Mesh::deriv_func func, CELL_LOC loc, REGION region) {
-  if (var.getNy() == 1){
+const Field3D Mesh::applyYdiff(const Field3D &var, Mesh::deriv_func func, CELL_LOC loc,
+                               REGION region) {
+  if (var.getNy() == 1) {
     return Field3D(0., this);
   }
 
@@ -1114,8 +1115,9 @@ const Field3D Mesh::applyYdiff(const Field3D &var, Mesh::deriv_func func, CELL_L
 
 // Z derivative
 
-const Field3D Mesh::applyZdiff(const Field3D &var, Mesh::deriv_func func, CELL_LOC loc, REGION region) {
-  if (var.getNz()==1){
+const Field3D Mesh::applyZdiff(const Field3D &var, Mesh::deriv_func func, CELL_LOC loc,
+                               REGION region) {
+  if (var.getNz() == 1) {
     return Field3D(0., this);
   }
 

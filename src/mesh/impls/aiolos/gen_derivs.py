@@ -194,24 +194,12 @@ for func in ["indexDD%s", "indexD2D%s2","indexVDD%s","indexFDD%s"]:
             if flux:
                 sig+="const "+field+" &v,"
             sig += "const "+field+" &f"
-            if field=="Field3D" or flux:
-                sig+=", CELL_LOC outloc, DIFF_METHOD method";
-            if func%d.upper() in ["indexDDZ", "indexD2DZ2"]:
-                sig+=",bool ignored";
-            elif flux and d in "xy":
-                sig+=",REGION ignored";
-            #else:
-            #    sig+=",REGION region"
+            sig+=", CELL_LOC outloc, DIFF_METHOD method";
+            sig+=",REGION ignored";
             sig+=")"
             function_header="  virtual const "+field+" "+func%d.upper()
             function_header+=sig
-            if  not (field == "Field3D" and func[5]=='V' and d == 'z'):
-                function_header+=" override;\n"
-            else:
-                function_header+=""";
-virtual const Field3D indexVDD%s(const Field &v,const Field &f, CELL_LOC outloc, DIFF_METHOD method) override{
-  return indexVDD%s(dynamic_cast<const Field3D &>(v),dynamic_cast<const Field3D &>(f),outloc,method);
-}"""%(d.upper(),d.upper())
+            function_header+=" override;\n"
             headers+=function_header
             function_header="const "+field+" AiolosMesh::"+func%d.upper()
             function_header+=sig
@@ -220,9 +208,6 @@ virtual const Field3D indexVDD%s(const Field &v,const Field &f, CELL_LOC outloc,
             else:
                 f="f"
             print(function_header," {")
-            if field != "Field3D" and not flux:
-                print("  CELL_LOC outloc=CELL_DEFAULT;")
-                print("  DIFF_METHOD method=DIFF_DEFAULT;")
             print("  if (outloc == CELL_DEFAULT) {")
             print("    outloc=f.getLocation();")
             print("  }")

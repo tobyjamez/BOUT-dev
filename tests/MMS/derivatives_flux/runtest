@@ -1,0 +1,7 @@
+#!/bin/bash
+
+./runtest_vdd
+ex1=$?
+./runtest_fdd
+ex2=$?
+test $ex1 -eq 0 && test $ex2 -eq 0

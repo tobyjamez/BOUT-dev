@@ -197,7 +197,11 @@ for t in func_tables:
                         funcs_to_gen.append(FuncToGen("%s_%s_%s"%(funcname[t]%d.upper(),mstag,method),field,d,mstag,funcs[0],flux,stag))
                     print("    break;")
                 print("  default:")
-                print("    throw BoutException(\"%s AiolosMesh::"%field +myname,'unknown method %d.\\nNote FFTs are not (yet) supported.",method);')
+                print("    throw BoutException(\"%s AiolosMesh::"%field +myname,'unknown method %d.\\n"')
+                print('      "Supported methods are"')
+                for method in func_tables[t]:
+                    print('      " * '+method+'"')
+                print('      "\\nNote FFTs are not (yet) supported.",method);')
                 print("  }; // end switch")
                 print("}")
                 print()
@@ -243,8 +247,12 @@ f.getLocation()==outloc is required!");')
             print("    return result;")
             print("  }")
             #print '  output.write("Using aiolos mesh for %s\\n");'%(func%d.upper())
-            print("  if ((outloc == CELL_%sLOW) != (f.getLocation() == CELL_%sLOW)){"% \
-                (d.upper(),d.upper()))
+            if flux:
+                print("  if ((outloc == CELL_%sLOW) != (v.getLocation() == CELL_%sLOW)){"% \
+                      (d.upper(),d.upper()))
+            else:
+                print("  if ((outloc == CELL_%sLOW) != (f.getLocation() == CELL_%sLOW)){"% \
+                      (d.upper(),d.upper()))
             print("    // we are going onto a staggered grid or coming from one")
             print("    return",func%d.upper()+"_stag","("+f+",outloc,method);")
             print("  } else {")

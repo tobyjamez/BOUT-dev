@@ -175,6 +175,10 @@ cdef class Field3D:
         self.cobj[0].setLocation(location_)
         return self
 
+    def getLocation(self):
+        cdef benum.CELL_LOC loc = self.cobj[0].getLocation()
+        return resolve_inv_cell_loc(loc)
+
     def ddt(self,val=None):
         if val:
             c_set_f3d_from_f3d(&c.ddt(self.cobj[0]),(<Field3D?>val).cobj)
@@ -275,7 +279,6 @@ cat <<EOF
         if self.isSelfOwned and self.cobj!=NULL:
             del self.cobj
             self.cobj=NULL
-
 
 cdef class Mesh:
     cdef c.Mesh * cobj;
@@ -660,3 +663,5 @@ cdef class Datafile:
 EOF
 
 cat helper.py
+
+sh resolve_enum_inv.pyx.in

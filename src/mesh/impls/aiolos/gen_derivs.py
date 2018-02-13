@@ -24,7 +24,7 @@ with open("tables_cleaned.cxx","r") as f:
                     #print name
                     func_tables[name]=OrderedDict()
                     for cchar in current_table:
-                        debug(cchar,inFunc)
+                        #debug(cchar,inFunc)
                         if cchar == '}':
                             inFunc-=1
                         if inFunc == 2:
@@ -37,22 +37,26 @@ with open("tables_cleaned.cxx","r") as f:
                             current_entry_cleaned=[]
                             for diff in current_entry:
                                 current_entry_cleaned.append(diff.strip())
-                            debug(current_entry_cleaned)
+                            #debug("current_entry_cleaned:",current_entry_cleaned)
                             current_entry_name=current_entry_cleaned[0]
-                            debug(name,current_entry_name)
                             #NI not implemented :
                             if current_entry_name=='DIFF_W3':
+                                debug("Skipping WENO3 - to hard")
                                 continue
                             if current_entry_name=='DIFF_SPLIT':
+                                debug("Skipping SPLIT - to different")
+                                continue
+                            if current_entry_name=='DIFF_NND':
+                                debug("Skipping NND - probably broken")
                                 continue
                             if current_entry_name=='DIFF_DEFAULT':
                                 continue
-                            #print cn
+                            #debug("name and current_entry_name",name,current_entry_name)
                             if name not in first_entry:
                                 first_entry[name]=current_entry_name
                             if current_entry_cleaned[1:4] == ['NULL']*3:
                                 continue
-                            debug(name,current_entry_name)
+                            #debug(name,current_entry_name)
                             func_tables[name][current_entry_name]=current_entry_cleaned[1:4]
                 current_table=""
                 inFunc=0
@@ -68,12 +72,37 @@ funcname['FluxTable']='indexFDD%s'
 funcname['FluxStagTable']='indexFDD%s'
 
 funcs_to_gen=[]
+class FuncToGen(object):
+    def __init__(self,name,field,d,mode,ftype,flux,stag):
+        self.name=name
+        self.field=field
+        self.stag_mode=mode
+        self.fromsten=ftype
+        self.flux=flux
+        self.d=d
+        self.stag=stag
+        self.old=[name,field,d,mstag,ftype,flux]
+        self.sten=None
+    def __getitem__(self,ind):
+        return self.old[ind]
+    def setSten(self,sten):
+        try:
+            assert(sten.flux == self.flux)
+            assert(sten.stag == self.stag)
+        except:
+            debug(self.name,sten.name,enable=True)
+            debug(self.flux,sten.flux)
+            raise
+        self.sten=sten
+
 default_methods=dict()
+
 # Having a duplicate in the list means something is wrong
 duplicates(list(func_tables.keys()))
 
 for t in func_tables:
-    debug(func_tables[t], func_tables[t].values(),t)
+    debug("Func_table:",t,func_tables[t], func_tables[t].values())
+    debug()
     fu=next(iter(func_tables[t].values()))
     if fu[0] != "NULL": # not a flux/upwind scheeme
         flux=False
@@ -106,9 +135,8 @@ for t in func_tables:
                     else:
                         myname=funcname[t]%d.upper()+"_stag"
                 except:
-                    import sys
-                    print(funcname[t], file=sys.stderr)
-                    exit(3)
+                    debug(funcname[t], enable=True)
+                    raise
                 if flux:
                     inp="(const "+field+" &v, const "+field+" &f, "
                 else:
@@ -120,12 +148,12 @@ for t in func_tables:
                 print("  if (outloc == CELL_DEFAULT){")
                 print("    outloc = f.getLocation();")
                 print("  }")
-                print("  switch (method){")
+                print("  switch (method) {")
                 default_methods["default_%s_%s"%(d,t[:-5])]=func_tables[t]
                 duplicates(list(func_tables[t].keys()))
                 for method in func_tables[t]:
-                    debug(method)
-                    print("  case",method,":")
+                    #debug(method)
+                    print("  case",method+":")
                     if flux:
                         f="v,f"
                     else:
@@ -133,7 +161,7 @@ for t in func_tables:
                     if flux:
                         # f.getLocation() == outloc guaranteed
                         if stag:
-                            print("    if (outloc == CELL_%sLOW){"%d.upper())
+                            print("    if (outloc == CELL_%sLOW) {"%d.upper())
                             print("      return %s_on_%s(interp_to(v,CELL_CENTRE),f);"% \
                                 (funcname[t]%d.upper(),method))
                             print("    } else {") # inloc must be CELL_%sLOW
@@ -142,7 +170,7 @@ for t in func_tables:
                             print("    }")
                             stags=['on','off']
                         else:
-                            print("    if (v.getLocation() == f.getLocation()){")
+                            print("    if (v.getLocation() == f.getLocation()) {")
                             print("      return interp_to(%s_norm_%s(v,f),outloc);"%(funcname[t]%d.upper(),method))
                             print("    } else {")
                             print("      return interp_to(%s_norm_%s(interp_to(v,CELL_CENTRE),interp_to(f,CELL_CENTRE)),outloc);"%(funcname[t]%d.upper(),method))
@@ -166,21 +194,14 @@ for t in func_tables:
                             funcs[0]=funcs[1]
                             if funcs[0]=='NULL':
                                 funcs[0]=funcs[2]
-                        funcs_to_gen.append(["%s_%s_%s"%(funcname[t]%d.upper(),mstag,method),field,d,mstag,funcs[0],flux])
+                        funcs_to_gen.append(FuncToGen("%s_%s_%s"%(funcname[t]%d.upper(),mstag,method),field,d,mstag,funcs[0],flux,stag))
                     print("    break;")
-                    #print "    }"
                 print("  default:")
                 print("    throw BoutException(\"%s AiolosMesh::"%field +myname,'unknown method %d.\\nNote FFTs are not (yet) supported.",method);')
                 print("  }; // end switch")
                 print("}")
                 print()
 
-    #else:
-    #    print fu
-    #for meth in func_tables[t]:
-    #    print meth
-    #print func_tables[t]
-#print first_entry
 
 headers=""
 for func in ["indexDD%s", "indexD2D%s2","indexVDD%s","indexFDD%s"]:
@@ -237,19 +258,10 @@ with open("generated_header.hxx","w") as f:
 
 
 import sys
-#funcs_to_gen=funcs_to_gen[0:2]
 tmp=[]
 for fu in funcs_to_gen:
     tmp.append(fu[0]+fu[1])
 duplicates(tmp)
-#seen = set()
-#uniq = []
-# for x in funcs_to_gen:
-#     xs=x[0]+x[1]
-#     if xs not in seen:
-#         uniq.append(x)
-#         seen.add(xs)
-# funcs_to_gen=uniq
 guards_=[]
 sys.stdout=open("generated_stencils.cxx","w")
 from gen_stencils import gen_functions_normal
@@ -269,7 +281,6 @@ for d in dirs['Field3D']:
             table="DerivTable"
         else:
             table="Table"
-            #stags=[""]
         for stag in stags:
             print('DIFF_METHOD default_%s_%s%sDeriv;'%(d,i,stag))
 
@@ -287,7 +298,6 @@ for d in dirs['Field3D']:
             table="DerivTable"
         else:
             table="Table"
-            #stags=[""]
         for stag in stags:
             warn()
             print('  // Setting derivatives for dd%s and %s'%(d,i+stag))
@@ -308,7 +318,6 @@ for d in dirs['Field3D']:
                     print('    %s->get("%s",name,"%s");'%(option,name,default_diff))
                     print('  } else', end=' ')
             print('  {')
-            #elif i == ''
             print('    name="%s";'%default_diff)
             print('  }')
             print(' ', end=' ')
@@ -323,5 +332,4 @@ for d in dirs['Field3D']:
             print('    throw BoutException("Dont\'t know what diff method to use for %s (direction %s, tried to use %s)!\\nOptions are:%s",name.c_str());'%(i+stag,d,'%s',options))
             print('  }')
 print("}")
-#exit(1)
 sys.stdout.flush()

@@ -5,6 +5,7 @@ mxg = 1
 myg = 1
 
 [mesh]
+staggergrids=true
 n=1
 nx=n+2*mxg
 ny=n
@@ -20,6 +21,7 @@ atol = 1e-18
 
 [meshz]
 type=aiolos
+staggergrids=true
 nx=1
 ny=1
 nz=n
@@ -30,16 +32,18 @@ MYG=0
 
 [meshy]
 type=aiolos
+staggergrids=true
 nx=1
 ny=n
 nz=1
-n=2
+n=6
 dy=2*Pi/ny
 MXG=0
 MYG=2
 
 [meshx]
 type=aiolos
+staggergrids=true
 nx=n+2*mxg
 ny=1
 nz=1

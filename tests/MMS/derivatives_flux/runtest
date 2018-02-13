@@ -4,8 +4,6 @@ import boutcore
 import numpy as np
 import itertools
 
-from runtest_common import runtest
-
 errorlist=""
 
 boutcore.init("-d data -q -q -q".split(" "))

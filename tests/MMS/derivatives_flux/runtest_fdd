@@ -15,7 +15,8 @@ nzs=np.logspace(start,mmax,num=mmax-start+1,base=2)
 functions=[["1","sin(%s)","cos(%s)"] ,
            ["sin(%s)" , "sin(%s)", "sin(2*%s)"]]
 
-derivatives=[[1,"U1"] , [2,"C2"] , [4,"C4"] , [1, "NND"]]
+derivatives=[[1,"U1"] , [2,"C2"] , [4,"C4"] ]
+#, [1, "NND"]]
 
 directions=[["x","2*pi",2 ,boutcore.FDDX],
             ["y","1"   ,2 ,boutcore.FDDY],

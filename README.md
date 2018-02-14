@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/boutproject/BOUT-dev.svg?branch=master)](https://travis-ci.org/boutproject/BOUT-dev)
 [![License](https://img.shields.io/badge/license-LGPL-blue.svg)](https://img.shields.io/badge/license-LGPL-blue.svg)
 [![py3comp](https://img.shields.io/badge/py3-compatible-brightgreen.svg)](https://img.shields.io/badge/py3-compatible-brightgreen.svg)
-
+[![copr-build](https://copr.fedorainfracloud.org/coprs/davidsch/bout/package/bout++-nightly/status_image/last_build.png)
 ```
 .______     ______    __    __  .___________.
 |   _  \   /  __  \  |  |  |  | |           |  _     _

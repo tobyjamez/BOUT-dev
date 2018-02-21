@@ -9,14 +9,17 @@ boutcpp.pxd:boutcpp.pxd.in
 
 TOGEN=setup.py boutcore.pyx resolve_enum.pxd helper.cxx helper.h boutcpp.pxd
 $(TOGEN): Makefile
-	@echo generating $@
-	@PATH=../../../bin:$$PATH PY=$(PY) bash $@.in > $@
+	@echo "  Generating $@"
+	@PATH=../../../bin:$$PATH PY=$(PY) bash $@.in > $@.tmp \
+		|| (fail=$?; echo "touch $@ to ignore failed generation" ; exit $fail)
+	@mv $@.tmp $@
 
 boutcore.so: boutcore.pyx setup.py helper.cxx helper.h $(TOGEN)
 	@$(PY) setup.py build_ext --inplace
 
 test: boutcore.so
-	@PYTHONPATH=..:$$PYTHONPATH $(PY) ./runtest > run.log
+	@PYTHONPATH=..:$$PYTHONPATH $(PY) ./runtest 2>&1 > run.log || (ex=$? ; cat run.log ; exit $ex)
+	@PYTHONPATH=..:$$PYTHONPATH $(PY) mini.py 2>&1 > run.log || (ex=$? ; cat run.log ; exit $ex)
 
 check: test
 .PHONY:

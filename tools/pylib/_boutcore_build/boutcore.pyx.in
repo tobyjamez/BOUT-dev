@@ -45,7 +45,7 @@ cat <<EOF
 cimport boutcpp as c
 import numpy as np
 cimport numpy as np
-import atexit
+#import atexit
 cimport resolve_enum as benum
 from libc.stdlib cimport malloc, free
 
@@ -153,9 +153,17 @@ cdef class Field3D:
         #    raise MemoryError('Not enough memory, allocation failed.')
 
     def set(self,data,ignoreDataType=False):
+        """Set all data of the Field3D
+           data: The data to be set
+           ignoreDataType: Ignore if data is off different type to BoutReal
+        """
         return self.setAll(data,ignoreDataType)
 
     def setAll(self,data,ignoreDataType=False):
+        """Set all data of the Field3D
+           data: The data to be set
+           ignoreDataType: Ignore if data is off different type to BoutReal
+        """
         if data.dtype != np.dtype('float64'):
             if ignoreDataType:
                 data=data.astype('float64')
@@ -165,9 +173,15 @@ cdef class Field3D:
         c_set_f3d_all(self.cobj,&data_[0,0,0]);
 
     def get(self):
+        """Get all data of the Field3D
+        Returns a 3d numpy array with the data of the Field3D
+        """
         return self.getAll()
 
     def getAll(self):
+        """Get all data of the Field3D
+        Returns a 3d numpy array with the data of the Field3D
+        """
         nx=self.cobj.getNx()
         ny=self.cobj.getNy()
         nz=self.cobj.getNz()
@@ -177,15 +191,27 @@ cdef class Field3D:
         return data_
 
     def setLocation(self,location):
+        """setLocation(self,location)
+        Set the location of the Field3D
+        This does not do any modification of the data.
+           location: Is a string e.g. "YLOW" or "CELL_YLOW" are supported.
+        """
         cdef benum.CELL_LOC location_ = benum.resolve_cell_loc(location)
         self.cobj[0].setLocation(location_)
         return self
 
     def getLocation(self):
+        """getLocation(self)
+        Get the location of the Field3D
+        Returns a string representation of the field's location.
+        """
         cdef benum.CELL_LOC loc = self.cobj[0].getLocation()
-        return resolve_inv_cell_loc(loc)
+        return _resolve_inv_cell_loc(loc)
 
     def ddt(self,val=None):
+        """Returns the Field3D's time derivative, which again is a Field3D
+        if val is set, the time derivative is set to val. val needs to be a Field3D.
+        """
         if val:
             c_set_f3d_from_f3d(&c.ddt(self.cobj[0]),(<Field3D?>val).cobj)
         return f3dFromPtr(&c.ddt(self.cobj[0]))
@@ -193,11 +219,16 @@ cdef class Field3D:
     def __neg__(self):
         return f3dFromObj(c_minus(self.cobj[0]))
     def isAllocated(self):
+        """isAllocated(self)
+        Check if the Field3D has its own datablock allocated"""
         return self.cobj.isAllocated()
     def __getitem__(self,slices):
+        """Supports full 3D slicing support.
+        Only 1D slicing is currently not supported.
+        """
         if len(slices)!=3:
             raise IndexError("This is a 3D object, but got %d slics"%len(slices))
-        inds=resolve_slices(slices,
+        inds=_resolve_slices(slices,
                             [self.cobj.getNx()
                              ,self.cobj.getNy()
                              ,self.cobj.getNz()])
@@ -208,13 +239,10 @@ cdef class Field3D:
         c_get_f3d_part(self.cobj,&data_[0,0,0],inds[0][0],inds[0][1],inds[0][2],inds[1][0],inds[1][1],inds[1][2],inds[2][0],inds[2][1],inds[2][2]);
         return data_
 
-    def set(self,data_):
-        self.__setitem__([slice(None)]*3,data_)
-
     def __setitem__(self,slices,data_):
         if len(slices)!=3:
             raise IndexError("This is a 3D object!")
-        inds=resolve_slices(slices,
+        inds=_resolve_slices(slices,
                             [self.cobj.getNx()
                              ,self.cobj.getNy()
                              ,self.cobj.getNz()])
@@ -316,6 +344,7 @@ cdef class Mesh:
 
     @classmethod
     def getGlobal(cls):
+        """Returns the global Mesh object"""
         checkInit()
         msh = Mesh(create=False);
         msh.cobj = c_get_global_mesh();
@@ -327,16 +356,23 @@ cdef class Mesh:
             del self.cobj
 
     cdef getFactory(self):
+        """Get the FieldFactory of the mesh"""
         if (<FieldFactory>self.factory).cobj == <c.FieldFactory*>0:
             (<FieldFactory?>self.factory).cobj = new c.FieldFactory(self.cobj,<c.Options*>0)
         return self.factory
     def normalise(self,double norm):
+        """Normalise the mesh.
+        Usefull if the Options are in SI units, but the simulation is written in Bohm units.
+        Calling it multiple times will not change the mesh, if the normalisation is always the same.
+        It calls mesh->dx/=norm etc. followed by a call to geometry().
+        """
         if self.isNormalised>0:
             t=norm
             norm=norm/self.isNormalised
             self.isNormalised=t
         c_mesh_normalise(self.cobj,norm)
     def communicate(self,*args):
+        """Communicate (MPI) some Field3Ds"""
         cdef c.FieldGroup * fg = new c.FieldGroup()
         for f in args:
             fg.add((<Field3D?> f).cobj[0])
@@ -345,6 +381,7 @@ cdef class Mesh:
         return self
 
 cdef class Laplacian:
+    """The Laplacion inversion class"""
     cdef c.Laplacian * cobj
     def __init__(self,section=None):
         checkInit()
@@ -354,6 +391,7 @@ cdef class Laplacian:
            self.cobj = c.Laplacian.create(NULL)
         
     def solve(self,Field3D a, Field3D b):
+        """Returns the inversion of a, where b is a guess to start with"""
         return f3dFromObj(self.cobj.solve(a.cobj[0],b.cobj[0]))
 
 cdef class FieldFactory:
@@ -385,6 +423,7 @@ cdef void callback(void * parameter, void * method) with gil:
 ctypedef void (*Method)(void *param)
 
 cdef class PythonModelCallback:
+    """Needed for callbacks from C++ to python"""
     cdef c.PythonModelCallback * cobj
 
     def __cinit__(self, method):
@@ -404,6 +443,7 @@ cdef class PythonModelCallback:
 
 
 cdef class PhysicsModelBase(object):
+    """The base PhysicsModel in python"""
     cdef c.PythonModel * cmodel
     cdef c.PythonModelCallback * callback
     cdef c.PythonModelCallback * callbackinit
@@ -436,12 +476,20 @@ cdef class PhysicsModelBase(object):
             self.cmodel.getSolver().add(f3d[0],tmp)
 
     def setRhs(self,rhs):
+        """setRhs(self,rhs)
+        set the rhs function to be called
+        rhs may not be a method, and must accept an double (time) as argument
+        """
         if self.callback != <c.PythonModelCallback*>0:
             del self.callback
         self.callback = new c.PythonModelCallback(callback, <void*> rhs)
         self.cmodel.set_rhs_func(self.callback)
 
     def setInit(self,init):
+        """setInit(self,init)
+        set the init function to be called
+        init may not be a method, and must accept an bool (restart) as argument
+        """
         if self.callbackinit != <c.PythonModelCallback*>0:
             del self.callbackinit
         self.callbackinit = new c.PythonModelCallback(callback, <void*> init)
@@ -455,10 +503,14 @@ cdef class PhysicsModelBase(object):
             del self.callbackinit
 
 class PhysicsModel(PhysicsModelBase):
+    """The PhysicsModel base class for python"""
     def __init__(self):
         super(PhysicsModel,self).__init__()
         self._super_is_initialised=True
     def solve(self):
+        """Call the solver.
+        This makes sure that self.init(restart) and self.rhs(time) are called from the solver.
+        """
         try:
             self._super_is_initialised
         except:
@@ -473,22 +525,31 @@ class PhysicsModel(PhysicsModelBase):
         self.setInit(self.myinit)
         super(PhysicsModel,self).solve()
     def solve_for(self,*args,**kwargs):
+        """Add Field3D's to be solved for.
+        Need to pass as name=field - where name is the name that is
+        used e.g. for the dump file and field is a Field3D
+        """
         try:
             self._super_is_initialised
         except:
             raise RuntimeError("PhysicsModel is not initialized")
         super(PhysicsModel,self).solve_for(*args,**kwargs)
     def init(self,restart):
+        """This can be overwritten to do model specific initialization"""
         pass
 
 cdef extern from "bout.hxx":
     int BoutInitialise(int&, char **&)
     void BoutFinalise()
     
-isInit=False
+_isInit=False
 def init(args=[]):
-    global isInit
-    if isInit:
+    """Initialization function for the library.
+    It accepts ether a list of strings, or a string that is split at the spaces.
+    This is passed on to MPI and other libraries.
+    """
+    global _isInit
+    if _isInit:
         raise RuntimeError("The BOUT++ library was already initialised - please call boutcore.init(args) only once")
     try:
         # python3 version
@@ -513,18 +574,22 @@ def init(args=[]):
     if ret:
         BoutFinalise()
     else:
-        isInit=True
+        _isInit=True
     #atexit.register(finalise)
 
 def finalise():
+    """Finalize BOUT++ and also MPI.
+    After this most function calls are not valid anymore.
+    """
     checkInit()
     BoutFinalise()
-    global isInit
-    isInit=False
+    global _isInit
+    _isInit=False
 
 def checkInit():
-    global isInit
-    if not isInit:
+    """Assert that boutcore has been initialized"""
+    global _isInit
+    if not _isInit:
        raise RuntimeError("The BOUT++ library was not initialised - please call boutcore.init(args) first")
 
 EOF
@@ -534,48 +599,63 @@ do
         DD=${f/d/$d}
         cat <<EOF
 def $DD($in1, outloc="CELL_DEFAULT", method="DIFF_DEFAULT", region="RGN_ALL"):
+    """Compute the derivative $DD($in1, outloc="CELL_DEFAULT", method="DIFF_DEFAULT", region="RGN_ALL")
+    $f_desc
+    All remaining options are passed as strings.
+    outloc: The location where the derivative is expected. Defaults to the same as field.
+    method: The method to calculate the derivative.
+    region: The region for which to calculate the derivative
+    """
     checkInit()
     cdef benum.CELL_LOC outloc_= benum.resolve_cell_loc(outloc)
     cdef benum.DIFF_METHOD method_=benum.resolve_diff_method(method)
     cdef benum.REGION region_=benum.resolve_region(region)
     return f3dFromObj(c.$DD($in2,outloc_,method_,region_))
-
 EOF
     }
     for f in DDd D2Dd2 # VDDd FDDd
     do
         in1="Field3D field"
         in2="field.cobj[0]"
+        f_desc="field: The Field3D object of which to calculate the derivative"
         fun
     done
     for f in VDDd FDDd
     do
-        in1="Field3D v, Field3D f"
-        in2="v.cobj[0], f.cobj[0]"
+        in1="Field3D velocity, Field3D field"
+        in2="velocity.cobj[0], field.cobj[0]"
+        f_desc="field: The Field3D object of which to calculate the derivative
+    velocity: The Field3D object of which the field is advected"
         fun
     done
 done
 cat <<EOF
 
 def Vpar_Grad_par(Field3D V, Field3D f, outloc="CELL_DEFAULT",method="DIFF_DEFAULT"):
+    """Vpar_Grad_par(Field3D V, Field3D f, outloc="CELL_DEFAULT",method="DIFF_DEFAULT")"""
     checkInit()
     cdef benum.CELL_LOC outloc_= benum.resolve_cell_loc(outloc)
     cdef benum.DIFF_METHOD method_=benum.resolve_diff_method(method)
     return f3dFromObj(c.Vpar_Grad_par(V.cobj[0],f.cobj[0],outloc_,method_))
 
 def Div_par(Field3D J, outloc="CELL_DEFAULT",method="DIFF_DEFAULT"):
+    """Div_par(Field3D J, outloc="CELL_DEFAULT",method="DIFF_DEFAULT")"""
     checkInit()
     cdef benum.CELL_LOC outloc_=benum.resolve_cell_loc(outloc)
     cdef benum.DIFF_METHOD method_=benum.resolve_diff_method(method)
     return f3dFromObj(c.Div_par((J.cobj)[0],outloc_,method_))
 
 def Grad_par(Field3D J, outloc="CELL_DEFAULT",method="DIFF_DEFAULT"):
+    """Grad_par(Field3D J, outloc="CELL_DEFAULT",method="DIFF_DEFAULT")"""
     checkInit()
     cdef benum.CELL_LOC outloc_=benum.resolve_cell_loc(outloc)
     cdef benum.DIFF_METHOD method_=benum.resolve_diff_method(method)
     return f3dFromObj(c.Grad_par((J.cobj)[0],outloc_,method_))
 
 def bracket(Field3D a, Field3D b, method="BRACKET_STD", outloc="CELL_DEFAULT"):
+    """bracket(Field3D a, Field3D b, method="BRACKET_STD", outloc="CELL_DEFAULT")
+    Calculate the poison bracket for Field3D a and Field3D b.
+    """
     checkInit()
     cdef benum.CELL_LOC outloc_=benum.resolve_cell_loc(outloc)
     cdef benum.BRACKET_METHOD method_=benum.resolve_bracket_method(method)
@@ -585,6 +665,8 @@ EOF
 for fun in sqrt exp sin cos log abs
 do
     echo "def $fun(Field3D a):
+    \"\"\"$fun(Field3D a)
+    Calculate $fun of the Field3D\"\"\"
     return f3dFromObj(c.$fun(a.cobj[0]))
 
 "
@@ -592,23 +674,36 @@ done
 cat <<EOF
 
 def pow(Field3D a, exponent):
+    """pow(Field3D a, exponent)
+    Returns a**e where a is a Field3D and e is a number"""
     return f3dFromObj(c.pow(a.cobj[0],float(exponent)))
 
 def min(Field3D a):
+    """Returns the minimum of the Field3D"""
     return c.min(a.cobj[0])
 
 def max(Field3D a):
+    """Returns the maximum of the Field3D"""
     return c.max(a.cobj[0])
 
 def Delp2(Field3D a, zsmooth=-1):
+    """Delp2(Field3D a, zsmooth=-1)"""
     checkInit()
     return f3dFromObj(c.Delp2(a.cobj[0],float(zsmooth)))
 
 def Grad_perp_dot_Grad_perp(Field3D a, Field3D b):
+    """Grad_perp_dot_Grad_perp(Field3D a, Field3D b)
+    Returns the scalar product of the perpendicular gradient contributions"""
     checkInit()
     return f3dFromObj(c_Grad_perp_dot_Grad_perp(a.cobj[0],b.cobj[0]))
 
 def create3D(string, Mesh msh=None,outloc="CELL_DEFAULT",time=0):
+    """create3D(string, Mesh msh=None,outloc="CELL_DEFAULT",time=0)
+    Returns a Field3D from the fieldfactory
+    msh is the Mesh to use, defaults to the global mesh.
+    outloc is the cell location of the returned field
+    time is the time
+    """
     checkInit()
     cdef benum.CELL_LOC outloc_=benum.resolve_cell_loc(outloc)
     if msh is None:
@@ -620,12 +715,16 @@ def create3D(string, Mesh msh=None,outloc="CELL_DEFAULT",time=0):
                                            ,outloc_,time))
 
 def interp_to(Field3D f3d,location):
+    """interp_to(Field3D f3d,location):
+    Interpolate a Field3D to a given location"""
     checkInit()
     cdef benum.CELL_LOC location_ = benum.resolve_cell_loc(location)
     return f3dFromObj(c.interp_to(f3d.cobj[0],location_))
 
 
 def setOption(name, value):
+    """setOption(name, value)
+    Set an option in the global Options tree"""
     checkInit()
     cdef c.Options * opt = c.Options.getRoot()
     cdef c.string sec_
@@ -650,6 +749,7 @@ cdef class Options:
             self.cobj=self.cobj.getSection(sec_)
 
     def set(self,name,value,source="PyInterface"):
+        """set(self,name,value,source="PyInterface")"""
         cdef c.Options * opt=self.cobj
         cdef c.string sec_
         for sec in name.split(":")[:-1]:
@@ -663,6 +763,7 @@ cdef class Options:
         return self
 
     def get(self,name,default):
+        """get(self,name,default)"""
         cdef c.Options * opt=self.cobj
         cdef c.string sec_
         for sec in name.split(":")[:-1]:

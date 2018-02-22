@@ -1,61 +1,30 @@
-#!/usr/bin/env python3
+#!/usr/bin/env sh
 
-#
-# Run the test, check it completed successfully
-#
+make > make.log || exit
 
-from __future__ import print_function
-try:
-  from builtins import str
-except:
-  pass
-from boututils.run_wrapper import shell, shell_safe, launch_safe, getmpirun
-from boutdata.collect import collect
-from sys import stdout, exit
+if test ".$(../../../bin/bout-config --has-openmp)" == .yes
+then
+    ml=1 2 3 4 5
+else
+    ml=1
+fi
 
-MPIRUN=getmpirun()
+for n in 1 2 4
+do
+    for m in $ml
+    do
+	if ! OMP_NUM_THREADS=$m mpirun -np $n ./test_dataiterator > run.log.$m.$n
+        then
+            err=$?
+            echo failing command was:
+            echo OMP_NUM_THREADS=$m mpirun -np $n ./test_dataiterator
+            echo
+            echo error log was:
+            cat run.log.$m.$n
+            echo
+            exit $?
+        fi
+    done
+done
 
-print("Making DataIterator test")
-s, out = shell_safe("make > make.log",pipe=True)
-
-flags = [""]
-#, "nsys=2", "nsys=5 periodic", "nsys=7 n=10"]
-
-code = 0 # Return code
-for nproc in [1,2,4]:
-  for mproc in [1,2,4,8]:
-    cmd = "./test_dataiterator"
-
-    print("   %d processors...." % (nproc))
-    r = 0
-    for f in flags:
-        stdout.write("\tflags '"+f+"' ... ")
-
-        shell("rm data/BOUT.dmp.* 2> err.log")
-
-        # Run the case
-        s, out = launch_safe(cmd+" "+f, runcmd=MPIRUN, nproc=nproc, pipe=True)
-        f = open("run.log."+str(nproc)+"."+str(mproc), "w")
-        f.write(out)
-        f.close()
-        r = r + 1
-        if s:
-          #stdout.write(out)
-          code=1
-          print("FAILED")
-        else:
-          
-          # Find out if it worked
-          #allpassed = collect("allpassed", path="data", info=False)
-          #if allpassed:
-          print("PASSED")
-          #else:
-          #  print("FAILED")
-          #  code = 1
-
-if code == 0:
-    print(" => All data iteration tests passed")
-else:
-    print(" => Some failed tests")
-
-exit(code)
+echo "All test successfull"

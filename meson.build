@@ -1,5 +1,5 @@
 project('BOUT++', 'cpp',
-        version: '4.1.1',
+        version: '4.1.2',
         default_options : ['cpp_std=c++11'])
 
 configuration_object = configuration_data()

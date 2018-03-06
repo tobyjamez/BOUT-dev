@@ -1,0 +1,10 @@
+#ifndef __BOUTCONFIG_H__
+#define __BOUTCONFIG_H__
+
+#mesondefine NCDF
+#mesondefine NCDF4
+#mesondefine HDF5
+#mesondefine BOUT_HAS_PETSC
+#mesondefine BOUT_HAS_PETSC_DEV
+
+#endif //__BOUTCONFIG_H__

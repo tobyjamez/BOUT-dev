@@ -32,7 +32,9 @@
  * along with BOUT++.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#ifdef MESON
 #include "boutconfig.hxx"
+#endif
 
 #ifndef NCDF4
 

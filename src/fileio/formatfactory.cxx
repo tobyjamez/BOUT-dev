@@ -1,4 +1,6 @@
+#ifdef MESON
 #include "boutconfig.hxx"
+#endif
 
 #include <globals.hxx>
 

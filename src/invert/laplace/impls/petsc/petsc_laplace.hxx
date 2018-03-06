@@ -30,6 +30,10 @@ class LaplacePetsc;
 #ifndef __PETSC_LAPLACE_H__
 #define __PETSC_LAPLACE_H__
 
+#ifdef MESON
+#include "boutconfig.hxx"
+#endif
+
 #ifndef BOUT_HAS_PETSC
 
 #include <boutexception.hxx>

@@ -45,6 +45,10 @@ class PetscLib;
 #ifndef __PETSCLIB_H__
 #define __PETSCLIB_H__
 
+#ifdef MESON
+#include "boutconfig.hxx"
+#endif
+
 #ifdef BOUT_HAS_PETSC
 
 // Fix error in PETSC_DEPRECATED("Use SNESGetLineSearch()") on Hopper (PETSc-3.4)

@@ -2,6 +2,10 @@
  * 3D Laplacian solver using PETSc
  */
 
+#ifdef MESON
+#include "boutconfig.hxx"
+#endif
+
 #ifndef BOUT_HAS_PETSC
 // No PETSc available, so define as an empty laplace3d
 

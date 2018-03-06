@@ -9,6 +9,10 @@ class LaplaceXZpetsc;
 #ifndef __LAPLACEXZ_PETSC_H__
 #define __LAPLACEXZ_PETSC_H__
 
+#ifdef MESON
+#include "boutconfig.hxx"
+#endif
+
 #include <bout/invert/laplacexz.hxx>
 
 #ifndef BOUT_HAS_PETSC

@@ -2,6 +2,8 @@ project('BOUT++', 'cpp',
         version: '4.1.2',
         default_options : ['cpp_std=c++11'])
 
+add_global_arguments('-DMESON', language : 'cpp')
+
 configuration_object = configuration_data()
 
 fftw3 = dependency('fftw3')

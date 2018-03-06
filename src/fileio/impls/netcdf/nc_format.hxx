@@ -33,7 +33,9 @@
  *
  */
 
+#ifdef MESON
 #include "boutconfig.hxx"
+#endif
 
 #ifndef NCDF
 

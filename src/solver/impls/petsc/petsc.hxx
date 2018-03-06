@@ -24,6 +24,10 @@
  *
  **************************************************************************/
 
+#ifdef MESON
+#include "boutconfig.hxx"
+#endif
+
 #ifdef BOUT_HAS_PETSC_DEV
 
 class PetscSolver;

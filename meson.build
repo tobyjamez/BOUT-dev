@@ -131,6 +131,7 @@ src = [
   './src/field/field_factory.cxx',
   './src/field/field3d.cxx',
   './src/field/vector2d.cxx',
+  './src/field/generated_fieldops.cxx',
   './src/solver/impls/rkgeneric/impls/rkf34/rkf34.cxx',
   './src/solver/impls/rkgeneric/impls/rkf45/rkf45.cxx',
   './src/solver/impls/rkgeneric/impls/cashkarp/cashkarp.cxx',
@@ -166,7 +167,7 @@ src = [
   './src/fileio/dataformat.cxx',
   './src/fileio/formatfactory.cxx',
   './src/fileio/datafile.cxx',
-  './src/bout++.cxx'
+  './src/bout++.cxx',
 ]
 
 libbout = static_library('bout++', sources: src,

@@ -1,3 +1,7 @@
+class LaplaceXZcyclic;
+
+#ifndef __LAPLACEXZ_CYCLIC_H__
+#define __LAPLACEXZ_CYCLIC_H__
 
 #include <bout/invert/laplacexz.hxx>
 #include <cyclic_reduction.hxx>
@@ -26,3 +30,5 @@ private:
   int inner_boundary_flags; ///< Flags to set inner boundary condition
   int outer_boundary_flags; ///< Flags to set outer boundary condition
 };
+
+#endif // __LAPLACEXZ_CYCLIC_H__

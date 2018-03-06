@@ -56,7 +56,6 @@ libgtest = static_library('gtest',
                            include_directories : [include_directories(gtest_dir), gtest_incdir],
                            sources : [
                              join_paths(gtest_dir, 'src', 'gtest-all.cc'),
-                             join_paths(gtest_dir, 'src', 'gtest_main.cc')
                            ])
 
 gtest_dep = declare_dependency(dependencies : dependency('threads'),

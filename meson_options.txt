@@ -1,0 +1,1 @@
+option('with-petsc', type: 'boolean', value: false)

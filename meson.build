@@ -10,6 +10,13 @@ netcdf_cpp = dependency('netcdf-cxx4', required: false)
 hdf5 = dependency('hdf5', required: false)
 mpi = dependency('mpi', language: 'cpp')
 
+with_petsc = get_option('with-petsc')
+petsc_enabled = false
+if with_petsc
+  petsc = dependency('PETSc', required: with_petsc)
+  petsc_enabled = petsc.found()
+endif
+
 if not netcdf_cpp.found()
   ncxx4_config = find_program('ncxx4-config')
   if ncxx4_config.found()
@@ -24,9 +31,14 @@ endif
 configuration_object.set('NCDF', netcdf.found() and (not netcdf_cpp.found()))
 configuration_object.set('NCDF4', netcdf_cpp.found())
 configuration_object.set('HDF5', hdf5.found())
+configuration_object.set('BOUT_HAS_PETSC', petsc_enabled)
+configuration_object.set('BOUT_HAS_PETSC_DEV', petsc_enabled)
 
 deps = [fftw3, netcdf, netcdf_cpp, hdf5, mpi]
 
+if petsc_enabled
+  deps += petsc
+endif
 
 incdir = include_directories('include')
 

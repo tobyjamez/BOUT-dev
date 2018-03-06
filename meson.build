@@ -15,7 +15,8 @@ configuration_object.set('NCDF', netcdf.found() and (not netcdf_cpp.found()))
 configuration_object.set('NCDF4', netcdf_cpp.found())
 configuration_object.set('HDF5', hdf5.found())
 
-deps = [fftw3, netcdf, netcdf_cpp, mpi]
+deps = [fftw3, netcdf, netcdf_cpp, hdf5, mpi]
+
 
 incdir = include_directories('include')
 

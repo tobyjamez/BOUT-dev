@@ -32,6 +32,7 @@
  * along with BOUT++.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+#include "boutconfig.hxx"
 
 #ifndef HDF5
 

@@ -30,6 +30,10 @@ stencils_cleaned.cxx:../../index_derivs.cxx
 		tables_cleaned.cxx gen_stencils.py stencils_cleaned.cxx \
 		common.py
 	@echo "  Generating code for aiolos mesh"
+# Testing scripts
+	@python3 common_test.py &> test.log || ( cat test.log ; exit 1 )
+	@python3 test_interp.py &> test.log || ( cat test.log ; exit 1 )
+# Generating
 	@python3 $< > generated_derivs.cxx || ( rm -f $@ ; exit 1)
 	@(clang-format -i $(generated) || astyle -n $(generated) ) || exit 0 # ignore failure
 	@touch .generated.stamp

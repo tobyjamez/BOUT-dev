@@ -71,7 +71,7 @@ void compare( Field3D diff, Field3D exp){
 		       ,diff(x,y,z),n(x,y,z));
   
   }
-  auto error=max(abs(diff-exp)); 
+  auto error=max(abs(diff-exp,RGN_NOBNDRY),false,RGN_NOBNDRY);
   output.write("\nerror: %g\n",error);
   if (error > 1e-8){
     //int x=mesh->xend-1;
@@ -80,6 +80,7 @@ void compare( Field3D diff, Field3D exp){
     auto err=exp-diff;
     
     //for (int x=mesh->xstart;x<=mesh->xend;++x)
+    output.write("\t x  y  z   expected\tdiff\tn\n");
     for (int x=0;x<mesh->LocalNx;++x)
       //for (int y=mesh->ystart;y<=mesh->yend;++y)
       for (int y=0;y<mesh->LocalNy;++y)

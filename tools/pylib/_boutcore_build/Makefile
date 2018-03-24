@@ -18,16 +18,30 @@ boutcore.so: boutcore.pyx setup.py helper.cxx helper.h $(TOGEN)
 	@$(PY) setup.py build_ext --inplace
 
 test: boutcore.so
-	@PYTHONPATH=..:$$PYTHONPATH $(PY) ./runtest 2>&1 > run.log || (ex=$? ; cat run.log ; exit $ex)
-	@PYTHONPATH=..:$$PYTHONPATH $(PY) mini.py 2>&1 > run.log || (ex=$? ; cat run.log ; exit $ex)
+	@PYTHONPATH=..:$$PYTHONPATH $(PY) ./runtest 2>&1 > run.log || (ex=$$? ; cat run.log ; exit $$ex)
+	@PYTHONPATH=..:$$PYTHONPATH $(PY) mini.py 2>&1 > run.log || (ex=$$? ; cat run.log ; exit $$ex)
 
 check: test
-.PHONY:
+.PHONY: clean
 
-clean: .PHONY
+clean:
 	rm -f boutcore.cpp boutcore.so
 	rm -f $(TOGEN)
 	rm -rf build
 
 pseudoinstall: check
 	cp boutcore*.so ..
+
+.PHONY: input
+input:
+	@PYTHONPATH=..:$$PYTHONPATH $(PY) geninput.py
+
+.PHONY: debug
+debug: debug.so
+	$(PY) ./debug.py
+	! ./debug.py
+	! mpirun -np 1 $(PY) ./debug.py
+	! mpirun -np 1 ./debug.py
+
+debug.so: debug.pyx debug.pxd debug_setup.py
+	$(PY) ./debug_setup.py build_ext --inplace

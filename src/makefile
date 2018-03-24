@@ -40,11 +40,9 @@ include $(BOUT_TOP)/make.config
 # certain if all directories are finished
 bout++.o: $(BOUT_TOP)/lib/.last.o.file .dummy
 
-# Catch the case of out-of-date make.config
-# This should be removed soon ...
-$(BOUT_TOP)/lib/.last.o.file:
-	@echo "make.config is out ouf date - run ./configure"
-	@exit 1
+# make sure to wait ...
+$(BOUT_TOP)/lib/.last.o.file: .dummy
+
 
 # make .libfast a real target - similar to .dummy to avoid that a
 # rebuild is forced.

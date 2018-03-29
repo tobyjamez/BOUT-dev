@@ -13,8 +13,11 @@ from builtins import str
 
 #from numpy import sqrt, max, abs, mean, array, log, zeros
 import numpy as np
-
-import boutcore as bc
+try:
+    import boutcore as bc
+except:
+    print("BoutCore not available - skipping test")
+    exit(42)
 
 bc.init("-q -q -q")
 

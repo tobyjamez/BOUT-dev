@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
-import boutcore
+try:
+    import boutcore
+except:
+    print("BoutCore not available - skipping test")
+    exit(42)
+
 import numpy as np
 import itertools
 

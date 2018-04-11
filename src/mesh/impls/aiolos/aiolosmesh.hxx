@@ -1,3 +1,35 @@
+/**************************************************************************
+ * Implementation of the Mesh class. Based on the BoutMesh, but with
+ * hopefuly faster derivatives.
+ *
+ * Changelog
+ * ---------
+ *
+ * 2016..2018 David Schwörer
+ *           based on the BoutMesh
+ *
+ **************************************************************************
+ * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
+ *
+ * Contact: Ben Dudson, bd512@york.ac.uk
+ *
+ * This file is part of BOUT++.
+ *
+ * BOUT++ is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BOUT++ is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with BOUT++.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ **************************************************************************/
+
 #pragma once
 
 #include "../bout/boutmesh.hxx"
@@ -23,7 +55,7 @@ public:
     deriv_func off;
   };
 
-#include "generated_header.hxx"
+#include "aiolos_header.hxx"
 
   // virtual const Field3D interp_to(const Field3D &var, CELL_LOC loc) const;
 
@@ -47,13 +79,19 @@ public:
     return f;
   }
 
-  virtual BoutReal GlobalY(int y) const;
-  virtual void derivs_init(Options *option);
+  virtual void derivs_init(Options *option) override;
 
 // to check in debugger we have the right mesh
-#ifdef CHECK
+#if CHECK > 1
   bool isAiolos = true;
 #endif
 private:
   const Field3D interp_to_do(const Field3D &f, CELL_LOC loc) const;
+
+#include "aiolos_derivs.hxx"
+
+#include "aiolos_stencils.hxx"
+
+#include "aiolos_interp_to.hxx"
+
 };

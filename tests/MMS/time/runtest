@@ -18,7 +18,10 @@ from numpy import sqrt, max, abs, mean, array, log, pi
 
 from os.path import join
 
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+except:
+    plt=None
 
 MPIRUN = getmpirun()
 
@@ -69,6 +72,7 @@ for opts,label,sym,expected_order in options:
         # Command to run
         cmd = "./time "+args
         # Launch using MPI
+        print(cmd)
         s, out = launch_safe(cmd, runcmd=MPIRUN, nproc=nproc, pipe=True)
         
         # Save output to log file

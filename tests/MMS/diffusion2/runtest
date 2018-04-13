@@ -120,7 +120,7 @@ for dir,sizes in inputs:
 
         #plt.show()
         plt.close()
-    except all:
+    except:
         pass
 
 if success:

@@ -503,21 +503,7 @@ DIFF_METHOD lookupFunc(DiffLookup *table, const string &label) {
   // Loop through the name lookup table
   for (int i = 0; DiffNameTable[i].method != DIFF_DEFAULT; ++i) {
     if (strcasecmp(label.c_str(), DiffNameTable[i].label) == 0) { // Whole match
-      if (isImplemented(table, DiffNameTable[i].method)) {
-        return DiffNameTable[i].method;
-      } else {
-        std::string avail{};
-
-        for (int i = 0; DiffNameTable[i].method != DIFF_DEFAULT; ++i) {
-          if (isImplemented(table, DiffNameTable[i].method)) {
-            avail += DiffNameTable[i].label;
-            avail += "\n";
-          }
-        }
-        throw BoutException("Option %s is known but not valid for this differencing "
-                            "type.\nAvailable options are:\n%s",
-                            label.c_str(), avail.c_str());
-      }
+      return DiffNameTable[i].method;
     }
   }
 

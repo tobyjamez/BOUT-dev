@@ -1,9 +1,59 @@
 from __future__ import print_function
-# Define some constants, functions
+
+# BOUT++ Library - Write fluid simulations in curviilinear geometry
+# Copyright (C) 2016, 2017, 2018 David Schwörer
+#
+# Contact: Ben Dudson, bd512@york.ac.uk
+#
+# This file is part of BOUT++.
+#
+# BOUT++ is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# BOUT++ is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with BOUT++.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def warn():
-    print("\n// This file is auto-generated - do not edit!")
+# Define some general constants, functions, ...
+
+def warn(doPrint=True):
+    msg="\n// This file is auto-generated - do not edit!"
+    if doPrint:
+        print(msg)
+    else:
+        return msg+"\n"
+
+
+def license():
+    return """/********************************************************
+ * BOUT++ Library - Write fluid simulations in curviilinear geometry
+ * Copyright (C) 2016, 2017, 2018 David Schwörer
+ *
+ * Contact: Ben Dudson, bd512@york.ac.uk
+ *
+ * This file is part of BOUT++.
+ *
+ * BOUT++ is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BOUT++ is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with BOUT++.  If not, see <http://www.gnu.org/licenses/>.
+ *****************************************************************/
+"""
 
 # simple debug logger - easy to disable in a single point
 debug_enabled = False  # True
@@ -32,16 +82,16 @@ for field in fields:
                 perp_dir[field][d].append(d2)
 
 off_diff = dict()
-for stag in ['on', 'off', 'norm']:
+for stag in ['CtoL', 'LtoC', 'norm']:
     curr = dict()
-    if stag == 'off':
+    if stag == 'LtoC':
         curr = {'ppp': 'ppp',
                 'pp': 'pp',
                 'p': 'p',
                 'm': 'c',
                 'mm': 'm',
                 'mmm': 'mm'}
-    elif stag == 'on':
+    elif stag == 'CtoL':
         curr = {'ppp': 'pp',
                 'pp': 'p',
                 'p': 'c',
@@ -62,11 +112,11 @@ for stag in ['on', 'off', 'norm']:
             curr[d] = 'm(3)'
             if curr[d] == 'ppp()':
                 curr[d] = 'p(3)'
-    if stag == 'on':
+    if stag == 'CtoL':
         for i in range(1, 6):
             curr['m%d' % i] = 'm(%d)' % i
             curr['p%d' % i] = 'p(%d)' % (i - 1)
-    if stag == 'off':
+    if stag == 'LtoC':
         for i in range(1, 6):
             curr['m%d' % i] = 'm(%d)' % (i - 1)
             curr['p%d' % i] = 'p(%d)' % (i)

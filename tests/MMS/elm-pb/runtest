@@ -5,7 +5,8 @@
 # Tests a range of different schemes
 #
 
-#requires: slow_tests
+#Requires: sympy
+#Requires: slow_tests
 
 from __future__ import division
 from __future__ import print_function

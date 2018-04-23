@@ -24,9 +24,8 @@ test-subdir
 test-aiolos
 test-interpolate
 test-fci-slab
-!test-include
 # More complex tests
-test-drift-instability
+test-drift-instability-staggered
 test-interchange-instability
 # test coding style
 !test-code-style

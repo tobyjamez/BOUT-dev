@@ -93,5 +93,4 @@ private:
 #include "aiolos_stencils.hxx"
 
 #include "aiolos_interp_to.hxx"
-
 };

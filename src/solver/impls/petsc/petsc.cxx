@@ -1060,7 +1060,7 @@ PetscErrorCode solver_ijacobianfd(TS ts, BoutReal t, Vec globalin, Vec globalind
   PetscFunctionReturn(0);
 }
 #endif
-//-----------------------------------------
+  //-----------------------------------------
 
 #undef __FUNCT__
 #define __FUNCT__ "PhysicsSNESApply"

@@ -752,7 +752,7 @@ TEST_F(Field3DTest, ConstIndexingToZPointer) {
 #endif
 }
 
-//-------------------- Checking tests --------------------
+  //-------------------- Checking tests --------------------
 
 #if CHECK > 2
 TEST_F(Field3DTest, CheckNotEmpty) {

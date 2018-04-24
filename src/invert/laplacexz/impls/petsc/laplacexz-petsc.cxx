@@ -541,7 +541,7 @@ void LaplaceXZpetsc::setCoefs(const Field3D &Ain, const Field3D &Bin) {
     }
   } else {
     for (vector<YSlice>::iterator it = slice.begin(); it != slice.end(); it++) {
-      /// Reuse the preconditioner, even if the operator changes
+    /// Reuse the preconditioner, even if the operator changes
 
 #if PETSC_VERSION_GE(3, 5, 0)
       KSPSetReusePreconditioner(it->ksp, PETSC_TRUE);

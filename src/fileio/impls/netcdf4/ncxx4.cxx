@@ -619,7 +619,7 @@ bool Ncxx4::write_rec(int *data, const char *name, int lx, int ly, int lz) {
   // Try to find variable
   NcVar var = dataFile->getVar(name);
   if (var.isNull()) {
-    // Need to add to file
+  // Need to add to file
 
 #ifdef NCDF_VERBOSE
     output.write("Ncxx4:: write_rec { Adding Variable %d } \n", nd);

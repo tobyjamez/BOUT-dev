@@ -1368,7 +1368,7 @@ const Field3D Mesh::indexDDZ(const Field3D &f, CELL_LOC outloc, DIFF_METHOD meth
         }
       }
     }
-    // End of parallel section
+      // End of parallel section
 
 #if CHECK > 0
     // Mark boundaries as invalid

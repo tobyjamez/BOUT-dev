@@ -616,8 +616,8 @@ const Field3D Coordinates::Grad2_par2(const Field3D &f, CELL_LOC outloc) {
   return result;
 }
 
-/////////////////////////////////////////////////////////
-// perpendicular Laplacian operator
+  /////////////////////////////////////////////////////////
+  // perpendicular Laplacian operator
 
 #include <bout/invert_laplace.hxx> // Delp2 uses same coefficients as inversion code
 

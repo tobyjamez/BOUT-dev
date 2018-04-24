@@ -60,31 +60,35 @@ const Field3D Div_a_Laplace_perp(const Field3D &a, const Field3D &f) {
         int km = (k - 1 + (mesh->LocalNz)) % (mesh->LocalNz);
 
         // Calculate Z derivative at y boundary
-        BoutReal dfdz = 0.25 * (f(i, j, kp) - f(i, j, km) + f.yup()(i, j + 1, kp) -
-                                f.yup()(i, j + 1, km)) /
-                        coord->dz;
+        BoutReal dfdz =
+            0.25 *
+            (f(i, j, kp) - f(i, j, km) + f.yup()(i, j + 1, kp) - f.yup()(i, j + 1, km)) /
+            coord->dz;
 
         // Y derivative
         BoutReal dfdy = 2. * (f.yup()(i, j + 1, k) - f(i, j, k)) /
                         (coord->dy(i, j + 1) + coord->dy(i, j));
 
         BoutReal fout =
-            0.5 * (coord->J(i, j) * a(i, j, k) * coord->g23(i, j) +
-                   coord->J(i, j + 1) * a.yup()(i, j + 1, k) * coord->g23(i, j + 1)) *
+            0.5 *
+            (coord->J(i, j) * a(i, j, k) * coord->g23(i, j) +
+             coord->J(i, j + 1) * a.yup()(i, j + 1, k) * coord->g23(i, j + 1)) *
             (dfdz - coef * dfdy);
 
         result(i, j, k) += fout / (coord->dy(i, j) * coord->J(i, j));
 
         // Calculate flux between j and j-1
-        dfdz = 0.25 * (f(i, j, kp) - f(i, j, km) + f.ydown()(i, j - 1, kp) -
-                       f.ydown()(i, j - 1, km)) /
+        dfdz = 0.25 *
+               (f(i, j, kp) - f(i, j, km) + f.ydown()(i, j - 1, kp) -
+                f.ydown()(i, j - 1, km)) /
                coord->dz;
 
         dfdy = 2. * (f(i, j, k) - f.ydown()(i, j - 1, k)) /
                (coord->dy(i, j) + coord->dy(i, j - 1));
 
-        fout = 0.5 * (coord->J(i, j) * a(i, j, k) * coord->g23(i, j) +
-                      coord->J(i, j - 1) * a.yup()(i, j + 1, k) * coord->g23(i, j + 1)) *
+        fout = 0.5 *
+               (coord->J(i, j) * a(i, j, k) * coord->g23(i, j) +
+                coord->J(i, j - 1) * a.yup()(i, j + 1, k) * coord->g23(i, j + 1)) *
                (dfdz - coef * dfdy);
 
         result(i, j, k) -= fout / (coord->dy(i, j) * coord->J(i, j));
@@ -111,9 +115,8 @@ const Field3D Div_a_Laplace_perp(const Field3D &a, const Field3D &f) {
                             (f(i, j, kp) - f(i, j, k)) / coord->dz
 
                             // - g_yz * df/dy / SQ(J*B)
-                            -
-                            coef * (f.yup()(i, j + 1, k) + f.yup()(i, j + 1, kp) -
-                                    f.ydown()(i, j - 1, k) - f.ydown()(i, j - 1, kp)));
+                            - coef * (f.yup()(i, j + 1, k) + f.yup()(i, j + 1, kp) -
+                                      f.ydown()(i, j - 1, k) - f.ydown()(i, j - 1, kp)));
 
         result(i, j, k) += fout / coord->dz;
         result(i, j, kp) -= fout / coord->dz;
@@ -291,7 +294,7 @@ const Field3D D4DY4_Index(const Field3D &f_in, bool bndry_flux) {
                   - 6. * f(i, j, k)                               // f_0
                   + 4. * f(i, j - 1, k)                           // f_1
                   - (6. / 5) * f(i, j - 2, k)                     // f_2
-                  );
+                );
 
             result(i, j, k) += d3fdx3 * factor_rc;
             result(i, j + 1, k) -= d3fdx3 * factor_rp;
@@ -328,7 +331,7 @@ const Field3D D4DY4_Index(const Field3D &f_in, bool bndry_flux) {
                   + 6. * f(i, j, k)                                // f_0
                   - 4. * f(i, j + 1, k)                            // f_1
                   + (6. / 5) * f(i, j + 2, k)                      // f_2
-                  );
+                );
 
             result(i, j, k) -= d3fdx3 * factor_lc;
             result(i, j - 1, k) += d3fdx3 * factor_lm;

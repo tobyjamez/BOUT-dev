@@ -47,7 +47,7 @@ int physics_init(bool restarting) {
   BoutReal p, q; // Use to set parameters in constructing trial functions
   Field3D error1, absolute_error1; // Absolute value of relative error: abs( (f1-sol1)/f1
                                    // )
-  BoutReal max_error1; // Output of test
+  BoutReal max_error1;             // Output of test
 
   // Only Neumann x-boundary conditions are implemented so far, so test functions should
   // be Neumann in x and periodic in z.
@@ -67,9 +67,10 @@ int physics_init(bool restarting) {
         BoutReal z = BoutReal(jz) / nz;
         f1[jx][jy][jz] =
             0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-            50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
-                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                       pow(x, 2)) *
+            50. *
+                (2. * p * exp(-50. * pow(-p, 2)) * x +
+                 (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                     pow(x, 2)) *
                 exp(-(1. - cos(2. * PI *
                                (z - q)))) // make the gradients zero at both x-boundaries
             ;
@@ -82,9 +83,10 @@ int physics_init(bool restarting) {
           BoutReal z = BoutReal(jz) / nz;
           f1[jx][jy][jz] =
               0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-              50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
-                     (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                         pow(x, 2)) *
+              50. *
+                  (2. * p * exp(-50. * pow(-p, 2)) * x +
+                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                       pow(x, 2)) *
                   exp(-(1. -
                         cos(2. * PI *
                             (z - q)))); // make the gradients zero at both x-boundaries
@@ -97,9 +99,10 @@ int physics_init(bool restarting) {
           BoutReal z = BoutReal(jz) / nz;
           f1[jx][jy][jz] =
               0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-              50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
-                     (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                         pow(x, 2)) *
+              50. *
+                  (2. * p * exp(-50. * pow(-p, 2)) * x +
+                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                       pow(x, 2)) *
                   exp(-(1. -
                         cos(2. * PI *
                             (z - q)))); // make the gradients zero at both x-boundaries
@@ -113,9 +116,8 @@ int physics_init(bool restarting) {
       for (int jz = 0; jz < mesh->LocalNz; jz++) {
         BoutReal x = BoutReal(mesh->XGLOBAL(jx) - mesh->xstart) / nx;
         BoutReal z = BoutReal(jz) / nz;
-        d1[jx][jy][jz] =
-            1.e-7 *
-            (1. + 0.2 * exp(-50. * pow(x - p, 2) / 4.) * sin(2. * PI * (z - q) * 3.));
+        d1[jx][jy][jz] = 1.e-7 * (1. + 0.2 * exp(-50. * pow(x - p, 2) / 4.) *
+                                           sin(2. * PI * (z - q) * 3.));
       }
   if (mesh->firstX())
     for (int jx = mesh->xstart - 1; jx >= 0; jx--)
@@ -123,9 +125,8 @@ int physics_init(bool restarting) {
         for (int jz = 0; jz < mesh->LocalNz; jz++) {
           BoutReal x = BoutReal(mesh->XGLOBAL(jx) - mesh->xstart) / nx;
           BoutReal z = BoutReal(jz) / nz;
-          d1[jx][jy][jz] =
-              1.e-7 *
-              (1. + 0.2 * exp(-50. * pow(x - p, 2) / 4.) * sin(2. * PI * (z - q) * 3.));
+          d1[jx][jy][jz] = 1.e-7 * (1. + 0.2 * exp(-50. * pow(x - p, 2) / 4.) *
+                                             sin(2. * PI * (z - q) * 3.));
           // 	  d1[jx][jy][jz] = d1[jx+1][jy][jz];
         }
   if (mesh->lastX())
@@ -134,9 +135,8 @@ int physics_init(bool restarting) {
         for (int jz = 0; jz < mesh->LocalNz; jz++) {
           BoutReal x = BoutReal(mesh->XGLOBAL(jx) - mesh->xstart) / nx;
           BoutReal z = BoutReal(jz) / nz;
-          d1[jx][jy][jz] =
-              1.e-7 *
-              (1. + 0.2 * exp(-50. * pow(x - p, 2) / 4.) * sin(2. * PI * (z - q) * 3.));
+          d1[jx][jy][jz] = 1.e-7 * (1. + 0.2 * exp(-50. * pow(x - p, 2) / 4.) *
+                                             sin(2. * PI * (z - q) * 3.));
           // 	  d1[jx][jy][jz] = d1[jx-1][jy][jz];
         }
 
@@ -148,9 +148,8 @@ int physics_init(bool restarting) {
       for (int jz = 0; jz < mesh->LocalNz; jz++) {
         BoutReal x = BoutReal(mesh->XGLOBAL(jx) - mesh->xstart) / nx;
         BoutReal z = BoutReal(jz) / nz;
-        c1[jx][jy][jz] =
-            1. +
-            1.e-6 * 0.15 * exp(-50. * pow(x - p, 2) * 2.) * sin(2. * PI * (z - q) * 2.);
+        c1[jx][jy][jz] = 1. + 1.e-6 * 0.15 * exp(-50. * pow(x - p, 2) * 2.) *
+                                  sin(2. * PI * (z - q) * 2.);
       }
   if (mesh->firstX())
     for (int jx = mesh->xstart - 1; jx >= 0; jx--)
@@ -158,9 +157,8 @@ int physics_init(bool restarting) {
         for (int jz = 0; jz < mesh->LocalNz; jz++) {
           BoutReal x = BoutReal(mesh->XGLOBAL(jx) - mesh->xstart) / nx;
           BoutReal z = BoutReal(jz) / nz;
-          c1[jx][jy][jz] =
-              1. +
-              1.e-6 * 0.15 * exp(-50. * pow(x - p, 2) * 2.) * sin(2. * PI * (z - q) * 2.);
+          c1[jx][jy][jz] = 1. + 1.e-6 * 0.15 * exp(-50. * pow(x - p, 2) * 2.) *
+                                    sin(2. * PI * (z - q) * 2.);
           // 	  c1[jx][jy][jz] = c1[jx+1][jy][jz];
         }
   if (mesh->lastX())
@@ -169,9 +167,8 @@ int physics_init(bool restarting) {
         for (int jz = 0; jz < mesh->LocalNz; jz++) {
           BoutReal x = BoutReal(mesh->XGLOBAL(jx) - mesh->xstart) / nx;
           BoutReal z = BoutReal(jz) / nz;
-          c1[jx][jy][jz] =
-              1. +
-              1.e-6 * 0.15 * exp(-50. * pow(x - p, 2) * 2.) * sin(2. * PI * (z - q) * 2.);
+          c1[jx][jy][jz] = 1. + 1.e-6 * 0.15 * exp(-50. * pow(x - p, 2) * 2.) *
+                                    sin(2. * PI * (z - q) * 2.);
           // 	  c1[jx][jy][jz] = c1[jx-1][jy][jz];
         }
 
@@ -267,7 +264,7 @@ int physics_init(bool restarting) {
   Field3D sol2;
   Field3D error2, absolute_error2; // Absolute value of relative error: abs( (f3-sol3)/f3
                                    // )
-  BoutReal max_error2; // Output of test
+  BoutReal max_error2;             // Output of test
 
   invert_4th->setInnerBoundaryFlags(INVERT_AC_GRAD);
   invert_4th->setOuterBoundaryFlags(INVERT_AC_GRAD);
@@ -405,7 +402,7 @@ int physics_init(bool restarting) {
   Field3D f5, a5, b5, c5, d5, sol5;
   Field3D error5, absolute_error5; // Absolute value of relative error: abs( (f5-sol5)/f5
                                    // )
-  BoutReal max_error5; // Output of test
+  BoutReal max_error5;             // Output of test
 
   p = 0.623901;
   q = 0.01209489;
@@ -417,9 +414,10 @@ int physics_init(bool restarting) {
         BoutReal z = BoutReal(jz) / nz;
         f5[jx][jy][jz] =
             0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-            50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
-                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                       pow(x, 2)) *
+            50. *
+                (2. * p * exp(-50. * pow(-p, 2)) * x +
+                 (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                     pow(x, 2)) *
                 exp(-(1. - cos(2. * PI *
                                (z - q)))) // make the gradients zero at both x-boundaries
             ;
@@ -432,9 +430,10 @@ int physics_init(bool restarting) {
           BoutReal z = BoutReal(jz) / nz;
           f5[jx][jy][jz] =
               0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-              50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
-                     (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                         pow(x, 2)) *
+              50. *
+                  (2. * p * exp(-50. * pow(-p, 2)) * x +
+                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                       pow(x, 2)) *
                   exp(-(1. -
                         cos(2. * PI *
                             (z - q)))); // make the gradients zero at both x-boundaries
@@ -447,9 +446,10 @@ int physics_init(bool restarting) {
           BoutReal z = BoutReal(jz) / nz;
           f5[jx][jy][jz] =
               0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-              50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
-                     (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                         pow(x, 2)) *
+              50. *
+                  (2. * p * exp(-50. * pow(-p, 2)) * x +
+                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                       pow(x, 2)) *
                   exp(-(1. -
                         cos(2. * PI *
                             (z - q)))); // make the gradients zero at both x-boundaries
@@ -600,7 +600,7 @@ int physics_init(bool restarting) {
   Field3D sol6;
   Field3D error6, absolute_error6; // Absolute value of relative error: abs( (f5-sol5)/f5
                                    // )
-  BoutReal max_error6; // Output of test
+  BoutReal max_error6;             // Output of test
 
   invert_4th->setInnerBoundaryFlags(INVERT_AC_GRAD);
   invert_4th->setOuterBoundaryFlags(INVERT_AC_GRAD);

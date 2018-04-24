@@ -24,8 +24,9 @@ protected:
         vy / G *
             (metric->g12 * DDX(f) + metric->g22 * DDY(f) +
              metric->g23 * DDZ(f)) + // Upwinding with second-order central differencing
-        vz / G * (metric->g13 * DDX(f) + metric->g23 * DDY(f) +
-                  metric->g33 * DDZ(f)); // (unstable without additional dissipation)
+        vz / G *
+            (metric->g13 * DDX(f) + metric->g23 * DDY(f) +
+             metric->g33 * DDZ(f)); // (unstable without additional dissipation)
     -SQ(SQ(metric->dx)) * D4DX4(f) /*- SQ(SQ(metric->dy))*D4DY4(f)*/ -
         SQ(SQ(metric->dz)) * D4DZ4(f); // Numerical dissipation terms
 

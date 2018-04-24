@@ -184,7 +184,7 @@ FCIMap::FCIMap(Mesh &mesh, int dir, bool zperiodic)
               0.5 *
                   coord.dy(x, y), // sqrt( SQ(dR) + SQ(dZ) ),  // Distance to intersection
               PI                  // Right-angle intersection
-              );
+          );
         }
 
         //----------------------------------------

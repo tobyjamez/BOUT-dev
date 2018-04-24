@@ -70,8 +70,8 @@ const char DEFAULT_LOG[] = "BOUT.log";
 #include <list>
 #include <string>
 #include <strings.h>
-using std::string;
 using std::list;
+using std::string;
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -148,8 +148,9 @@ int BoutInitialise(int &argc, char **&argv) {
     if (string(argv[i]) == "-h" || string(argv[i]) == "--help") {
       // Print help message -- note this will be displayed once per processor as we've not
       // started MPI yet.
-      fprintf(stdout, "Usage: %s [-d <data directory>] [-f <options filename>] [restart "
-                      "[append]] [VAR=VALUE]\n",
+      fprintf(stdout,
+              "Usage: %s [-d <data directory>] [-f <options filename>] [restart "
+              "[append]] [VAR=VALUE]\n",
               argv[0]);
       fprintf(stdout,
               "\n"

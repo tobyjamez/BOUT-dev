@@ -500,8 +500,8 @@ bool H5Format::write(void *data, hid_t mem_hdf5_type, hid_t write_hdf5_type,
 
   return true;
 } /***************************************************************************
-  * Record-based (time-dependent) data
-  ***************************************************************************/
+   * Record-based (time-dependent) data
+   ***************************************************************************/
 
 bool H5Format::read_rec(int *data, const char *name, int lx, int ly, int lz) {
   return read_rec(data, H5T_NATIVE_INT, name, lx, ly, lz);

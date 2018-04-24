@@ -203,4 +203,4 @@ bool Comm_wait_all(int n, Comm_handle_t *handles) {
   }
   return newdata;
 }
-}
+} // namespace comm_group

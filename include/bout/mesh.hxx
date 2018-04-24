@@ -272,9 +272,9 @@ public:
 
   // X communications
   virtual bool firstX() = 0; ///< Is this processor first in X? i.e. is there a boundary
-                             ///to the left in X?
+                             /// to the left in X?
   virtual bool lastX() = 0;  ///< Is this processor last in X? i.e. is there a boundary to
-                             ///the right in X?
+                             /// the right in X?
   bool periodicX;            ///< Domain is periodic in X?
 
   int NXPE, PE_XIND; ///< Number of processors in X, and X processor index
@@ -338,9 +338,9 @@ public:
   virtual bool lastY(int xpos)
       const = 0; ///< Is this processor last in Y? i.e. is there a boundary at upper Y?
   virtual int UpXSplitIndex() = 0;   ///< If the upper Y guard cells are split in two,
-                                     ///return the X index where the split occurs
+                                     /// return the X index where the split occurs
   virtual int DownXSplitIndex() = 0; ///< If the lower Y guard cells are split in two,
-                                     ///return the X index where the split occurs
+                                     /// return the X index where the split occurs
 
   /// Send data
   virtual int sendYOutIndest(BoutReal *buffer, int size, int tag) = 0;
@@ -436,7 +436,7 @@ public:
   int xstart, xend, ystart, yend;
 
   bool StaggerGrids; ///< Enable staggered grids (Centre, Lower). Otherwise all vars are
-                     ///cell centred (default).
+                     /// cell centred (default).
 
   bool IncIntShear; ///< Include integrated shear (if shifting X)
 
@@ -456,7 +456,7 @@ public:
   // Implemented in src/mesh/index_derivs.hxx
 
   BoutReal fft_derivs_filter; ///< Fraction of modes to filter. This is set in derivs_init
-                              ///from option "ddz:fft_filter"
+                              /// from option "ddz:fft_filter"
 
   const Field3D
   indexDDX(const Field3D &f, CELL_LOC outloc,
@@ -585,8 +585,8 @@ public:
       BoutReal,
       stencil &); ///< Derivative functions of a BoutReal velocity, and field stencil
   typedef BoutReal (*flux_func)(stencil &, stencil &); ///< ///< Derivative functions of a
-                                                       ///velocity field, and field
-                                                       ///stencil v, f
+                                                       /// velocity field, and field
+                                                       /// stencil v, f
 
   /// Transform a field into field-aligned coordinates
   const Field3D toFieldAligned(const Field3D &f) {

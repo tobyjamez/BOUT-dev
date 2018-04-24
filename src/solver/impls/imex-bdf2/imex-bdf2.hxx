@@ -118,7 +118,7 @@ private:
   BoutReal dtMin;         ///< Minimum timestep we want to use
   BoutReal dtMax;         ///< Maximum timestep we want to use
   BoutReal dtMinFatal;    ///< If timestep wants to drop below this we abort. Set -ve to
-                          ///deactivate
+                          /// deactivate
 
   // Scheme coefficients
   vector<BoutReal> uFac, fFac, gFac;
@@ -178,7 +178,7 @@ private:
   BoutReal *is_dae;      ///< If using constraints, 1 -> DAE, 0 -> AE
 
   MatFDColoring fdcoloring; ///< Matrix coloring context, used for finite difference
-                            ///Jacobian evaluation
+                            /// Jacobian evaluation
 
   template <class Op> void loopVars(BoutReal *u);
 

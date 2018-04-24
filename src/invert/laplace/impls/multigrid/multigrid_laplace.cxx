@@ -480,9 +480,9 @@ if (mesh->firstX()) {
 BOUT_OMP(for)
 for (int k = 1; k < lzz + 1; k++) {
   int k2 = k - 1;
-  result(i2, k2) = x[lz2 + k] -
-                   x0(mesh->xstart - 1, k2) * sqrt(coords->g_11(mesh->xstart, yindex)) *
-                       coords->dx(mesh->xstart, yindex);
+  result(i2, k2) = x[lz2 + k] - x0(mesh->xstart - 1, k2) *
+                                    sqrt(coords->g_11(mesh->xstart, yindex)) *
+                                    coords->dx(mesh->xstart, yindex);
 }
     } else {
       // zero gradient inner boundary condition
@@ -527,9 +527,9 @@ if (mesh->lastX()) {
 BOUT_OMP(for)
 for (int k = 1; k < lzz + 1; k++) {
   int k2 = k - 1;
-  result(i2, k2) = x[lxx * lz2 + k] +
-                   x0(mesh->xend + 1, k2) * sqrt(coords->g_11(mesh->xend, yindex)) *
-                       coords->dx(mesh->xend, yindex);
+  result(i2, k2) = x[lxx * lz2 + k] + x0(mesh->xend + 1, k2) *
+                                          sqrt(coords->g_11(mesh->xend, yindex)) *
+                                          coords->dx(mesh->xend, yindex);
 }
     } else {
       // zero gradient outer boundary condition

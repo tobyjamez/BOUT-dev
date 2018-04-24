@@ -53,10 +53,10 @@ bool Comm_wait(Comm_handle_t *handle);
 
 /// Wait for all the communications to finish
 bool Comm_wait_all(int n, Comm_handle_t *handles);
-}
+} // namespace comm_group
 
-using comm_group::Comm_handle_t;
 using comm_group::Comm_gather_start;
+using comm_group::Comm_handle_t;
 using comm_group::Comm_scatter_start;
 using comm_group::Comm_wait;
 using comm_group::Comm_wait_all;

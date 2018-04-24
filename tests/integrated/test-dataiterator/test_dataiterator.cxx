@@ -56,11 +56,11 @@ int physics_init(bool restarting) {
   Field3D d3 = 1;
 
   BoutReal exp = 1;
-// for (FieldIteratorCIndex cxit( *mesh);cxit;cxit.next3()){
-//   if (d3[cxit] != exp) PRINT_DEBUG;
-//   d3[cxit]=2;
-// }
-// exp=2;
+  // for (FieldIteratorCIndex cxit( *mesh);cxit;cxit.next3()){
+  //   if (d3[cxit] != exp) PRINT_DEBUG;
+  //   d3[cxit]=2;
+  // }
+  // exp=2;
 
 #pragma omp parallel
   for (auto i : d3) {

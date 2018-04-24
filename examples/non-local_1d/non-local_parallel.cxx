@@ -21,7 +21,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
-  * You should have received a copy of the GNU Lesser General Public License
+ * You should have received a copy of the GNU Lesser General Public License
  * along with BOUT++.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
@@ -615,7 +615,7 @@ void NonLocalParallel::calculate_nonlocal_closures(
     ,
     const Field3D &viscosity_boundary_condition
 #endif
-    ) {
+) {
   if (fluxes_location_is_ylow)
     calculate_nonlocal_closures_cell_ylow(n_electron, T_electron
 #ifdef DRIVE_GRADV
@@ -634,7 +634,7 @@ void NonLocalParallel::calculate_nonlocal_closures(
                                           ,
                                           viscosity_boundary_condition
 #endif
-                                          );
+    );
   else
     calculate_nonlocal_closures_cell_centre(n_electron, T_electron
 #ifdef DRIVE_GRADV
@@ -653,7 +653,7 @@ void NonLocalParallel::calculate_nonlocal_closures(
                                             ,
                                             viscosity_boundary_condition
 #endif
-                                            );
+    );
 #if CHECK > 0
   calculated_before_setting_bcs = true;
 #endif
@@ -679,7 +679,7 @@ void NonLocalParallel::calculate_nonlocal_closures_cell_centre(
     ,
     const Field3D &viscosity_boundary_condition
 #endif
-    ) {
+) {
 
   lambdaC_inverse = n_electron * pow(electron_charge, 4) * logLambda / 12 / pow(PI, 1.5) /
                     pow(epsilon_0, 2) / (T_electron ^ 2);
@@ -742,8 +742,8 @@ void NonLocalParallel::calculate_nonlocal_closures_cell_centre(
       // d/dy(delta) = 1/lambdaC = a + b*t + c*t^2 + d*t^3;
       // t=(ind-jy)=(y-y0)/(sqrt(g_22)*dy); ind is a notional continuous variable equal to
       // jy at the gridpoints so at jy+1 t=1
-      dimensionless_length_deltas_above
-          [*position] /* = dy/dt*(a + 1/2*b + 1/3*c + 1/4*d) */
+      dimensionless_length_deltas_above[*position] /* = dy/dt*(a + 1/2*b + 1/3*c + 1/4*d)
+                                                    */
           = coord->dy(position->jx, position->jy) *
             sqrt(0.5 * (coord->g_22(position->jx, position->jy) +
                         coord->g_22(position->jx, position->jyp))) *
@@ -1476,7 +1476,7 @@ void NonLocalParallel::calculate_nonlocal_closures_cell_ylow(
     ,
     const Field3D &viscosity_boundary_condition
 #endif
-    ) {
+) {
 
   Coordinates *coord = mesh->coordinates();
 

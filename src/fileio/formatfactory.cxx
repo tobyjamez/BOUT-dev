@@ -68,7 +68,7 @@ std::unique_ptr<DataFormat> FormatFactory::createDataFormat(const char *filename
 
     const char *s = filename + ind + 1;
 
-// Match strings
+    // Match strings
 
 #ifdef PNCDF
     if (parallel) {

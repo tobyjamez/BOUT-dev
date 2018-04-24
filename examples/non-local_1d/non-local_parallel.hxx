@@ -95,7 +95,7 @@ public:
                                    ,
                                    const Field3D &viscosity_boundary_condition
 #endif
-                                   );
+  );
   void set_boundary_gradients();
   void set_neumann_boundary_conditions();
 
@@ -249,7 +249,7 @@ private:
                                                ,
                                                const Field3D &viscosity_boundary_condition
 #endif
-                                               );
+  );
   void calculate_nonlocal_closures_cell_ylow(const Field3D &n_electron,
                                              const Field3D &T_electron
 #ifdef DRIVE_GRADV
@@ -268,7 +268,7 @@ private:
                                              ,
                                              const Field3D &viscosity_boundary_condition
 #endif
-                                             );
+  );
 #if CHECK > 0
   bool calculated_before_setting_bcs;
 #endif

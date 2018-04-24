@@ -64,7 +64,7 @@ public:
   // X communications
 
   bool firstX(); ///< Is this processor the first in X? i.e. is there a boundary to the
-                 ///left in X?
+                 /// left in X?
   bool
   lastX(); ///< Is this processor last in X? i.e. is there a boundary to the right in X?
 
@@ -263,8 +263,8 @@ private:
   // Surface communications
 
   MPI_Comm comm_inner, comm_middle, comm_outer; ///< Communicators in Y. Inside both
-                                                ///separatrices; between separatrices; and
-                                                ///outside both separatrices
+                                                /// separatrices; between separatrices;
+                                                /// and outside both separatrices
 
   //////////////////////////////////////////////////
   // Communication routines

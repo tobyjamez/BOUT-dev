@@ -50,8 +50,8 @@ class PncFormat;
 #include <map>
 #include <string>
 
-using std::string;
 using std::map;
+using std::string;
 
 class PncFormat : public DataFormat {
 public:

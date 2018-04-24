@@ -166,10 +166,10 @@ const Field3D DDZ(const Field3D &f, CELL_LOC outloc = CELL_DEFAULT,
  *
  * @param[in] f       The field to be differentiated
  * @param[in] method  Differencing method to use. This overrides the default
-*  @param[in] outloc  The cell location where the result is desired. If staggered grids is
-* not enabled then this has no effect
+ *  @param[in] outloc  The cell location where the result is desired. If staggered grids
+ * is not enabled then this has no effect
  * @param[in] inc_xbndry  Determines whether the derivative should be calculated in the X
-* boundaries. This allows mixed operators (e.g. D2DXDZ) without additional communication
+ * boundaries. This allows mixed operators (e.g. D2DXDZ) without additional communication
  *
  */
 const Field3D DDZ(const Field3D &f, DIFF_METHOD method, CELL_LOC outloc,
@@ -182,10 +182,10 @@ const Field3D DDZ(const Field3D &f, DIFF_METHOD method, CELL_LOC outloc,
  *
  * @param[in] f       The field to be differentiated
  * @param[in] method  Differencing method to use. This overrides the default
-*  @param[in] outloc  The cell location where the result is desired. If staggered grids is
-* not enabled then this has no effect
+ *  @param[in] outloc  The cell location where the result is desired. If staggered grids
+ * is not enabled then this has no effect
  * @param[in] inc_xbndry  Determines whether the derivative should be calculated in the X
-* boundaries. This allows mixed operators (e.g. D2DXDZ) without additional communication
+ * boundaries. This allows mixed operators (e.g. D2DXDZ) without additional communication
  *
  */
 const Field3D DDZ(const Field3D &f, DIFF_METHOD method, bool inc_xbndry = false);
@@ -221,8 +221,8 @@ const Field2D DDZ(const Field2D &f);
  *   $\partial / \partial z$
  *
  * @param[in] v       The vector to be differentiated
-*  @param[in] outloc  The cell location where the result is desired. If staggered grids is
-* not enabled then this has no effect
+ *  @param[in] outloc  The cell location where the result is desired. If staggered grids
+ * is not enabled then this has no effect
  * @param[in] method  Differencing method to use. This overrides the default
  *
  */
@@ -238,8 +238,8 @@ const Vector3D DDZ(const Vector3D &v, CELL_LOC outloc = CELL_DEFAULT,
  *   $\partial / \partial z$
  *
  * @param[in] v       The vector to be differentiated
-*  @param[in] outloc  The cell location where the result is desired. If staggered grids is
-* not enabled then this has no effect
+ *  @param[in] outloc  The cell location where the result is desired. If staggered grids
+ * is not enabled then this has no effect
  * @param[in] method  Differencing method to use. This overrides the default
  *
  */

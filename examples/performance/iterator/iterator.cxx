@@ -118,9 +118,8 @@ int main(int argc, char **argv) {
                            : result) { result[i] = a[i] + b[i]; });
 
   // DataIterator over fields
-  ITERATOR_TEST_BLOCK("DI (done) [i]",
-                      for (DataIterator d = result.iterator(); !d.done(); d++) result[d] =
-                          a[d] + b[d];);
+  ITERATOR_TEST_BLOCK("DI (done) [i]", for (DataIterator d = result.iterator(); !d.done();
+                                            d++) result[d] = a[d] + b[d];);
 
   // Raw C loop
   ITERATOR_TEST_BLOCK("C loop repeat",

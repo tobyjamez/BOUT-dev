@@ -41,7 +41,9 @@ class MsgStack;
 /*!
  * Each message consists of a fixed length buffer
  */
-typedef struct { char str[MSG_MAX_SIZE + 1]; } msg_item_t;
+typedef struct {
+  char str[MSG_MAX_SIZE + 1];
+} msg_item_t;
 
 /*!
  * Message stack

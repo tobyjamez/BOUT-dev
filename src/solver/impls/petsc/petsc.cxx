@@ -212,7 +212,7 @@ int PetscSolver::init(int NOUT, BoutReal TIMESTEP) {
   BoutReal abstol, reltol;
   options->get("ATOL", abstol, 1.0e-12);
   options->get("RTOL", reltol, 1.0e-5);
-// printf("abstol %g, reltol %g\n",abstol,reltol); why reltol=1.e-7?
+  // printf("abstol %g, reltol %g\n",abstol,reltol); why reltol=1.e-7?
 
 #ifdef PETSC_HAS_SUNDIALS
   // Set Sundials tolerances

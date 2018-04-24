@@ -21,6 +21,6 @@ const BoutReal qe = 1.602176634e-19;   ///< Electron charge
 const BoutReal Me = 9.10938356e-31;    ///< Electron mass
 const BoutReal Mp = 1.672621898e-27;   ///< Proton mass
 const BoutReal kb = 1.38064852e-23;    ///< Boltzmanns constant
-}
+} // namespace SI
 
 #endif // __CONSTANTS_H__

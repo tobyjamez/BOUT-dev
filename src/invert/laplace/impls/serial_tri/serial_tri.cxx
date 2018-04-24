@@ -172,7 +172,7 @@ const FieldPerp LaplaceSerialTri::solve(const FieldPerp &b, const FieldPerp &x0)
      * avec - the lower diagonal of the tridiagonal matrix
      * bvec - the main diagonal
      * cvec - the upper diagonal
-    */
+     */
     tridagMatrix(std::begin(avec), std::begin(bvec), std::begin(cvec), std::begin(bk1d),
                  jy,
                  // wave number index

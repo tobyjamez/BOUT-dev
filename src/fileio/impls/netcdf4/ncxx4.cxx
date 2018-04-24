@@ -31,8 +31,8 @@
 #include <bout/msg_stack.hxx>
 #include <bout/output.hxx>
 
-using std::string;
 using std::map;
+using std::string;
 
 using namespace netCDF;
 
@@ -619,7 +619,7 @@ bool Ncxx4::write_rec(int *data, const char *name, int lx, int ly, int lz) {
   // Try to find variable
   NcVar var = dataFile->getVar(name);
   if (var.isNull()) {
-// Need to add to file
+    // Need to add to file
 
 #ifdef NCDF_VERBOSE
     output.write("Ncxx4:: write_rec { Adding Variable %d } \n", nd);

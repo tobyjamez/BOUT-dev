@@ -15,8 +15,8 @@ class BoundaryModifier;
 #include <cmath>
 #include <list>
 #include <string>
-using std::string;
 using std::list;
+using std::string;
 
 class BoundaryOpBase {
 public:

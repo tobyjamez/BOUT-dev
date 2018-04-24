@@ -86,7 +86,7 @@ BoutReal RKScheme::setOutputStates(const Array<BoutReal> &start, const BoutReal 
   // Only really need resultAlt in order to calculate the error, so if not adaptive could
   // avoid it
   //*and* technically we can write resultFollow-resultAlt in terms of resultCoeffs and
-  //steps.
+  // steps.
 
   int followInd, altInd;
   if (followHighOrder) {

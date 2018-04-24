@@ -339,10 +339,11 @@ const Field3D D2DYDZ(const Field3D &f) {
       for (int k = 0; k < f.getMesh()->LocalNz; k++) {
         int kp = (k + 1) % (f.getMesh()->LocalNz);
         int km = (k - 1 + f.getMesh()->LocalNz) % (f.getMesh()->LocalNz);
-        result(i, j, k) = 0.25 * (+(f(i, j + 1, kp) - f(i, j - 1, kp)) /
-                                      (f.getMesh()->coordinates()->dy(i, j + 1)) -
-                                  (f(i, j + 1, km) - f(i, j - 1, km)) /
-                                      (f.getMesh()->coordinates()->dy(i, j - 1))) /
+        result(i, j, k) = 0.25 *
+                          (+(f(i, j + 1, kp) - f(i, j - 1, kp)) /
+                               (f.getMesh()->coordinates()->dy(i, j + 1)) -
+                           (f(i, j + 1, km) - f(i, j - 1, km)) /
+                               (f.getMesh()->coordinates()->dy(i, j - 1))) /
                           f.getMesh()->coordinates()->dz;
       }
   return result;

@@ -1,27 +1,27 @@
 /**************************************************************************
-* Various differential operators defined on BOUT grid
-*
-**************************************************************************
-* Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
-*
-* Contact: Ben Dudson, bd512@york.ac.uk
-*
-* This file is part of BOUT++.
-*
-* BOUT++ is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* BOUT++ is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License
-* along with BOUT++.  If not, see <http://www.gnu.org/licenses/>.
-*
-**************************************************************************/
+ * Various differential operators defined on BOUT grid
+ *
+ **************************************************************************
+ * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
+ *
+ * Contact: Ben Dudson, bd512@york.ac.uk
+ *
+ * This file is part of BOUT++.
+ *
+ * BOUT++ is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * BOUT++ is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with BOUT++.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ **************************************************************************/
 
 #include <bout.hxx>
 #include <bout/assert.hxx>
@@ -42,9 +42,9 @@
 #include <stdlib.h>
 
 /*******************************************************************************
-* Grad_par
-* The parallel derivative along unperturbed B-field
-*******************************************************************************/
+ * Grad_par
+ * The parallel derivative along unperturbed B-field
+ *******************************************************************************/
 
 const Field2D Grad_par(const Field2D &var, CELL_LOC outloc, DIFF_METHOD method) {
   return mesh->coordinates()->Grad_par(var, outloc, method);
@@ -63,15 +63,15 @@ const Field3D Grad_par(const Field3D &var, DIFF_METHOD method, CELL_LOC outloc) 
 }
 
 /*******************************************************************************
-* Grad_parP
-*
-* Derivative along perturbed field-line
-*
-* b0 dot Grad  -  (1/B)b0 x Grad(apar) dot Grad
-*
-* Combines the parallel and perpendicular calculation to include
-* grid-points at the corners.
-*******************************************************************************/
+ * Grad_parP
+ *
+ * Derivative along perturbed field-line
+ *
+ * b0 dot Grad  -  (1/B)b0 x Grad(apar) dot Grad
+ *
+ * Combines the parallel and perpendicular calculation to include
+ * grid-points at the corners.
+ *******************************************************************************/
 
 const Field3D Grad_parP(const Field3D &apar, const Field3D &f) {
   ASSERT1(apar.getMesh() == f.getMesh());
@@ -153,9 +153,8 @@ const Field3D Grad_parP(const Field3D &apar, const Field3D &f) {
                  (0.5 * metric->dx(x - 1, y) + metric->dx(x, y) +
                   0.5 * metric->dx(x + 1, y))
 
-             +
-             (0.25 * dl / metric->dz) * bz *
-                 (f.yup()(x, y + 1, zm) - f.yup()(x, y + 1, zp));
+             + (0.25 * dl / metric->dz) * bz *
+                   (f.yup()(x, y + 1, zm) - f.yup()(x, y + 1, zp));
 
         fm = f.ydown()(x, y - 1, z) -
              0.5 * dl * bx * (f.ydown()(x + 1, y - 1, z) - f.ydown()(x - 1, y - 1, z)) /
@@ -175,9 +174,9 @@ const Field3D Grad_parP(const Field3D &apar, const Field3D &f) {
 }
 
 /*******************************************************************************
-* Vpar_Grad_par
-* vparallel times the parallel derivative along unperturbed B-field
-*******************************************************************************/
+ * Vpar_Grad_par
+ * vparallel times the parallel derivative along unperturbed B-field
+ *******************************************************************************/
 
 const Field2D Vpar_Grad_par(const Field2D &v, const Field2D &f) {
   return mesh->coordinates()->Vpar_Grad_par(v, f);
@@ -194,9 +193,9 @@ const Field3D Vpar_Grad_par(const Field3D &v, const Field3D &f, DIFF_METHOD meth
 }
 
 /*******************************************************************************
-* Div_par
-* parallel divergence operator B \partial_{||} (F/B)
-*******************************************************************************/
+ * Div_par
+ * parallel divergence operator B \partial_{||} (F/B)
+ *******************************************************************************/
 
 const Field2D Div_par(const Field2D &f) { return mesh->coordinates()->Div_par(f); }
 
@@ -259,10 +258,10 @@ const Field3D Div_par_flux(const Field3D &v, const Field3D &f, DIFF_METHOD metho
 }
 
 /*******************************************************************************
-* Parallel derivatives converting between left and cell centred
-* NOTE: These are a quick hack to test if this works. The whole staggered grid
-*       thing needs to be thought through.
-*******************************************************************************/
+ * Parallel derivatives converting between left and cell centred
+ * NOTE: These are a quick hack to test if this works. The whole staggered grid
+ *       thing needs to be thought through.
+ *******************************************************************************/
 
 const Field3D Grad_par_CtoL(const Field3D &var) {
   ASSERT1(var.getLocation() == CELL_CENTRE);
@@ -471,13 +470,13 @@ const Field3D Div_par_CtoL(const Field3D &var) {
 }
 
 /*******************************************************************************
-* Grad2_par2
-* second parallel derivative
-*
-* (b dot Grad)(b dot Grad)
-*
-* Note: For parallel Laplacian use LaplacePar
-*******************************************************************************/
+ * Grad2_par2
+ * second parallel derivative
+ *
+ * (b dot Grad)(b dot Grad)
+ *
+ * Note: For parallel Laplacian use LaplacePar
+ *******************************************************************************/
 
 const Field2D Grad2_par2(const Field2D &f) { return mesh->coordinates()->Grad2_par2(f); }
 
@@ -486,9 +485,9 @@ const Field3D Grad2_par2(const Field3D &f, CELL_LOC outloc) {
 }
 
 /*******************************************************************************
-* Div_par_K_Grad_par
-* Parallel divergence of diffusive flux, K*Grad_par
-*******************************************************************************/
+ * Div_par_K_Grad_par
+ * Parallel divergence of diffusive flux, K*Grad_par
+ *******************************************************************************/
 
 const Field2D Div_par_K_Grad_par(BoutReal kY, const Field2D &f) {
   return kY * Grad2_par2(f);
@@ -515,9 +514,9 @@ const Field3D Div_par_K_Grad_par(const Field3D &kY, const Field3D &f) {
 }
 
 /*******************************************************************************
-* Delp2
-* perpendicular Laplacian operator
-*******************************************************************************/
+ * Delp2
+ * perpendicular Laplacian operator
+ *******************************************************************************/
 
 const Field2D Delp2(const Field2D &f) { return mesh->coordinates()->Delp2(f); }
 
@@ -530,23 +529,23 @@ const FieldPerp Delp2(const FieldPerp &f, BoutReal UNUSED(zsmooth)) {
 }
 
 /*******************************************************************************
-* LaplacePerp
-* Full perpendicular Laplacian operator on scalar field
-*
-* Laplace_perp = Laplace - Laplace_par
-*******************************************************************************/
+ * LaplacePerp
+ * Full perpendicular Laplacian operator on scalar field
+ *
+ * Laplace_perp = Laplace - Laplace_par
+ *******************************************************************************/
 
 const Field2D Laplace_perp(const Field2D &f) { return Laplace(f) - Laplace_par(f); }
 
 const Field3D Laplace_perp(const Field3D &f) { return Laplace(f) - Laplace_par(f); }
 
 /*******************************************************************************
-* LaplacePar
-* Full parallel Laplacian operator on scalar field
-*
-* LaplacePar(f) = Div( b (b dot Grad(f)) )
-*
-*******************************************************************************/
+ * LaplacePar
+ * Full parallel Laplacian operator on scalar field
+ *
+ * LaplacePar(f) = Div( b (b dot Grad(f)) )
+ *
+ *******************************************************************************/
 
 const Field2D Laplace_par(const Field2D &f) {
   return mesh->coordinates()->Laplace_par(f);
@@ -557,19 +556,19 @@ const Field3D Laplace_par(const Field3D &f) {
 }
 
 /*******************************************************************************
-* Laplacian
-* Full Laplacian operator on scalar field
-*******************************************************************************/
+ * Laplacian
+ * Full Laplacian operator on scalar field
+ *******************************************************************************/
 
 const Field2D Laplace(const Field2D &f) { return mesh->coordinates()->Laplace(f); }
 
 const Field3D Laplace(const Field3D &f) { return mesh->coordinates()->Laplace(f); }
 
 /*******************************************************************************
-* b0xGrad_dot_Grad
-* Terms of form b0 x Grad(phi) dot Grad(A)
-* Used for ExB terms and perturbed B field using A_||
-*******************************************************************************/
+ * b0xGrad_dot_Grad
+ * Terms of form b0 x Grad(phi) dot Grad(A)
+ * Used for ExB terms and perturbed B field using A_||
+ *******************************************************************************/
 
 const Field2D b0xGrad_dot_Grad(const Field2D &phi, const Field2D &A) {
 
@@ -952,10 +951,10 @@ const Field3D bracket(const Field3D &f, const Field3D &g, BRACKET_METHOD method,
 
           // X differencing
           if (vx(x, z) > 0.0) {
-            gp = g(x, y, z) +
-                 (0.5 * dt / metric->dz) * ((vz(x, z) > 0)
-                                                ? vz(x, z) * (g(x, y, zm) - g(x, y, z))
-                                                : vz(x, z) * (g(x, y, z) - g(x, y, zp)));
+            gp =
+                g(x, y, z) + (0.5 * dt / metric->dz) *
+                                 ((vz(x, z) > 0) ? vz(x, z) * (g(x, y, zm) - g(x, y, z))
+                                                 : vz(x, z) * (g(x, y, z) - g(x, y, zp)));
 
             gm = g(x - 1, y, z) +
                  (0.5 * dt / metric->dz) *
@@ -968,35 +967,35 @@ const Field3D bracket(const Field3D &f, const Field3D &g, BRACKET_METHOD method,
                      ((vz(x, z) > 0) ? vz(x, z) * (g(x + 1, y, zm) - g(x + 1, y, z))
                                      : vz[x][z] * (g(x + 1, y, z) - g(x + 1, y, zp)));
 
-            gm = g(x, y, z) +
-                 (0.5 * dt / metric->dz) * ((vz(x, z) > 0)
-                                                ? vz(x, z) * (g(x, y, zm) - g(x, y, z))
-                                                : vz(x, z) * (g(x, y, z) - g(x, y, zp)));
+            gm =
+                g(x, y, z) + (0.5 * dt / metric->dz) *
+                                 ((vz(x, z) > 0) ? vz(x, z) * (g(x, y, zm) - g(x, y, z))
+                                                 : vz(x, z) * (g(x, y, z) - g(x, y, zp)));
           }
 
           result(x, y, z) = vx(x, z) * (gp - gm) / metric->dx(x, y);
 
           // Z differencing
           if (vz(x, z) > 0.0) {
-            gp = g(x, y, z) +
-                 (0.5 * dt / metric->dx(x, y)) *
-                     ((vx[x][z] > 0) ? vx[x][z] * (g(x - 1, y, z) - g(x, y, z))
-                                     : vx[x][z] * (g(x, y, z) - g(x + 1, y, z)));
+            gp = g(x, y, z) + (0.5 * dt / metric->dx(x, y)) *
+                                  ((vx[x][z] > 0)
+                                       ? vx[x][z] * (g(x - 1, y, z) - g(x, y, z))
+                                       : vx[x][z] * (g(x, y, z) - g(x + 1, y, z)));
 
-            gm = g(x, y, zm) +
-                 (0.5 * dt / metric->dx(x, y)) *
-                     ((vx(x, z) > 0) ? vx(x, z) * (g(x - 1, y, zm) - g(x, y, zm))
-                                     : vx(x, z) * (g(x, y, zm) - g(x + 1, y, zm)));
+            gm = g(x, y, zm) + (0.5 * dt / metric->dx(x, y)) *
+                                   ((vx(x, z) > 0)
+                                        ? vx(x, z) * (g(x - 1, y, zm) - g(x, y, zm))
+                                        : vx(x, z) * (g(x, y, zm) - g(x + 1, y, zm)));
           } else {
-            gp = g(x, y, zp) +
-                 (0.5 * dt / metric->dx(x, y)) *
-                     ((vx(x, z) > 0) ? vx(x, z) * (g(x - 1, y, zp) - g(x, y, zp))
-                                     : vx(x, z) * (g(x, y, zp) - g(x + 1, y, zp)));
+            gp = g(x, y, zp) + (0.5 * dt / metric->dx(x, y)) *
+                                   ((vx(x, z) > 0)
+                                        ? vx(x, z) * (g(x - 1, y, zp) - g(x, y, zp))
+                                        : vx(x, z) * (g(x, y, zp) - g(x + 1, y, zp)));
 
-            gm = g(x, y, z) +
-                 (0.5 * dt / metric->dx(x, y)) *
-                     ((vx(x, z) > 0) ? vx(x, z) * (g(x - 1, y, z) - g(x, y, z))
-                                     : vx(x, z) * (g(x, y, z) - g(x + 1, y, z)));
+            gm = g(x, y, z) + (0.5 * dt / metric->dx(x, y)) *
+                                  ((vx(x, z) > 0)
+                                       ? vx(x, z) * (g(x - 1, y, z) - g(x, y, z))
+                                       : vx(x, z) * (g(x, y, z) - g(x + 1, y, z)));
           }
 
           result(x, y, z) += vz(x, z) * (gp - gm) / metric->dz;

@@ -300,10 +300,10 @@ private:
       for (int jy = mesh->yend + 1; jy < mesh->LocalNy; jy++)
         for (int jz = 0; jz < mesh->LocalNz; jz++) {
 
-          var(xrup.ind, jy, jz) = var(xrup.ind, jy - 1, jz) +
-                                  coord->dy(xrup.ind, jy) *
-                                      sqrt(coord->g_22(xrup.ind, jy)) *
-                                      value(xrup.ind, jy, jz);
+          var(xrup.ind, jy, jz) =
+              var(xrup.ind, jy - 1, jz) + coord->dy(xrup.ind, jy) *
+                                              sqrt(coord->g_22(xrup.ind, jy)) *
+                                              value(xrup.ind, jy, jz);
         }
   }
 
@@ -315,10 +315,10 @@ private:
       for (int jy = mesh->ystart - 1; jy >= 0; jy--)
         for (int jz = 0; jz < mesh->LocalNz; jz++) {
 
-          var(xrdn.ind, jy, jz) = var(xrdn.ind, jy + 1, jz) -
-                                  coord->dy(xrdn.ind, jy) *
-                                      sqrt(coord->g_22(xrdn.ind, jy)) *
-                                      value(xrdn.ind, jy, jz);
+          var(xrdn.ind, jy, jz) =
+              var(xrdn.ind, jy + 1, jz) - coord->dy(xrdn.ind, jy) *
+                                              sqrt(coord->g_22(xrdn.ind, jy)) *
+                                              value(xrdn.ind, jy, jz);
         }
   }
 

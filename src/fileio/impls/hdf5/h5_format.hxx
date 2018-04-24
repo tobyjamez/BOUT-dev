@@ -52,8 +52,8 @@ class H5Format;
 #include <map>
 #include <string>
 
-using std::string;
 using std::map;
+using std::string;
 
 class H5Format : public DataFormat {
 public:

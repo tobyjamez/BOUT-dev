@@ -122,9 +122,9 @@ private:
       cmplxLoc; ///< A temporary array, used for input/output to fft routines
 
   arr3Dvec toAlignedPhs;   ///< Cache of phase shifts for transforming from X-Z orthogonal
-                           ///coordinates to field-aligned coordinates
+                           /// coordinates to field-aligned coordinates
   arr3Dvec fromAlignedPhs; ///< Cache of phase shifts for transforming from field-aligned
-                           ///coordinates to X-Z orthogonal coordinates
+                           /// coordinates to X-Z orthogonal coordinates
 
   arr3Dvec yupPhs;   ///< Cache of phase shifts for calculating yup fields
   arr3Dvec ydownPhs; ///< Cache of phase shifts for calculating ydown fields

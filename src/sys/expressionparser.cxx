@@ -29,10 +29,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-using std::map;
-using std::string;
-using std::pair;
 using std::list;
+using std::map;
+using std::pair;
+using std::string;
 using std::stringstream;
 
 #include <stdlib.h>
@@ -112,7 +112,7 @@ public:
 private:
   std::shared_ptr<FieldGenerator> gen;
 };
-}
+} // namespace
 
 std::shared_ptr<FieldGenerator>
 FieldBinary::clone(const list<std::shared_ptr<FieldGenerator>> args) {

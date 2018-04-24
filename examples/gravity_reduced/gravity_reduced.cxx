@@ -236,7 +236,7 @@ private:
 
     ddt(U) -= (SQ(B0) / rho0) * bracket(Psi, Jpar0 / B0, bm) *
               coord->Bxy; ////added 02/03/2011 WAS MISSING BEFORE - check effect - see if
-                          ///stable. - still stable...
+                          /// stable. - still stable...
     testg = (SQ(B0) / rho0) * bracket(Psi, Jpar0 / B0, bm) * coord->Bxy;
 
     if (nonlinear) {

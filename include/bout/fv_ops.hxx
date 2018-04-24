@@ -5,11 +5,11 @@
 #ifndef __FV_OPS_H__
 #define __FV_OPS_H__
 
-#include "field3d.hxx"
-#include "globals.hxx"
-#include "vector2d.hxx"
+#include "bout/field3d.hxx"
+#include "bout/globals.hxx"
+#include "bout/vector2d.hxx"
 
-#include "utils.hxx"
+#include "bout/utils.hxx"
 
 namespace FV {
 /*!
@@ -486,6 +486,6 @@ const Field3D Div_f_v(const Field3D &n_in, const Vector3D &v, bool bndry_flux) {
 
   return result + mesh->fromFieldAligned(yresult);
 }
-}
+} // namespace FV
 
 #endif // __FV_OPS_H__

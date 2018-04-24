@@ -72,8 +72,7 @@ public:
   DataIterator(int xs, int xe, int ys, int ye, int zs, int ze)
       :
 #ifndef _OPENMP
-        x(xs),
-        y(ys), z(zs),
+        x(xs), y(ys), z(zs),
         // start / end : start and end point of the iterator
         xstart(xs), ystart(ys), zstart(zs), xend(xe), yend(ye), zend(ze),
         // Min / Max are the values of the domain we iterate over
@@ -82,8 +81,7 @@ public:
         // In the case of OpenMP each processor has a subset.
         // Therefore we initiallise here only the common ones, i.e. the
         // total size of the domain, not what this processor is doing
-        xmin(xs),
-        ymin(ys), zmin(zs), xmax(xe), ymax(ye), zmax(ze),
+        xmin(xs), ymin(ys), zmin(zs), xmax(xe), ymax(ye), zmax(ze),
 #endif
         isEnd(false) {
 #ifdef _OPENMP
@@ -98,12 +96,11 @@ public:
   DataIterator(int xs, int xe, int ys, int ye, int zs, int ze, void *UNUSED(dummy))
       :
 #ifndef _OPENMP
-        x(xe),
-        y(ye), z(ze), xstart(xs), ystart(ys), zstart(zs), xend(xe), yend(ye), zend(ze),
-        xmin(xstart), ymin(ystart), zmin(zstart), xmax(xend), ymax(yend), zmax(zend),
+        x(xe), y(ye), z(ze), xstart(xs), ystart(ys), zstart(zs), xend(xe), yend(ye),
+        zend(ze), xmin(xstart), ymin(ystart), zmin(zstart), xmax(xend), ymax(yend),
+        zmax(zend),
 #else
-        xmin(xs),
-        ymin(ys), zmin(zs), xmax(xe), ymax(ye), zmax(ze),
+        xmin(xs), ymin(ys), zmin(zs), xmax(xe), ymax(ye), zmax(ze),
 #endif
         isEnd(true) {
 #ifdef _OPENMP

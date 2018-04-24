@@ -205,11 +205,11 @@ protected:
   bool nonuniform;         ///< Non-uniform mesh correction
   bool include_yguards;    ///< solve in y-guard cells, default true.
   int extra_yguards_lower; ///< exclude some number of points at the lower boundary,
-                           ///useful for staggered grids or when boundary conditions make
-                           ///inversion redundant
+                           /// useful for staggered grids or when boundary conditions make
+                           /// inversion redundant
   int extra_yguards_upper; ///< exclude some number of points at the upper boundary,
-                           ///useful for staggered grids or when boundary conditions make
-                           ///inversion redundant
+                           /// useful for staggered grids or when boundary conditions make
+                           /// inversion redundant
 
   int global_flags;         ///< Default flags
   int inner_boundary_flags; ///< Flags to set inner boundary condition

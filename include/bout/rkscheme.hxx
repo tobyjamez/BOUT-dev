@@ -41,8 +41,8 @@ class RKScheme;
 
 #include <iomanip>
 #include <string>
-using std::string;
 using std::setw;
+using std::string;
 
 #define RKSchemeType const char *
 #define RKSCHEME_RKF45 "rkf45"

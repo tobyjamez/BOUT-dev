@@ -210,7 +210,7 @@ then
         if test "$files"
         then
             verbose "  Running clang-format on all files in $dir"
-            clang-format -i $files
+            clang-format-6 -i $files
         fi
     done
 fi

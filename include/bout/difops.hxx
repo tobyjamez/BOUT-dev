@@ -293,7 +293,7 @@ enum BRACKET_METHOD {
   BRACKET_SIMPLE = 1,  ///< Keep only terms in X-Z
   BRACKET_ARAKAWA = 2, ///< Arakawa method in X-Z (optimised)
   BRACKET_CTU = 3, ///< Corner Transport Upwind (CTU) method. Explicit method only, needs
-                   ///the timestep from the solver
+                   /// the timestep from the solver
   BRACKET_ARAKAWA_OLD = 4 ///< Older version, for regression testing of optimised version.
 };
 

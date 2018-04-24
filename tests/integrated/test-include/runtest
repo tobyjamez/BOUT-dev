@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #Requires: not make
+#Requires: slow_tests
 
 BOUT_TOP=../../..
 export PATH=$BOUT_TOP/bin:$PATH

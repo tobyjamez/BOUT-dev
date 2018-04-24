@@ -1356,9 +1356,9 @@ int physics_run(BoutReal t) {
     ddt(Psi) = -Grad_parP(phi, CELL_CENTRE) + eta * Jpar;
 
     if (eHall) {
-      ddt(Psi) += 0.25 * delta_i *
-                  (Grad_parP(P, CELL_CENTRE) +
-                   bracket(P0, Psi, bm_mag)); // electron parallel pressure
+      ddt(Psi) +=
+          0.25 * delta_i * (Grad_parP(P, CELL_CENTRE) +
+                            bracket(P0, Psi, bm_mag)); // electron parallel pressure
     }
 
     if (diamag_phi0)

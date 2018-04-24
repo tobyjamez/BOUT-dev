@@ -153,8 +153,9 @@ const Field3D Grad_parP(const Field3D &apar, const Field3D &f) {
                  (0.5 * metric->dx(x - 1, y) + metric->dx(x, y) +
                   0.5 * metric->dx(x + 1, y))
 
-             + (0.25 * dl / metric->dz) * bz *
-                   (f.yup()(x, y + 1, zm) - f.yup()(x, y + 1, zp));
+             +
+             (0.25 * dl / metric->dz) * bz *
+                 (f.yup()(x, y + 1, zm) - f.yup()(x, y + 1, zp));
 
         fm = f.ydown()(x, y - 1, z) -
              0.5 * dl * bx * (f.ydown()(x + 1, y - 1, z) - f.ydown()(x - 1, y - 1, z)) /
@@ -951,10 +952,10 @@ const Field3D bracket(const Field3D &f, const Field3D &g, BRACKET_METHOD method,
 
           // X differencing
           if (vx(x, z) > 0.0) {
-            gp =
-                g(x, y, z) + (0.5 * dt / metric->dz) *
-                                 ((vz(x, z) > 0) ? vz(x, z) * (g(x, y, zm) - g(x, y, z))
-                                                 : vz(x, z) * (g(x, y, z) - g(x, y, zp)));
+            gp = g(x, y, z) +
+                 (0.5 * dt / metric->dz) * ((vz(x, z) > 0)
+                                                ? vz(x, z) * (g(x, y, zm) - g(x, y, z))
+                                                : vz(x, z) * (g(x, y, z) - g(x, y, zp)));
 
             gm = g(x - 1, y, z) +
                  (0.5 * dt / metric->dz) *
@@ -967,35 +968,35 @@ const Field3D bracket(const Field3D &f, const Field3D &g, BRACKET_METHOD method,
                      ((vz(x, z) > 0) ? vz(x, z) * (g(x + 1, y, zm) - g(x + 1, y, z))
                                      : vz[x][z] * (g(x + 1, y, z) - g(x + 1, y, zp)));
 
-            gm =
-                g(x, y, z) + (0.5 * dt / metric->dz) *
-                                 ((vz(x, z) > 0) ? vz(x, z) * (g(x, y, zm) - g(x, y, z))
-                                                 : vz(x, z) * (g(x, y, z) - g(x, y, zp)));
+            gm = g(x, y, z) +
+                 (0.5 * dt / metric->dz) * ((vz(x, z) > 0)
+                                                ? vz(x, z) * (g(x, y, zm) - g(x, y, z))
+                                                : vz(x, z) * (g(x, y, z) - g(x, y, zp)));
           }
 
           result(x, y, z) = vx(x, z) * (gp - gm) / metric->dx(x, y);
 
           // Z differencing
           if (vz(x, z) > 0.0) {
-            gp = g(x, y, z) + (0.5 * dt / metric->dx(x, y)) *
-                                  ((vx[x][z] > 0)
-                                       ? vx[x][z] * (g(x - 1, y, z) - g(x, y, z))
-                                       : vx[x][z] * (g(x, y, z) - g(x + 1, y, z)));
+            gp = g(x, y, z) +
+                 (0.5 * dt / metric->dx(x, y)) *
+                     ((vx[x][z] > 0) ? vx[x][z] * (g(x - 1, y, z) - g(x, y, z))
+                                     : vx[x][z] * (g(x, y, z) - g(x + 1, y, z)));
 
-            gm = g(x, y, zm) + (0.5 * dt / metric->dx(x, y)) *
-                                   ((vx(x, z) > 0)
-                                        ? vx(x, z) * (g(x - 1, y, zm) - g(x, y, zm))
-                                        : vx(x, z) * (g(x, y, zm) - g(x + 1, y, zm)));
+            gm = g(x, y, zm) +
+                 (0.5 * dt / metric->dx(x, y)) *
+                     ((vx(x, z) > 0) ? vx(x, z) * (g(x - 1, y, zm) - g(x, y, zm))
+                                     : vx(x, z) * (g(x, y, zm) - g(x + 1, y, zm)));
           } else {
-            gp = g(x, y, zp) + (0.5 * dt / metric->dx(x, y)) *
-                                   ((vx(x, z) > 0)
-                                        ? vx(x, z) * (g(x - 1, y, zp) - g(x, y, zp))
-                                        : vx(x, z) * (g(x, y, zp) - g(x + 1, y, zp)));
+            gp = g(x, y, zp) +
+                 (0.5 * dt / metric->dx(x, y)) *
+                     ((vx(x, z) > 0) ? vx(x, z) * (g(x - 1, y, zp) - g(x, y, zp))
+                                     : vx(x, z) * (g(x, y, zp) - g(x + 1, y, zp)));
 
-            gm = g(x, y, z) + (0.5 * dt / metric->dx(x, y)) *
-                                  ((vx(x, z) > 0)
-                                       ? vx(x, z) * (g(x - 1, y, z) - g(x, y, z))
-                                       : vx(x, z) * (g(x, y, z) - g(x + 1, y, z)));
+            gm = g(x, y, z) +
+                 (0.5 * dt / metric->dx(x, y)) *
+                     ((vx(x, z) > 0) ? vx(x, z) * (g(x - 1, y, z) - g(x, y, z))
+                                     : vx(x, z) * (g(x, y, z) - g(x + 1, y, z)));
           }
 
           result(x, y, z) += vz(x, z) * (gp - gm) / metric->dz;

@@ -67,10 +67,9 @@ int physics_init(bool restarting) {
         BoutReal z = BoutReal(jz) / nz;
         f1(jx, jy, jz) =
             0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-            50. *
-                (2. * p * exp(-50. * pow(-p, 2)) * x +
-                 (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                     pow(x, 2)) *
+            50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
+                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                       pow(x, 2)) *
                 exp(-(1. - cos(2. * PI *
                                (z - q)))) // make the gradients zero at both x-boundaries
             ;
@@ -83,10 +82,9 @@ int physics_init(bool restarting) {
           BoutReal z = BoutReal(jz) / nz;
           f1(jx, jy, jz) =
               0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-              50. *
-                  (2. * p * exp(-50. * pow(-p, 2)) * x +
-                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                       pow(x, 2)) *
+              50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
+                     (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                         pow(x, 2)) *
                   exp(-(1. -
                         cos(2. * PI *
                             (z - q)))); // make the gradients zero at both x-boundaries
@@ -99,10 +97,9 @@ int physics_init(bool restarting) {
           BoutReal z = BoutReal(jz) / nz;
           f1(jx, jy, jz) =
               0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-              50. *
-                  (2. * p * exp(-50. * pow(-p, 2)) * x +
-                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                       pow(x, 2)) *
+              50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
+                     (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                         pow(x, 2)) *
                   exp(-(1. -
                         cos(2. * PI *
                             (z - q)))); // make the gradients zero at both x-boundaries
@@ -415,10 +412,9 @@ int physics_init(bool restarting) {
         BoutReal z = BoutReal(jz) / nz;
         f5(jx, jy, jz) =
             0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-            50. *
-                (2. * p * exp(-50. * pow(-p, 2)) * x +
-                 (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                     pow(x, 2)) *
+            50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
+                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                       pow(x, 2)) *
                 exp(-(1. - cos(2. * PI *
                                (z - q)))) // make the gradients zero at both x-boundaries
             ;
@@ -431,10 +427,9 @@ int physics_init(bool restarting) {
           BoutReal z = BoutReal(jz) / nz;
           f5(jx, jy, jz) =
               0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-              50. *
-                  (2. * p * exp(-50. * pow(-p, 2)) * x +
-                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                       pow(x, 2)) *
+              50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
+                     (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                         pow(x, 2)) *
                   exp(-(1. -
                         cos(2. * PI *
                             (z - q)))); // make the gradients zero at both x-boundaries
@@ -447,10 +442,9 @@ int physics_init(bool restarting) {
           BoutReal z = BoutReal(jz) / nz;
           f5(jx, jy, jz) =
               0. + exp(-(50. * pow(x - p, 2) + 1. - cos(2. * PI * (z - q)))) -
-              50. *
-                  (2. * p * exp(-50. * pow(-p, 2)) * x +
-                   (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
-                       pow(x, 2)) *
+              50. * (2. * p * exp(-50. * pow(-p, 2)) * x +
+                     (-p * exp(-50. * pow(-p, 2)) - (1 - p) * exp(-50. * pow(1 - p, 2))) *
+                         pow(x, 2)) *
                   exp(-(1. -
                         cos(2. * PI *
                             (z - q)))); // make the gradients zero at both x-boundaries

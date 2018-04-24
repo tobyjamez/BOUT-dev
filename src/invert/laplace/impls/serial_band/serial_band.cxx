@@ -172,9 +172,8 @@ const FieldPerp LaplaceSerialBand::solve(const FieldPerp &b, const FieldPerp &x0
       // A first order derivative term (1/c)\nabla_perp c\cdot\nabla_\perp x
 
       if ((ix > 1) && (ix < (mesh->LocalNx - 2)))
-        coef4 += coord->g11(ix, jy) *
-                 (Ccoef(ix - 2, jy) - 8. * Ccoef(ix - 1, jy) + 8. * Ccoef(ix + 1, jy) -
-                  Ccoef(ix + 2, jy)) /
+        coef4 += coord->g11(ix, jy) * (Ccoef(ix - 2, jy) - 8. * Ccoef(ix - 1, jy) +
+                                       8. * Ccoef(ix + 1, jy) - Ccoef(ix + 2, jy)) /
                  (12. * coord->dx(ix, jy) * (Ccoef(ix, jy)));
 
       // Put into matrix
@@ -369,10 +368,11 @@ const FieldPerp LaplaceSerialBand::solve(const FieldPerp &b, const FieldPerp &x0
         A(ix, 0) = dcomplex(-coef1, 0.0);
         A(ix, 1) = dcomplex(16. * coef1, -coef3);
         A(ix, 2) = dcomplex(-29. * coef1 - SQ(kwave) * coef2 + coef4, 0.0);
-        A(ix, 3) = dcomplex((14. - SQ(coord->dx(ncx, jy) * kwave) * coord->g33(ncx, jy) /
-                                       coord->g11(ncx, jy)) *
-                                coef1,
-                            coef3);
+        A(ix, 3) = dcomplex(
+            (14. -
+             SQ(coord->dx(ncx, jy) * kwave) * coord->g33(ncx, jy) / coord->g11(ncx, jy)) *
+                coef1,
+            coef3);
         A(ix, 4) = 0.0; // Not used
 
         coef1 = coord->g11(ix, jy) / (SQ(coord->dx(ix, jy)));

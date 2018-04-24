@@ -110,9 +110,9 @@ const DataIterator FieldPerp::end() const {
   return DataIterator(0, nx - 1, yindex, yindex, 0, nz - 1, DI_GET_END);
 }
 
-  /***************************************************************
-   *                         OPERATORS
-   ***************************************************************/
+/***************************************************************
+ *                         OPERATORS
+ ***************************************************************/
 
 #define FPERP_OP_FIELD(op, bop, ftype)                                                   \
   FieldPerp &FieldPerp::operator op(const ftype &rhs) {                                  \

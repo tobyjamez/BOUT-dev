@@ -615,7 +615,7 @@ void NonLocalParallel::calculate_nonlocal_closures(
     ,
     const Field3D &viscosity_boundary_condition
 #endif
-) {
+    ) {
   if (fluxes_location_is_ylow)
     calculate_nonlocal_closures_cell_ylow(n_electron, T_electron
 #ifdef DRIVE_GRADV
@@ -634,7 +634,7 @@ void NonLocalParallel::calculate_nonlocal_closures(
                                           ,
                                           viscosity_boundary_condition
 #endif
-    );
+                                          );
   else
     calculate_nonlocal_closures_cell_centre(n_electron, T_electron
 #ifdef DRIVE_GRADV
@@ -653,7 +653,7 @@ void NonLocalParallel::calculate_nonlocal_closures(
                                             ,
                                             viscosity_boundary_condition
 #endif
-    );
+                                            );
 #if CHECK > 0
   calculated_before_setting_bcs = true;
 #endif
@@ -679,7 +679,7 @@ void NonLocalParallel::calculate_nonlocal_closures_cell_centre(
     ,
     const Field3D &viscosity_boundary_condition
 #endif
-) {
+    ) {
 
   lambdaC_inverse = n_electron * pow(electron_charge, 4) * logLambda / 12 / pow(PI, 1.5) /
                     pow(epsilon_0, 2) / (T_electron ^ 2);
@@ -1476,7 +1476,7 @@ void NonLocalParallel::calculate_nonlocal_closures_cell_ylow(
     ,
     const Field3D &viscosity_boundary_condition
 #endif
-) {
+    ) {
 
   Coordinates *coord = mesh->coordinates();
 

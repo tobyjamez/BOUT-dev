@@ -461,9 +461,8 @@ int GBS::rhs(BoutReal t) {
 
     if (parallel) {
       ddt(Te) -= Vpar_Grad_par(Ve, Te);
-      ddt(Te) += (2. / 3.) * Te *
-                 (0.71 * Grad_par(Vi) - 1.71 * Grad_par(Ve) +
-                  0.71 * (Vi - Ve) * Grad_par(logNe));
+      ddt(Te) += (2. / 3.) * Te * (0.71 * Grad_par(Vi) - 1.71 * Grad_par(Ve) +
+                                   0.71 * (Vi - Ve) * Grad_par(logNe));
     }
 
     if (!mms) {

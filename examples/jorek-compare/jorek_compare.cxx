@@ -538,11 +538,12 @@ private:
 
       {
         TRACE("Te");
-        ddt(Te) = -bracket(phi, Tet, bm) - Vpar_Grad_par(Vpar, Tet) // advection
-                  - (2. / 3.) * Tet *
-                        (divExB + Div_parP(Vpar, CELL_CENTRE)) // Divergence of flow
-                  + Div_par_K_Grad_par(chi_epar, Te) / rhot    // Parallel diffusion
-                  + chi_eperp * Delp2(Te) / rhot               // Perpendicular diffusion
+        ddt(Te) =
+            -bracket(phi, Tet, bm) - Vpar_Grad_par(Vpar, Tet) // advection
+            -
+            (2. / 3.) * Tet * (divExB + Div_parP(Vpar, CELL_CENTRE)) // Divergence of flow
+            + Div_par_K_Grad_par(chi_epar, Te) / rhot                // Parallel diffusion
+            + chi_eperp * Delp2(Te) / rhot // Perpendicular diffusion
             ;
 
         if (ohmic_heating)

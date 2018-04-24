@@ -631,7 +631,7 @@ void IMEXBDF2::constructSNES(SNES *snesIn) {
       MatFDColoringSetFunction(fdcoloring,
                                (PetscErrorCode(*)(void))FormFunctionForColoring, this);
       MatFDColoringSetFromOptions(fdcoloring);
-      // MatFDColoringSetUp(Jmf,iscoloring,fdcoloring);
+// MatFDColoringSetUp(Jmf,iscoloring,fdcoloring);
 
 #if PETSC_VERSION_GE(3, 4, 0)
       SNESSetJacobian(*snesIn, Jmf, Jmf, SNESComputeJacobianDefault, fdcoloring);

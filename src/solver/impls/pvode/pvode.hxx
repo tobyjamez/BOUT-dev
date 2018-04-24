@@ -6,7 +6,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -21,36 +21,36 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with BOUT++.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  **************************************************************************/
 
 #ifndef BOUT_HAS_PVODE
 
 #include "../emptysolver.hxx"
 typedef EmptySolver PvodeSolver;
- 
+
 #else
 class PvodeSolver;
 
 #ifndef __PVODE_SOLVER_H__
 #define __PVODE_SOLVER_H__
 
+#include <bout/bout_types.hxx>
 #include <bout/solver.hxx>
-#include <bout_types.hxx>
 
+#include <pvode/cvode.h> // main CVODE header file
 #include <pvode/nvector.h>
-#include <pvode/cvode.h>     // main CVODE header file
-#include <pvode/pvbbdpre.h>  // band preconditioner function prototypes
+#include <pvode/pvbbdpre.h> // band preconditioner function prototypes
 
 class PvodeSolver : public Solver {
- public:
+public:
   PvodeSolver(Options *opts);
   ~PvodeSolver();
-  
+
   BoutReal getCurrentTimestep() override { return hcur; }
-  
+
   int init(int nout, BoutReal tstep) override;
-  
+
   int run() override;
   BoutReal run(BoutReal tout);
 
@@ -58,10 +58,10 @@ class PvodeSolver : public Solver {
   void rhs(int N, BoutReal t, BoutReal *udata, BoutReal *dudata);
   void gloc(int N, BoutReal t, BoutReal *udata, BoutReal *dudata);
 
- private:
-  int NOUT; // Number of outputs. Specified in init, needed in run
+private:
+  int NOUT;          // Number of outputs. Specified in init, needed in run
   BoutReal TIMESTEP; // Time between outputs
-  BoutReal hcur; // Current internal timestep
+  BoutReal hcur;     // Current internal timestep
 
   pvode::N_Vector u;
   pvode::machEnvType machEnv;

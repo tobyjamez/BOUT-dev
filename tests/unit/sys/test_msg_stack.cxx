@@ -1,8 +1,8 @@
 // These tests rely on MsgStack::getDump, and so won't work without it
 #if CHECK > 1
 
+#include "bout/msg_stack.hxx"
 #include "gtest/gtest.h"
-#include "msg_stack.hxx"
 
 #include <iostream>
 #include <string>

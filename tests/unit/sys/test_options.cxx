@@ -1,21 +1,17 @@
-#include "gtest/gtest.h"
 #include "test_extras.hxx"
+#include "gtest/gtest.h"
 
-#include "options.hxx"
-#include "output.hxx"
-#include <boutexception.hxx>
+#include "bout/options.hxx"
+#include "bout/output.hxx"
+#include <bout/boutexception.hxx>
 
 #include <string>
 
 class OptionsTest : public ::testing::Test {
 public:
-  OptionsTest() {
-    output_info.disable();
-  }
+  OptionsTest() { output_info.disable(); }
 
-  ~OptionsTest() {
-    output_info.enable();
-  }
+  ~OptionsTest() { output_info.enable(); }
 };
 
 TEST_F(OptionsTest, IsSet) {

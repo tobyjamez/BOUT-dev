@@ -1,6 +1,6 @@
 /*!************************************************************************
 * Base class for options file parsers
-* 
+*
 * This code handles most details of looking up variables and just relies on
 * the underlying library to supply a simplified interface
 *
@@ -10,7 +10,7 @@
 *  name = value  # comments
 *
 * This is compatible with some readers (like Python's ConfigParser), but
-* is quite limited. 
+* is quite limited.
 *
 * To handle more complex data types and make interchange with other
 * codes easier JSON formatted files are planned to be supported
@@ -19,7 +19,7 @@
 * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
 *
 * Contact: Ben Dudson, bd512@york.ac.uk
-* 
+*
 * This file is part of BOUT++.
 *
 * BOUT++ is free software: you can redistribute it and/or modify
@@ -42,19 +42,20 @@ class OptionParser;
 #ifndef __OPTIONPARSER_H__
 #define __OPTIONPARSER_H__
 
-#include "bout_types.hxx"
-#include "options.hxx"
-#include <boutexception.hxx>
+#include "bout/bout_types.hxx"
+#include "bout/options.hxx"
+#include <bout/boutexception.hxx>
 
 class OptionParser {
- public:
+public:
   OptionParser() {}
   virtual ~OptionParser() {}
 
   virtual void read(Options *options, const std::string &filename) = 0;
 
   virtual void write(Options *options, const std::string &filename) = 0;
- private:
+
+private:
 };
 
 #endif // __OPTIONPARSER_H__

@@ -2,27 +2,25 @@
  */
 
 #include <bout.hxx>
-#include <boutmain.hxx>
+#include <bout/boutmain.hxx>
 
 Field2D f;
 
 // Create a monitor to be called every output step
-class MyOutputMonitor: public Monitor{
+class MyOutputMonitor : public Monitor {
 public:
-  MyOutputMonitor(BoutReal timestep=-1):Monitor(timestep){};
+  MyOutputMonitor(BoutReal timestep = -1) : Monitor(timestep){};
   int call(Solver *solver, BoutReal simtime, int iter, int NOUT) override;
 };
 
 int MyOutputMonitor::call(Solver *solver, BoutReal simtime, int iter, int NOUT) {
-  output.write("Output monitor, time = %e, step %d of %d\n",
-               simtime, iter, NOUT);
+  output.write("Output monitor, time = %e, step %d of %d\n", simtime, iter, NOUT);
   return 0;
 }
 
 // Create a function to be called every timestep
 int my_timestep_monitor(Solver *solver, BoutReal simtime, BoutReal dt) {
-  output.write("\nTimestep monitor, time = %e, dt = %e\n", 
-               simtime, dt);
+  output.write("\nTimestep monitor, time = %e, dt = %e\n", simtime, dt);
   return 0;
 }
 

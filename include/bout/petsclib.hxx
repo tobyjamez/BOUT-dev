@@ -1,28 +1,28 @@
 /*!************************************************************************
  * Provides access to the PETSc library, handling initialisation and
- * finalisation. 
+ * finalisation.
  *
  * Usage
  * -----
  *
  * #include <bout/petsclib.hxx>
- * 
+ *
  * class MyClass {
  *   public:
- *   
+ *
  *   private:
  *     PetscLib lib;
  * };
- * 
+ *
  *
  * This will then automatically initialise Petsc the first time an object
  * is created, and finalise it when the last object is destroyed.
- * 
+ *
  **************************************************************************
  * Copyright 2012 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -58,40 +58,44 @@ class PetscLib;
  * The first instance which is created initialises PETSc
  * Keeps a count of the number of how many instances exist
  * When the last instance is destroyed it finalises PETSc.
- */ 
+ */
 class PetscLib {
 public:
   /*!
    * Ensure that PETSc has been initialised
    */
   PetscLib();
-  
+
   /*!
    * Calls PetscFinalize when all PetscLib instances are destroyed
-   */ 
+   */
   ~PetscLib();
-  
+
   /*!
    * This is called once to set the command-line options.
    * Should be done early in the program, before any instances of
    * PetscLib are created.
    * The arguments will be passed to PetscInitialize()
-   */ 
-  static void setArgs(int &c, char** &v) { pargc = &c; pargv = &v;}
-  
+   */
+  static void setArgs(int &c, char **&v) {
+    pargc = &c;
+    pargv = &v;
+  }
+
   /*!
    * Force cleanup. This will call PetscFinalize, printing a warning
    * if any instances of PetscLib still exist
-   */ 
-  static void cleanup(); 
+   */
+  static void cleanup();
+
 private:
-  static int count; ///< How many instances?
+  static int count;   ///< How many instances?
   static char help[]; ///< Help string
-  
+
   // Command-line arguments
-  static int* pargc;
-  static char*** pargv;
-  
+  static int *pargc;
+  static char ***pargv;
+
   static PetscLogEvent USER_EVENT;
 };
 
@@ -99,28 +103,28 @@ private:
 // Newer versions of PETSc define these symbols for testing library version
 // This is a re-implementation of the PETSc BSD-licensed code
 
-#define PETSC_VERSION_GE(MAJOR,MINOR,SUBMINOR)                          \
-  ( (PETSC_VERSION_MAJOR > MAJOR) ||                                    \
-    ( (PETSC_VERSION_MAJOR == MAJOR) && ( (PETSC_VERSION_MINOR > MINOR) || \
-                                          ( (PETSC_VERSION_MINOR == MINOR) && (PETSC_VERSION_SUBMINOR >= SUBMINOR)))))
+#define PETSC_VERSION_GE(MAJOR, MINOR, SUBMINOR)                                         \
+  ((PETSC_VERSION_MAJOR > MAJOR) ||                                                      \
+   ((PETSC_VERSION_MAJOR == MAJOR) &&                                                    \
+    ((PETSC_VERSION_MINOR > MINOR) ||                                                    \
+     ((PETSC_VERSION_MINOR == MINOR) && (PETSC_VERSION_SUBMINOR >= SUBMINOR)))))
 
 #endif // PETSC_VERSION_GE
 
 #else // BOUT_HAS_PETSC
 
-#include "unused.hxx"
+#include "bout/unused.hxx"
 
 class PetscLib {
 public:
   PetscLib() {}
   ~PetscLib() {}
-  
-  static void setArgs(int &UNUSED(c), char** &UNUSED(v)) {}
-  
+
+  static void setArgs(int &UNUSED(c), char **&UNUSED(v)) {}
+
   static void cleanup() {}
 };
 
 #endif // BOUT_HAS_PETSC
-
 
 #endif //  __PETSCLIB_H__

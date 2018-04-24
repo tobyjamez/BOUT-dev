@@ -1,5 +1,5 @@
-#include "gtest/gtest.h"
 #include "test_extras.hxx"
+#include "gtest/gtest.h"
 
 #include <cmath>
 
@@ -16,9 +16,9 @@
                                                   BoutReal tolerance) {
   for (const auto &i : field) {
     if (fabs(field[i] - number) > tolerance) {
-      return ::testing::AssertionFailure() << "Field3D(" << i.x << ", " << i.y << ", "
-                                           << i.z << ") == " << field[i]
-                                           << "; Expected: " << number;
+      return ::testing::AssertionFailure()
+             << "Field3D(" << i.x << ", " << i.y << ", " << i.z << ") == " << field[i]
+             << "; Expected: " << number;
     }
   }
 
@@ -29,9 +29,9 @@
                                                   BoutReal tolerance) {
   for (const auto &i : field) {
     if (fabs(field[i] - number) > tolerance) {
-      return ::testing::AssertionFailure() << "Field2D(" << i.x << ", " << i.y
-                                           << ") == " << field[i]
-                                           << "; Expected: " << number;
+      return ::testing::AssertionFailure()
+             << "Field2D(" << i.x << ", " << i.y << ") == " << field[i]
+             << "; Expected: " << number;
     }
   }
 
@@ -42,9 +42,9 @@
                                                     BoutReal number, BoutReal tolerance) {
   for (const auto &i : field) {
     if (fabs(field[i] - number) > tolerance) {
-      return ::testing::AssertionFailure() << "FieldPerp(" << i.x << ", " << i.z
-                                           << ") == " << field[i]
-                                           << "; Expected: " << number;
+      return ::testing::AssertionFailure()
+             << "FieldPerp(" << i.x << ", " << i.z << ") == " << field[i]
+             << "; Expected: " << number;
     }
   }
 

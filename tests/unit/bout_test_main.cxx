@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "gtest/gtest.h"
 #include "bout/array.hxx"
+#include "gtest/gtest.h"
 
 GTEST_API_ int main(int argc, char **argv) {
   printf("Running main() from bout_test_main.cxx\n");

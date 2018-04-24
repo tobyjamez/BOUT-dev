@@ -1,24 +1,24 @@
 /**************************************************************************
  * Karniadakis split-operator solver
- * 
+ *
  * Formulation from:
  * "GEM - An Energy Conserving Electromagnetic Gyrofluid Model"
- *  by Bruce D Scott. arXiv:physics/0501124v1 23 Jan 2005 
+ *  by Bruce D Scott. arXiv:physics/0501124v1 23 Jan 2005
  *
  * Original paper:
  *   J. Comput. Phys. 97 (1991) p414-443
- * 
+ *
  * Always available, since doesn't depend on external library
- * 
+ *
  * Solves a system df/dt = S(f) + D(f)
- * 
+ *
  * where S is the RHS of each equation, and D is the diffusion terms
- * 
+ *
  **************************************************************************
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -38,40 +38,40 @@
 
 #include "karniadakis.hxx"
 
-#include <boutcomm.hxx>
-#include <msg_stack.hxx>
-#include <output.hxx>
+#include <bout/boutcomm.hxx>
+#include <bout/msg_stack.hxx>
 #include <bout/openmpwrap.hxx>
+#include <bout/output.hxx>
 
 KarniadakisSolver::KarniadakisSolver(Options *options) : Solver(options) {
-  canReset = true;  
+  canReset = true;
 }
 
 int KarniadakisSolver::init(int nout, BoutReal tstep) {
   TRACE("Initialising Karniadakis solver");
-  
+
   /// Call the generic initialisation first
   if (Solver::init(nout, tstep))
     return 1;
-  
+
   output << "\n\tKarniadakis solver\n";
- 
+
   nsteps = nout; // Save number of output steps
   out_timestep = tstep;
-  
+
   // Calculate number of variables
   nlocal = getLocalN();
-  
+
   // Get total problem size
   int neq;
-  if(MPI_Allreduce(&nlocal, &neq, 1, MPI_INT, MPI_SUM, BoutComm::get())) {
+  if (MPI_Allreduce(&nlocal, &neq, 1, MPI_INT, MPI_SUM, BoutComm::get())) {
     output_error.write("\tERROR: MPI_Allreduce failed!\n");
     return 1;
   }
-  
-  output.write("\t3d fields = %d, 2d fields = %d neq=%d, local_N=%d\n",
-	       n3Dvars(), n2Dvars(), neq, nlocal);
-  
+
+  output.write("\t3d fields = %d, 2d fields = %d neq=%d, local_N=%d\n", n3Dvars(),
+               n2Dvars(), neq, nlocal);
+
   // Allocate memory
 
   f1 = Array<BoutReal>(nlocal);
@@ -92,9 +92,9 @@ int KarniadakisSolver::init(int nout, BoutReal tstep) {
 
   // Get options
   OPTION(options, timestep, tstep);
-  
+
   // Make sure timestep divides into tstep
-  
+
   // Number of sub-steps, rounded up
   nsubsteps = static_cast<int>(0.5 + tstep / timestep);
 
@@ -107,38 +107,38 @@ int KarniadakisSolver::init(int nout, BoutReal tstep) {
 
 int KarniadakisSolver::run() {
   TRACE("KarniadakisSolver::run()");
-  
-  for(int i=0;i<nsteps;i++) {
+
+  for (int i = 0; i < nsteps; i++) {
     // Run through a fixed number of steps
-    for(int j=0; j<nsubsteps; j++) {
+    for (int j = 0; j < nsubsteps; j++) {
       // Advance f0 -> f1
       take_step(timestep);
-      
+
       // Cycle buffers
       auto tmp = fm2;
       fm2 = fm1;
       fm1 = f0;
       f0 = f1;
       f1 = tmp;
-      
+
       tmp = Sm2;
       Sm2 = Sm1;
       Sm1 = S0;
       S0 = tmp;
-      
+
       simtime += timestep;
-      
+
       call_timestep_monitors(simtime, timestep);
     }
     iteration++;
-    
+
     // Call RHS to communicate and get auxilliary variables
     load_vars(std::begin(f0));
     run_rhs(simtime);
-    
+
     /// Call the monitor function
-    
-    if(call_monitors(simtime, i, nsteps)) {
+
+    if (call_monitors(simtime, i, nsteps)) {
       // User signalled to quit
       break;
     }
@@ -147,15 +147,15 @@ int KarniadakisSolver::run() {
     rhs_ncalls_i = 0;
     rhs_ncalls_e = 0;
   }
-  
+
   return 0;
 }
 
-void KarniadakisSolver::resetInternalFields(){
-  //Make sure all other fields get reset
-  first_time=true;
+void KarniadakisSolver::resetInternalFields() {
+  // Make sure all other fields get reset
+  first_time = true;
 
-  //Copy fields into vector
+  // Copy fields into vector
   save_vars(std::begin(f0));
 }
 
@@ -166,22 +166,23 @@ void KarniadakisSolver::take_step(BoutReal dt) {
   run_convective(simtime);
   save_derivs(std::begin(S0));
 
-  if(first_time) {
+  if (first_time) {
     // Initialise values
     BOUT_OMP(parallel for)
-    for(int i=0;i<nlocal;i++) {
-    //fm1[i] = fm2[i] = f0[i];
-      fm1[i] = f0[i] - dt*S0[i];
-      fm2[i] = fm1[i] - dt*S0[i];
+    for (int i = 0; i < nlocal; i++) {
+      // fm1[i] = fm2[i] = f0[i];
+      fm1[i] = f0[i] - dt * S0[i];
+      fm2[i] = fm1[i] - dt * S0[i];
       Sm1[i] = Sm2[i] = S0[i];
     }
     first_time = false;
   }
 
   BOUT_OMP(parallel for)
-  for(int i=0;i<nlocal;i++)
-    f1[i] = (6./11.) * (3.*f0[i] - 1.5*fm1[i] + (1./3.)*fm2[i] + dt*(3.*S0[i] - 3.*Sm1[i] + Sm2[i]));
-  
+  for (int i = 0; i < nlocal; i++)
+    f1[i] = (6. / 11.) * (3. * f0[i] - 1.5 * fm1[i] + (1. / 3.) * fm2[i] +
+                          dt * (3. * S0[i] - 3. * Sm1[i] + Sm2[i]));
+
   // D0 = S(f0)
   load_vars(std::begin(f0));
   run_diffusive(simtime);
@@ -189,6 +190,6 @@ void KarniadakisSolver::take_step(BoutReal dt) {
 
   // f1 = f1 + dt*D0
   BOUT_OMP(parallel for)
-  for(int i=0;i<nlocal;i++)
-    f1[i] += (6./11.) * dt*D0[i];
+  for (int i = 0; i < nlocal; i++)
+    f1[i] += (6. / 11.) * dt * D0[i];
 }

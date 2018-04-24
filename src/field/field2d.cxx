@@ -25,45 +25,43 @@
  *
  **************************************************************************/
 
-#include <boutcomm.hxx>
+#include <bout/boutcomm.hxx>
 #include <bout/rvec.hxx>
 
-#include <globals.hxx> // for mesh
+#include <bout/globals.hxx> // for mesh
 
-#include <field2d.hxx>
+#include <bout/field2d.hxx>
 
-#include <utils.hxx>
+#include <bout/utils.hxx>
 
-#include <boundary_op.hxx>
-#include <boundary_factory.hxx>
+#include <bout/boundary_factory.hxx>
+#include <bout/boundary_op.hxx>
 
-#include <boutexception.hxx>
-#include <msg_stack.hxx>
+#include <bout/boutexception.hxx>
+#include <bout/msg_stack.hxx>
 
+#include <bout/output.hxx>
 #include <cmath>
-#include <output.hxx>
 
 #include <bout/assert.hxx>
 
-BoutReal& Field2D::operator[](const Ind3D &d) {
-    return data[d.ind/fieldmesh->LocalNz];
-  }
-const BoutReal& Field2D::operator[](const Ind3D &d) const {
-    return data[d.ind/fieldmesh->LocalNz];
-  }
+BoutReal &Field2D::operator[](const Ind3D &d) { return data[d.ind / fieldmesh->LocalNz]; }
+const BoutReal &Field2D::operator[](const Ind3D &d) const {
+  return data[d.ind / fieldmesh->LocalNz];
+}
 
 Field2D::Field2D(Mesh *localmesh) : Field(localmesh), deriv(nullptr) {
 
   boundaryIsSet = false;
 
-  if(fieldmesh) {
+  if (fieldmesh) {
     nx = fieldmesh->LocalNx;
     ny = fieldmesh->LocalNy;
   }
 #if CHECK > 0
   else {
-    nx=-1;
-    ny=-1;
+    nx = -1;
+    ny = -1;
   }
 #endif
 
@@ -72,9 +70,10 @@ Field2D::Field2D(Mesh *localmesh) : Field(localmesh), deriv(nullptr) {
 #endif
 }
 
-Field2D::Field2D(const Field2D& f) : Field(f.fieldmesh), // The mesh containing array sizes
-                                     data(f.data), // This handles references to the data array
-                                     deriv(nullptr) {
+Field2D::Field2D(const Field2D &f)
+    : Field(f.fieldmesh), // The mesh containing array sizes
+      data(f.data),       // This handles references to the data array
+      deriv(nullptr) {
   TRACE("Field2D(Field2D&)");
 
 #ifdef TRACK
@@ -85,14 +84,14 @@ Field2D::Field2D(const Field2D& f) : Field(f.fieldmesh), // The mesh containing 
   checkData(f);
 #endif
 
-  if(fieldmesh) {
+  if (fieldmesh) {
     nx = fieldmesh->LocalNx;
     ny = fieldmesh->LocalNy;
   }
 #if CHECK > 0
   else {
-    nx=-1;
-    ny=-1;
+    nx = -1;
+    ny = -1;
   }
 #endif
 
@@ -109,28 +108,28 @@ Field2D::Field2D(BoutReal val, Mesh *localmesh) : Field(localmesh), deriv(nullpt
 }
 
 Field2D::~Field2D() {
-  if(deriv)
+  if (deriv)
     delete deriv;
 }
 
 void Field2D::allocate() {
-  if(data.empty()) {
-    if(!fieldmesh) {
+  if (data.empty()) {
+    if (!fieldmesh) {
       /// If no mesh, use the global
       fieldmesh = mesh;
       nx = fieldmesh->LocalNx;
       ny = fieldmesh->LocalNy;
     }
-    data = Array<BoutReal>(nx*ny);
+    data = Array<BoutReal>(nx * ny);
 #if CHECK > 2
     invalidateGuards(*this);
 #endif
-  }else
+  } else
     data.ensureUnique();
 }
 
-Field2D* Field2D::timeDeriv() {
-  if(deriv == nullptr)
+Field2D *Field2D::timeDeriv() {
+  if (deriv == nullptr)
     deriv = new Field2D(fieldmesh);
   return deriv;
 }
@@ -138,42 +137,29 @@ Field2D* Field2D::timeDeriv() {
 ////////////// Indexing ///////////////////
 
 const DataIterator Field2D::iterator() const {
-  return DataIterator(0, nx-1,
-                      0, ny-1,
-                      0, 0);
+  return DataIterator(0, nx - 1, 0, ny - 1, 0, 0);
 }
 
-const DataIterator Field2D::begin() const {
-  return Field2D::iterator();
-}
+const DataIterator Field2D::begin() const { return Field2D::iterator(); }
 
 const DataIterator Field2D::end() const {
-  return DataIterator(0, nx-1,
-                      0, ny-1,
-                      0, 0, DI_GET_END);
+  return DataIterator(0, nx - 1, 0, ny - 1, 0, 0, DI_GET_END);
 }
 
 const IndexRange Field2D::region(REGION rgn) const {
-  switch(rgn) {
+  switch (rgn) {
   case RGN_ALL: {
-    return IndexRange{0, nx-1,
-        0, ny-1,
-        0, 0};
+    return IndexRange{0, nx - 1, 0, ny - 1, 0, 0};
   }
   case RGN_NOBNDRY: {
-    return IndexRange{fieldmesh->xstart, fieldmesh->xend,
-        fieldmesh->ystart, fieldmesh->yend,
-        0, 0};
+    return IndexRange{
+        fieldmesh->xstart, fieldmesh->xend, fieldmesh->ystart, fieldmesh->yend, 0, 0};
   }
   case RGN_NOX: {
-    return IndexRange{fieldmesh->xstart, fieldmesh->xend,
-        0, ny-1,
-        0, 0};
+    return IndexRange{fieldmesh->xstart, fieldmesh->xend, 0, ny - 1, 0, 0};
   }
   case RGN_NOY: {
-    return IndexRange{0, nx-1,
-        fieldmesh->ystart, fieldmesh->yend,
-        0, 0};
+    return IndexRange{0, nx - 1, fieldmesh->ystart, fieldmesh->yend, 0, 0};
   }
   default: {
     throw BoutException("Field2D::region() : Requested region not implemented");
@@ -233,15 +219,17 @@ void Field2D::applyBoundary(bool init) {
 #if CHECK > 0
   if (init) {
 
-    if(!boundaryIsSet)
-      output_warn << "WARNING: Call to Field2D::applyBoundary(), but no boundary set" << endl;
+    if (!boundaryIsSet)
+      output_warn << "WARNING: Call to Field2D::applyBoundary(), but no boundary set"
+                  << endl;
   }
 #endif
 
   ASSERT1(isAllocated());
 
-  for(const auto& bndry : bndry_op)
-    if ( !bndry->apply_to_ddt || init) // Always apply to the values when initialising fields, otherwise apply only if wanted
+  for (const auto &bndry : bndry_op)
+    if (!bndry->apply_to_ddt || init) // Always apply to the values when initialising
+                                      // fields, otherwise apply only if wanted
       bndry->apply(*this);
 }
 
@@ -254,27 +242,27 @@ void Field2D::applyBoundary(const string &condition) {
   BoundaryFactory *bfact = BoundaryFactory::getInstance();
 
   /// Loop over the mesh boundary regions
-  for(const auto& reg : fieldmesh->getBoundaries()) {
-    BoundaryOp* op = static_cast<BoundaryOp*>(bfact->create(condition, reg));
+  for (const auto &reg : fieldmesh->getBoundaries()) {
+    BoundaryOp *op = static_cast<BoundaryOp *>(bfact->create(condition, reg));
     op->apply(*this);
     delete op;
   }
 
   // Set the corners to zero
-  for(int jx=0;jx<fieldmesh->xstart;jx++) {
-    for(int jy=0;jy<fieldmesh->ystart;jy++) {
-      operator()(jx,jy) = 0.;
+  for (int jx = 0; jx < fieldmesh->xstart; jx++) {
+    for (int jy = 0; jy < fieldmesh->ystart; jy++) {
+      operator()(jx, jy) = 0.;
     }
-    for(int jy=fieldmesh->yend+1;jy<fieldmesh->LocalNy;jy++) {
-      operator()(jx,jy) = 0.;
+    for (int jy = fieldmesh->yend + 1; jy < fieldmesh->LocalNy; jy++) {
+      operator()(jx, jy) = 0.;
     }
   }
-  for(int jx=fieldmesh->xend+1;jx<fieldmesh->LocalNx;jx++) {
-    for(int jy=0;jy<fieldmesh->ystart;jy++) {
-      operator()(jx,jy) = 0.;
+  for (int jx = fieldmesh->xend + 1; jx < fieldmesh->LocalNx; jx++) {
+    for (int jy = 0; jy < fieldmesh->ystart; jy++) {
+      operator()(jx, jy) = 0.;
     }
-    for(int jy=fieldmesh->yend+1;jy<fieldmesh->LocalNy;jy++) {
-      operator()(jx,jy) = 0.;
+    for (int jy = fieldmesh->yend + 1; jy < fieldmesh->LocalNy; jy++) {
+      operator()(jx, jy) = 0.;
     }
   }
 }
@@ -286,9 +274,9 @@ void Field2D::applyBoundary(const string &region, const string &condition) {
   BoundaryFactory *bfact = BoundaryFactory::getInstance();
 
   /// Loop over the mesh boundary regions
-  for(const auto& reg : fieldmesh->getBoundaries()) {
-    if(reg->label.compare(region) == 0) {
-      BoundaryOp* op = static_cast<BoundaryOp*>(bfact->create(condition, reg));
+  for (const auto &reg : fieldmesh->getBoundaries()) {
+    if (reg->label.compare(region) == 0) {
+      BoundaryOp *op = static_cast<BoundaryOp *>(bfact->create(condition, reg));
       op->apply(*this);
       delete op;
       break;
@@ -296,20 +284,20 @@ void Field2D::applyBoundary(const string &region, const string &condition) {
   }
 
   // Set the corners to zero
-  for(int jx=0;jx<fieldmesh->xstart;jx++) {
-    for(int jy=0;jy<fieldmesh->ystart;jy++) {
-      operator()(jx,jy) = 0.;
+  for (int jx = 0; jx < fieldmesh->xstart; jx++) {
+    for (int jy = 0; jy < fieldmesh->ystart; jy++) {
+      operator()(jx, jy) = 0.;
     }
-    for(int jy=fieldmesh->yend+1;jy<fieldmesh->LocalNy;jy++) {
-      operator()(jx,jy) = 0.;
+    for (int jy = fieldmesh->yend + 1; jy < fieldmesh->LocalNy; jy++) {
+      operator()(jx, jy) = 0.;
     }
   }
-  for(int jx=fieldmesh->xend+1;jx<fieldmesh->LocalNx;jx++) {
-    for(int jy=0;jy<fieldmesh->ystart;jy++) {
-      operator()(jx,jy) = 0.;
+  for (int jx = fieldmesh->xend + 1; jx < fieldmesh->LocalNx; jx++) {
+    for (int jy = 0; jy < fieldmesh->ystart; jy++) {
+      operator()(jx, jy) = 0.;
     }
-    for(int jy=fieldmesh->yend+1;jy<fieldmesh->LocalNy;jy++) {
-      operator()(jx,jy) = 0.;
+    for (int jy = fieldmesh->yend + 1; jy < fieldmesh->LocalNy; jy++) {
+      operator()(jx, jy) = 0.;
     }
   }
 }
@@ -321,7 +309,7 @@ void Field2D::applyTDerivBoundary() {
   ASSERT1(deriv != NULL);
   ASSERT1(deriv->isAllocated());
 
-  for(const auto& bndry : bndry_op)
+  for (const auto &bndry : bndry_op)
     bndry->apply_ddt(*this);
 }
 
@@ -332,13 +320,14 @@ void Field2D::setBoundaryTo(const Field2D &f2d) {
   ASSERT0(f2d.isAllocated());
 
   /// Loop over boundary regions
-  for(const auto& reg : fieldmesh->getBoundaries()) {
+  for (const auto &reg : fieldmesh->getBoundaries()) {
     /// Loop within each region
-    for(reg->first(); !reg->isDone(); reg->next()) {
+    for (reg->first(); !reg->isDone(); reg->next()) {
       // Get value half-way between cells
-      BoutReal val = 0.5*(f2d(reg->x,reg->y) + f2d(reg->x-reg->bx, reg->y-reg->by));
+      BoutReal val =
+          0.5 * (f2d(reg->x, reg->y) + f2d(reg->x - reg->bx, reg->y - reg->by));
       // Set to this value
-      (*this)(reg->x,reg->y) = 2.*val - (*this)(reg->x-reg->bx, reg->y-reg->by);
+      (*this)(reg->x, reg->y) = 2. * val - (*this)(reg->x - reg->bx, reg->y - reg->by);
     }
   }
 }
@@ -351,17 +340,17 @@ Field2D operator-(const Field2D &f) { return -1.0 * f; }
 //////////////// NON-MEMBER FUNCTIONS //////////////////
 
 BoutReal min(const Field2D &f, bool allpe, REGION rgn) {
-  TRACE("Field2D::Min() %s",allpe? "over all PEs" : "");
+  TRACE("Field2D::Min() %s", allpe ? "over all PEs" : "");
 
   ASSERT2(f.isAllocated());
 
   BoutReal result = f[f.region(rgn).begin()];
 
-  for(const auto& i : f.region(rgn))
-    if(f[i] < result)
+  for (const auto &i : f.region(rgn))
+    if (f[i] < result)
       result = f[i];
 
-  if(allpe) {
+  if (allpe) {
     // MPI reduce
     BoutReal localresult = result;
     MPI_Allreduce(&localresult, &result, 1, MPI_DOUBLE, MPI_MIN, BoutComm::get());
@@ -370,18 +359,18 @@ BoutReal min(const Field2D &f, bool allpe, REGION rgn) {
   return result;
 }
 
-BoutReal max(const Field2D &f, bool allpe,REGION rgn) {
-  TRACE("Field2D::Max() %s",allpe? "over all PEs" : "");
+BoutReal max(const Field2D &f, bool allpe, REGION rgn) {
+  TRACE("Field2D::Max() %s", allpe ? "over all PEs" : "");
 
   ASSERT2(f.isAllocated());
 
   BoutReal result = f[f.region(rgn).begin()];
 
-  for(const auto& i : f.region(rgn))
-    if(f[i] > result)
+  for (const auto &i : f.region(rgn))
+    if (f[i] > result)
       result = f[i];
 
-  if(allpe) {
+  if (allpe) {
     // MPI reduce
     BoutReal localresult = result;
     MPI_Allreduce(&localresult, &result, 1, MPI_DOUBLE, MPI_MAX, BoutComm::get());
@@ -465,8 +454,8 @@ const Field2D copy(const Field2D &f) {
 const Field2D floor(const Field2D &var, BoutReal f, REGION rgn) {
   Field2D result = copy(var);
 
-  for(const auto& d : result.region(rgn))
-    if(result[d] < f)
+  for (const auto &d : result.region(rgn))
+    if (result[d] < f)
       result[d] = f;
 
   return result;
@@ -484,7 +473,7 @@ Field2D pow(const Field2D &lhs, const Field2D &rhs, REGION rgn) {
   result.allocate();
 
   // Loop over domain
-  for(const auto& i: result.region(rgn)) {
+  for (const auto &i : result.region(rgn)) {
     result[i] = ::pow(lhs[i], rhs[i]);
   }
 
@@ -502,7 +491,7 @@ Field2D pow(const Field2D &lhs, BoutReal rhs, REGION rgn) {
   result.allocate();
 
   // Loop over domain
-  for(const auto& i: result.region(rgn)) {
+  for (const auto &i : result.region(rgn)) {
     result[i] = ::pow(lhs[i], rhs);
   }
 
@@ -520,7 +509,7 @@ Field2D pow(BoutReal lhs, const Field2D &rhs, REGION rgn) {
   result.allocate();
 
   // Loop over domain
-  for(const auto& i: result.region(rgn)) {
+  for (const auto &i : result.region(rgn)) {
     result[i] = ::pow(lhs, rhs[i]);
   }
 
@@ -531,22 +520,23 @@ Field2D pow(BoutReal lhs, const Field2D &rhs, REGION rgn) {
 #if CHECK > 0
 /// Check if the data is valid
 void checkData(const Field2D &f, REGION region) {
-  if(!f.isAllocated()) {
+  if (!f.isAllocated()) {
     throw BoutException("Field2D: Operation on empty data\n");
   }
 
 #if CHECK > 2
   // Do full checks
-  for(const auto& i : f.region(region)){
-    if(!::finite(f[i])) {
-      throw BoutException("Field2D: Operation on non-finite data at [%d][%d]\n", i.x, i.y);
+  for (const auto &i : f.region(region)) {
+    if (!::finite(f[i])) {
+      throw BoutException("Field2D: Operation on non-finite data at [%d][%d]\n", i.x,
+                          i.y);
     }
   }
 #endif
 }
 #endif
 
-void invalidateGuards(Field2D &var){
+void invalidateGuards(Field2D &var) {
 #if CHECK > 2
   Mesh *localmesh = var.getMesh();
 
@@ -576,6 +566,6 @@ void invalidateGuards(Field2D &var){
       var(ix, iy) = std::nan("");
     }
   }
-#endif  
+#endif
   return;
 }

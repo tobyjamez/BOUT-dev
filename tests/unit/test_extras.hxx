@@ -5,9 +5,9 @@
 
 #include <mpi.h>
 
+#include "bout/field3d.hxx"
 #include "bout/mesh.hxx"
-#include "field3d.hxx"
-#include "unused.hxx"
+#include "bout/unused.hxx"
 
 const BoutReal BoutRealTolerance = 1e-15;
 
@@ -24,8 +24,9 @@ const BoutReal BoutRealTolerance = 1e-15;
                                                   BoutReal tolerance = BoutRealTolerance);
 
 /// Is \p field equal to \p number, with a tolerance of \p tolerance?
-::testing::AssertionResult IsFieldPerpEqualBoutReal(const FieldPerp &field, BoutReal number,
-                                                  BoutReal tolerance = BoutRealTolerance);
+::testing::AssertionResult
+IsFieldPerpEqualBoutReal(const FieldPerp &field, BoutReal number,
+                         BoutReal tolerance = BoutRealTolerance);
 
 /// FakeMesh has just enough information to create fields
 ///
@@ -133,7 +134,7 @@ public:
   const RangeIterator iterateBndryLowerInnerY() const { return RangeIterator(); }
   const RangeIterator iterateBndryUpperOuterY() const { return RangeIterator(); }
   const RangeIterator iterateBndryUpperInnerY() const { return RangeIterator(); }
-  void addBoundary(BoundaryRegion* region) {boundaries.push_back(region);}
+  void addBoundary(BoundaryRegion *region) { boundaries.push_back(region); }
   vector<BoundaryRegion *> getBoundaries() { return boundaries; }
   vector<BoundaryRegionPar *> getBoundariesPar() { return vector<BoundaryRegionPar *>(); }
   BoutReal GlobalX(int UNUSED(jx)) const { return 0; }
@@ -142,6 +143,7 @@ public:
   BoutReal GlobalY(BoutReal UNUSED(jy)) const { return 0; }
   int XGLOBAL(int UNUSED(xloc)) const { return 0; }
   int YGLOBAL(int UNUSED(yloc)) const { return 0; }
+
 private:
   vector<BoundaryRegion *> boundaries;
 };

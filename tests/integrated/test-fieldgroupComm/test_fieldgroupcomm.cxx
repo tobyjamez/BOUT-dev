@@ -1,29 +1,28 @@
 #include <bout/physicsmodel.hxx>
 
-
-class TestFieldGroupComm : public PhysicsModel{
+class TestFieldGroupComm : public PhysicsModel {
 protected:
   int init(bool restarting) {
-    //Create identical fields
-    solver->add(fld1,"fld1");
-    solver->add(fld2,"fld2");
-    solver->add(fld3,"fld3");
+    // Create identical fields
+    solver->add(fld1, "fld1");
+    solver->add(fld2, "fld2");
+    solver->add(fld3, "fld3");
 
-    //Create different communicators
+    // Create different communicators
     comm1.add(fld1);
-    comm2.add(fld2,fld2);
+    comm2.add(fld2, fld2);
     comm3.add(fld3);
 
     return 0;
   }
 
   int rhs(BoutReal t) {
-    //Communicate -- ideally would all produce the same result
-    //1. As it should be
+    // Communicate -- ideally would all produce the same result
+    // 1. As it should be
     mesh->communicate(comm1);
-    //2. Duplicate entry
+    // 2. Duplicate entry
     mesh->communicate(comm2);
-    //3. Twice with single entry
+    // 3. Twice with single entry
     mesh->communicate(comm3);
     mesh->communicate(comm3);
 

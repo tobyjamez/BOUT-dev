@@ -10,17 +10,17 @@
  */
 #include <bout.hxx>
 
+#include <bout/field_factory.hxx>
 #include <bout/invert/laplacexz.hxx>
-#include <field_factory.hxx>
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   BoutInitialise(argc, argv);
 
   LaplaceXZ *inv = LaplaceXZ::create(mesh);
 
   output.write("Setting coefficients\n");
 
-  inv->setCoefs(Field3D(1.0),Field3D(0.0));
+  inv->setCoefs(Field3D(1.0), Field3D(0.0));
 
   output.write("First solve\n");
 
@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
 
   output.write("Second solve\n");
 
-  inv->setCoefs(Field3D(2.0),Field3D(0.1));
+  inv->setCoefs(Field3D(2.0), Field3D(0.1));
 
   Field3D rhs2 = FieldFactory::get()->create3D("rhs", Options::getRoot(), mesh);
   Field3D x2 = inv->solve(rhs2, 0.0);

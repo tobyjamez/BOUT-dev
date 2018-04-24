@@ -1,12 +1,12 @@
 #include "gtest/gtest.h"
 
+#include "bout/boutexception.hxx"
 #include "bout/constants.hxx"
+#include "bout/field2d.hxx"
 #include "bout/mesh.hxx"
-#include "boutexception.hxx"
-#include "field2d.hxx"
+#include "bout/unused.hxx"
+#include "bout/utils.hxx"
 #include "test_extras.hxx"
-#include "unused.hxx"
-#include "utils.hxx"
 
 #include <cmath>
 #include <set>
@@ -451,19 +451,19 @@ TEST_F(Field2DTest, IndexingAs3D) {
   for (int i = 0; i < nx; ++i) {
     for (int j = 0; j < ny; ++j) {
       for (int k = 0; k < nz; ++k) {
-	field(i, j, k) = i + j + k;
+        field(i, j, k) = i + j + k;
       }
     }
   }
 
-  EXPECT_DOUBLE_EQ(field(2, 2), 4 + nz -1);
+  EXPECT_DOUBLE_EQ(field(2, 2), 4 + nz - 1);
 }
 
 TEST_F(Field2DTest, ConstIndexingAs3D) {
   const Field2D field = 3.0;
   Field2D field2;
   field2.allocate();
-  
+
   for (int i = 0; i < nx; ++i) {
     for (int j = 0; j < ny; ++j) {
       for (int k = 0; k < nz; ++k) {
@@ -519,14 +519,13 @@ TEST_F(Field2DTest, CheckData) {
   field(1, 1) = std::nan("");
 
   EXPECT_THROW(checkData(field), BoutException);
-  
+
   field = 1.0;
   field(0, 0) = std::nan("");
 
   EXPECT_NO_THROW(checkData(field));
   EXPECT_NO_THROW(checkData(field, RGN_NOBNDRY));
   EXPECT_THROW(checkData(field, RGN_ALL), BoutException);
-
 }
 
 TEST_F(Field2DTest, InvalidateGuards) {

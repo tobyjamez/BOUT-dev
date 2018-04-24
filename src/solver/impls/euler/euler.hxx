@@ -1,13 +1,13 @@
 /**************************************************************************
  * Euler explicit method
- * 
+ *
  * Always available, since doesn't depend on external library
- * 
+ *
  **************************************************************************
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -32,37 +32,37 @@ class EulerSolver;
 
 #include "mpi.h"
 
-#include <bout_types.hxx>
+#include <bout/bout_types.hxx>
 #include <bout/solver.hxx>
 
 class EulerSolver : public Solver {
- public:
-  EulerSolver(Options *options) : Solver(options) {};
+public:
+  EulerSolver(Options *options) : Solver(options){};
   ~EulerSolver(){};
-  
+
   void setMaxTimestep(BoutReal dt) override;
-  BoutReal getCurrentTimestep() override {return timestep; }
-  
+  BoutReal getCurrentTimestep() override { return timestep; }
+
   int init(int nout, BoutReal tstep) override;
-  
+
   int run() override;
- private:
-  int mxstep; // Maximum number of internal steps between outputs
+
+private:
+  int mxstep;          // Maximum number of internal steps between outputs
   BoutReal cfl_factor; // Factor by which timestep must be smaller than maximum
 
   Array<BoutReal> f0, f1;
-  
+
   BoutReal out_timestep; // The output timestep
-  int nsteps; // Number of output steps
-  
-  BoutReal timestep; // The internal timestep
+  int nsteps;            // Number of output steps
+
+  BoutReal timestep;     // The internal timestep
   bool timestep_reduced; // Set true if the timestep is reduced during RHS call
-  
+
   int nlocal; // Number of variables on local processor
-  
-  void take_step(BoutReal curtime, BoutReal dt, 
-                 Array<BoutReal> &start, Array<BoutReal> &result); // Take a single step to calculate f1
+
+  void take_step(BoutReal curtime, BoutReal dt, Array<BoutReal> &start,
+                 Array<BoutReal> &result); // Take a single step to calculate f1
 };
 
 #endif // __KARNIADAKIS_SOLVER_H__
-

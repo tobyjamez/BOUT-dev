@@ -2,15 +2,15 @@
  * Base class for Physics Models
  *
  * Changelog:
- * 
+ *
  * 2013-08 Ben Dudson <benjamin.dudson@york.ac.uk>
  *    * Initial version
- * 
+ *
  **************************************************************************
  * Copyright 2013 B.D.Dudson
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -30,45 +30,34 @@
 
 #include <bout/physicsmodel.hxx>
 
-PhysicsModel::PhysicsModel() : solver(0), splitop(false), 
-                               userprecon(0), userjacobian(0), initialised(false) {
-  
+PhysicsModel::PhysicsModel()
+    : solver(0), splitop(false), userprecon(0), userjacobian(0), initialised(false) {
+
   // Set up restart file
   restart = Datafile(Options::getRoot()->getSection("restart"));
 }
 
-PhysicsModel::~PhysicsModel() {
-}
+PhysicsModel::~PhysicsModel() {}
 
-int PhysicsModel::runRHS(BoutReal time) {
-  return rhs(time);
-}
+int PhysicsModel::runRHS(BoutReal time) { return rhs(time); }
 
-bool PhysicsModel::splitOperator() {
-  return splitop;
-}
+bool PhysicsModel::splitOperator() { return splitop; }
 
-int PhysicsModel::runConvective(BoutReal time) {
-  return convective(time);
-}
+int PhysicsModel::runConvective(BoutReal time) { return convective(time); }
 
 int PhysicsModel::runDiffusive(BoutReal time, bool linear) {
   return diffusive(time, linear);
 }
 
-bool PhysicsModel::hasPrecon() {
-  return (userprecon != 0);
-}
+bool PhysicsModel::hasPrecon() { return (userprecon != 0); }
 
 int PhysicsModel::runPrecon(BoutReal t, BoutReal gamma, BoutReal delta) {
-  if(!userprecon)
+  if (!userprecon)
     return 1;
   return (*this.*userprecon)(t, gamma, delta);
 }
 
-bool PhysicsModel::hasJacobian() {
-  return (userjacobian != 0);
-}
+bool PhysicsModel::hasJacobian() { return (userjacobian != 0); }
 
 int PhysicsModel::runJacobian(BoutReal t) {
   if (!userjacobian)
@@ -81,28 +70,22 @@ void PhysicsModel::bout_solve(Field2D &var, const char *name) {
   solver->add(var, name);
 }
 
-void PhysicsModel::bout_solve(Field3D &var, const char *name) {
-  solver->add(var, name);
-}
+void PhysicsModel::bout_solve(Field3D &var, const char *name) { solver->add(var, name); }
 
-void PhysicsModel::bout_solve(Vector2D &var, const char *name) {
-  solver->add(var, name);
-}
+void PhysicsModel::bout_solve(Vector2D &var, const char *name) { solver->add(var, name); }
 
-void PhysicsModel::bout_solve(Vector3D &var, const char *name) {
-  solver->add(var, name);
-}
+void PhysicsModel::bout_solve(Vector3D &var, const char *name) { solver->add(var, name); }
 
 int PhysicsModel::postInit(bool restarting) {
   TRACE("PhysicsModel::postInit");
-  
+
   // Add the solver variables to the restart file
   // Second argument specifies no time history
   solver->outputVars(restart, false);
 
-  string restart_dir;  ///< Directory for restart files
-  string dump_ext, restart_ext;  ///< Dump, Restart file extension
-  
+  string restart_dir;           ///< Directory for restart files
+  string dump_ext, restart_ext; ///< Dump, Restart file extension
+
   Options *options = Options::getRoot();
   if (options->isSet("restartdir")) {
     // Solver-specific restart directory
@@ -115,7 +98,7 @@ int PhysicsModel::postInit(bool restarting) {
   options->get("dump_format", dump_ext, "nc");
   options->get("restart_format", restart_ext, dump_ext);
 
-  string filename = restart_dir + "/BOUT.restart."+restart_ext;
+  string filename = restart_dir + "/BOUT.restart." + restart_ext;
   if (restarting) {
     output.write("Loading restart file: %s\n", filename.c_str());
 

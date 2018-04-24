@@ -31,10 +31,10 @@
 #ifndef __LAPLACEXZ_H__
 #define __LAPLACEXZ_H__
 
-#include <options.hxx>
-#include <field3d.hxx>
+#include <bout/field3d.hxx>
 #include <bout/mesh.hxx>
-#include <unused.hxx>
+#include <bout/options.hxx>
+#include <bout/unused.hxx>
 
 class LaplaceXZ {
 public:
@@ -46,14 +46,14 @@ public:
 
   virtual Field3D solve(const Field3D &b, const Field3D &x0) = 0;
 
-  static LaplaceXZ* create(Mesh *m, Options *opt = NULL);
-protected:
-  static const int INVERT_DC_GRAD  = 1;
-  static const int INVERT_AC_GRAD  = 2;  // Use zero neumann (NOTE: AC is a misnomer)
-  static const int INVERT_SET      = 16; // Set boundary to x0 value
-  static const int INVERT_RHS      = 32; // Set boundary to b value
-private:
+  static LaplaceXZ *create(Mesh *m, Options *opt = NULL);
 
+protected:
+  static const int INVERT_DC_GRAD = 1;
+  static const int INVERT_AC_GRAD = 2; // Use zero neumann (NOTE: AC is a misnomer)
+  static const int INVERT_SET = 16;    // Set boundary to x0 value
+  static const int INVERT_RHS = 32;    // Set boundary to b value
+private:
 };
 
 #endif // __LAPLACEXZ_H__

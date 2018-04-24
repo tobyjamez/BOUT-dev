@@ -9,20 +9,18 @@ class SolverFactory;
 #include <string.h>
 
 class SolverFactory {
- public:
+public:
   /// Return a pointer to the only instance
-  static SolverFactory* getInstance();
-  
-  SolverType getDefaultSolverType();
-  
-  Solver* createSolver(Options *opts = NULL);
-  Solver* createSolver(SolverType &, Options *opts = NULL);
-  
- private:
-  SolverFactory() {} // Prevent instantiation of this class
-  static SolverFactory* instance; ///< The only instance of this class (Singleton)
+  static SolverFactory *getInstance();
 
+  SolverType getDefaultSolverType();
+
+  Solver *createSolver(Options *opts = NULL);
+  Solver *createSolver(SolverType &, Options *opts = NULL);
+
+private:
+  SolverFactory() {}              // Prevent instantiation of this class
+  static SolverFactory *instance; ///< The only instance of this class (Singleton)
 };
 
 #endif // __SOLVER_FACTORY_H__
-

@@ -1,6 +1,6 @@
 /**************************************************************************
  * Interface to SUNDIALS IDA
- * 
+ *
  * IdaSolver for DAE systems (so can handle constraints)
  *
  * NOTE: Only one solver can currently be compiled in
@@ -9,7 +9,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@
 
 #include "../emptysolver.hxx"
 typedef EmptySolver IdaSolver;
- 
+
 #else
 class IdaSolver;
 
@@ -40,11 +40,11 @@ class IdaSolver;
 
 #include <bout/solver.hxx>
 
-#include <bout_types.hxx>
-#include <field2d.hxx>
-#include <field3d.hxx>
-#include <vector2d.hxx>
-#include <vector3d.hxx>
+#include <bout/bout_types.hxx>
+#include <bout/field2d.hxx>
+#include <bout/field3d.hxx>
+#include <bout/vector2d.hxx>
+#include <bout/vector3d.hxx>
 
 // NOTE: MPI must be included before SUNDIALS, otherwise complains
 #include "mpi.h"
@@ -55,26 +55,28 @@ class IdaSolver;
 using std::vector;
 
 class IdaSolver : public Solver {
- public:
+public:
   IdaSolver(Options *opts = NULL);
   ~IdaSolver();
-  
+
   int init(int nout, BoutReal tstep) override;
-  
+
   int run() override;
   BoutReal run(BoutReal tout);
 
   // These functions used internally (but need to be public)
   void res(BoutReal t, BoutReal *udata, BoutReal *dudata, BoutReal *rdata);
-  void pre(BoutReal t, BoutReal cj, BoutReal delta, BoutReal *udata, BoutReal *rvec, BoutReal *zvec);
- private:
-  int NOUT; // Number of outputs. Specified in init, needed in run
+  void pre(BoutReal t, BoutReal cj, BoutReal delta, BoutReal *udata, BoutReal *rvec,
+           BoutReal *zvec);
+
+private:
+  int NOUT;          // Number of outputs. Specified in init, needed in run
   BoutReal TIMESTEP; // Time between outputs
-  
+
   N_Vector uvec, duvec, id; // Values, time-derivatives, and equation type
   void *idamem;
-  
-  BoutReal pre_Wtime; // Time in preconditioner
+
+  BoutReal pre_Wtime;  // Time in preconditioner
   BoutReal pre_ncalls; // Number of calls to preconditioner
 };
 

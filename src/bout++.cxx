@@ -7,7 +7,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -42,39 +42,38 @@ const char DEFAULT_LOG[] = "BOUT.log";
 
 #define GLOBALORIGIN
 
-
 #define INDIRECT1_BOUTMAIN(a) #a
 #define INDIRECT0_BOUTMAIN(...) INDIRECT1_BOUTMAIN(#__VA_ARGS__)
 #define STRINGIFY(a) INDIRECT0_BOUTMAIN(a)
 
 #include "mpi.h"
 
-#include <boutcomm.hxx>
 #include <bout.hxx>
-#include <datafile.hxx>
+#include <bout/boutcomm.hxx>
+#include <bout/boutexception.hxx>
+#include <bout/datafile.hxx>
+#include <bout/msg_stack.hxx>
+#include <bout/optionsreader.hxx>
 #include <bout/solver.hxx>
-#include <boutexception.hxx>
-#include <optionsreader.hxx>
-#include <msg_stack.hxx>
 
 #include <bout/sys/timer.hxx>
 
-#include <boundary_factory.hxx>
+#include <bout/boundary_factory.hxx>
 
-#include <invert_laplace.hxx>
+#include <bout/invert_laplace.hxx>
 
-#include <bout/slepclib.hxx>
 #include <bout/petsclib.hxx>
+#include <bout/slepclib.hxx>
 
 #include <time.h>
 
-#include <strings.h>
-#include <string>
 #include <list>
+#include <string>
+#include <strings.h>
 using std::string;
 using std::list;
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #ifdef _OPENMP
@@ -82,20 +81,19 @@ using std::list;
 #endif
 
 #include <signal.h>
-void bout_signal_handler(int sig);  // Handles signals
+void bout_signal_handler(int sig); // Handles signals
 #ifdef BOUT_FPE
 #include <fenv.h>
 #endif
 
-
-#include <output.hxx>
+#include <bout/output.hxx>
 
 BoutReal simtime;
 int iteration;
-bool user_requested_exit=false;
+bool user_requested_exit = false;
 
-const string time_to_hms(BoutReal t);   // Converts to h:mm:ss.s format
-char get_spin();                    // Produces a spinning bar
+const string time_to_hms(BoutReal t); // Converts to h:mm:ss.s format
+char get_spin();                      // Produces a spinning bar
 
 /*!
   Initialise BOUT++
@@ -129,7 +127,7 @@ int BoutInitialise(int &argc, char **&argv) {
   signal(SIGSEGV, bout_signal_handler);
 #endif
 #ifdef BOUT_FPE
-  signal(SIGFPE,  bout_signal_handler);
+  signal(SIGFPE, bout_signal_handler);
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
 #endif
 
@@ -142,15 +140,17 @@ int BoutInitialise(int &argc, char **&argv) {
   set_file = DEFAULT_SET;
   log_file = DEFAULT_LOG;
 
-  int verbosity=4;
+  int verbosity = 4;
   /// Check command-line arguments
   /// NB: "restart" and "append" are now caught by options
   /// Check for help flag separately
-  for (int i=1;i<argc;i++) {
-    if (string(argv[i]) == "-h" ||
-    	string(argv[i]) == "--help") {
-      // Print help message -- note this will be displayed once per processor as we've not started MPI yet.
-      fprintf(stdout, "Usage: %s [-d <data directory>] [-f <options filename>] [restart [append]] [VAR=VALUE]\n", argv[0]);
+  for (int i = 1; i < argc; i++) {
+    if (string(argv[i]) == "-h" || string(argv[i]) == "--help") {
+      // Print help message -- note this will be displayed once per processor as we've not
+      // started MPI yet.
+      fprintf(stdout, "Usage: %s [-d <data directory>] [-f <options filename>] [restart "
+                      "[append]] [VAR=VALUE]\n",
+              argv[0]);
       fprintf(stdout,
               "\n"
               "  -d <data directory>\tLook in <data directory> for input/output files\n"
@@ -174,28 +174,28 @@ int BoutInitialise(int &argc, char **&argv) {
     }
   }
   bool color_output = false; // Will be set true if -c is in the options
-  for (int i=1;i<argc;i++) {
+  for (int i = 1; i < argc; i++) {
     if (string(argv[i]) == "-d") {
       // Set data directory
-      if (i+1 >= argc) {
+      if (i + 1 >= argc) {
         fprintf(stderr, "Usage is %s -d <data directory>\n", argv[0]);
         return 1;
       }
       i++;
       data_dir = argv[i];
-      
+
     } else if (string(argv[i]) == "-f") {
       // Set options file
-      if (i+1 >= argc) {
+      if (i + 1 >= argc) {
         fprintf(stderr, "Usage is %s -f <options filename>\n", argv[0]);
         return 1;
       }
       i++;
       opt_file = argv[i];
-      
+
     } else if (string(argv[i]) == "-o") {
       // Set options file
-      if (i+1 >= argc) {
+      if (i + 1 >= argc) {
         fprintf(stderr, "Usage is %s -o <settings filename>\n", argv[0]);
         return 1;
       }
@@ -210,38 +210,36 @@ int BoutInitialise(int &argc, char **&argv) {
       i++;
       log_file = argv[i];
 
-    } else if ( (string(argv[i]) == "-v") ||
-                (string(argv[i]) == "--verbose") ){
+    } else if ((string(argv[i]) == "-v") || (string(argv[i]) == "--verbose")) {
       verbosity++;
-      
-    } else if ( (string(argv[i]) == "-q") ||
-                (string(argv[i]) == "--quiet")) {
+
+    } else if ((string(argv[i]) == "-q") || (string(argv[i]) == "--quiet")) {
       verbosity--;
-      
-    } else if ( (string(argv[i]) == "-c") ||
-                (string(argv[i]) == "--color") ) {
+
+    } else if ((string(argv[i]) == "-c") || (string(argv[i]) == "--color")) {
       // Add color to the output by piping through bout-log-color
       // This is done after checking all command-line inputs
       // in case -c is set multiple times
       color_output = true;
     }
   }
-  
-  if (std::string(set_file) == std::string(opt_file)){
-    throw BoutException("Input and output file for settings must be different.\nProvide -o <settings file> to avoid this issue.\n");
+
+  if (std::string(set_file) == std::string(opt_file)) {
+    throw BoutException("Input and output file for settings must be different.\nProvide "
+                        "-o <settings file> to avoid this issue.\n");
   }
 
   // Check that data_dir exists. We do not check whether we can write, as it is
   // sufficient that the files we need are writeable ...
   struct stat test;
-  if (stat(data_dir, &test) == 0){
-    if (!S_ISDIR(test.st_mode)){
-      throw BoutException("DataDir \"%s\" is not a directory\n",data_dir);
+  if (stat(data_dir, &test) == 0) {
+    if (!S_ISDIR(test.st_mode)) {
+      throw BoutException("DataDir \"%s\" is not a directory\n", data_dir);
     }
   } else {
-    throw BoutException("DataDir \"%s\" does not exist or is not accessible\n",data_dir);
+    throw BoutException("DataDir \"%s\" does not exist or is not accessible\n", data_dir);
   }
-  
+
   // Set options
   Options::getRoot()->set("datadir", string(data_dir));
   Options::getRoot()->set("optionfile", string(opt_file));
@@ -255,7 +253,7 @@ int BoutInitialise(int &argc, char **&argv) {
 
   int NPES = BoutComm::size();
   int MYPE = BoutComm::rank();
-  
+
 #ifdef LOGCOLOR
   if (color_output && (MYPE == 0)) {
     // Color stdout by piping through bout-log-color script
@@ -266,7 +264,7 @@ int BoutInitialise(int &argc, char **&argv) {
     // Run bout-log-color through the shell. This should share stdout with BOUT++,
     // and read stdin from the pipe
     FILE *outpipe = popen("bout-log-color", "w");
-    
+
     if (outpipe != NULL) {
       // Valid pipe
       // Get the integer file descriptor
@@ -276,7 +274,7 @@ int BoutInitialise(int &argc, char **&argv) {
 
         // Note: We can get to here if bout-log-color failed to run
         // This seems to cause code to fail later
-        
+
         // Replace stdout with the pipe.
         int status = dup2(fno, STDOUT_FILENO);
         if (status != -1) {
@@ -290,12 +288,14 @@ int BoutInitialise(int &argc, char **&argv) {
     }
   }
 #endif // LOGCOLOR
-  
+
   /// Set up the output, accessing underlying Output object
   {
     Output &output = *Output::getInstance();
-    if (MYPE == 0) output.enable(); // Enable writing to stdout
-    else output.disable(); // No writing to stdout
+    if (MYPE == 0)
+      output.enable(); // Enable writing to stdout
+    else
+      output.disable(); // No writing to stdout
 
     /// Open an output file to echo everything to
     /// On processor 0 anything written to output will go to stdout and the file
@@ -303,15 +303,15 @@ int BoutInitialise(int &argc, char **&argv) {
       return 1;
     }
   }
-  
-  output_error.enable(verbosity>0);
-  output_warn.enable(verbosity>1);
-  output_progress.enable(verbosity>2);
-  output_info.enable(verbosity>3);
-  output_debug.enable(verbosity>4); //Only actually enabled if also compiled with DEBUG
-  
+
+  output_error.enable(verbosity > 0);
+  output_warn.enable(verbosity > 1);
+  output_progress.enable(verbosity > 2);
+  output_info.enable(verbosity > 3);
+  output_debug.enable(verbosity > 4); // Only actually enabled if also compiled with DEBUG
+
   // The backward-compatible output object same as output_progress
-  output.enable(verbosity>2);
+  output.enable(verbosity > 2);
 
   // Save the PID of this process to file, so it can be shut down by user signal
   {
@@ -324,7 +324,7 @@ int BoutInitialise(int &argc, char **&argv) {
       pid_file.close();
     }
   }
-  
+
   /// Print intro
   output_progress.write("BOUT++ version %s\n", BOUT_VERSION_STRING);
 #ifdef REVISION
@@ -339,7 +339,7 @@ int BoutInitialise(int &argc, char **&argv) {
 
   output_info.write("Processor number: %d of %d\n\n", MYPE, NPES);
 
-  output_info.write("pid: %d\n\n",getpid());
+  output_info.write("pid: %d\n\n", getpid());
 
   /// Print compile-time options
 
@@ -374,7 +374,8 @@ int BoutInitialise(int &argc, char **&argv) {
 #endif
 
 #ifdef _OPENMP
-  output_info.write("\tOpenMP parallelisation enabled, using %d threads\n",omp_get_max_threads());
+  output_info.write("\tOpenMP parallelisation enabled, using %d threads\n",
+                    omp_get_max_threads());
 #else
   output_info.write("\tOpenMP parallelisation disabled\n");
 #endif
@@ -387,10 +388,10 @@ int BoutInitialise(int &argc, char **&argv) {
   output_info.write("\tFloatingPointExceptions enabled\n");
 #endif
 
-  //The stringify is needed here as BOUT_FLAGS_STRING may already contain quoted strings
-  //which could cause problems (e.g. terminate strings).
-  output_info.write("\tCompiled with flags : %s\n",STRINGIFY(BOUT_FLAGS_STRING));
-  
+  // The stringify is needed here as BOUT_FLAGS_STRING may already contain quoted strings
+  // which could cause problems (e.g. terminate strings).
+  output_info.write("\tCompiled with flags : %s\n", STRINGIFY(BOUT_FLAGS_STRING));
+
   /// Get the options tree
   Options *options = Options::getRoot();
 
@@ -414,9 +415,9 @@ int BoutInitialise(int &argc, char **&argv) {
 
   try {
     /////////////////////////////////////////////
-    
-    mesh = Mesh::create();  ///< Create the mesh
-    mesh->load();           ///< Load from sources. Required for Field initialisation
+
+    mesh = Mesh::create(); ///< Create the mesh
+    mesh->load();          ///< Load from sources. Required for Field initialisation
     mesh->setParallelTransform(); ///< Set the parallel transform from options
     /////////////////////////////////////////////
     /// Get some settings
@@ -427,31 +428,31 @@ int BoutInitialise(int &argc, char **&argv) {
 
     /// Get file extensions
     options->get("dump_format", dump_ext, "nc");
-    
+
     ////////////////////////////////////////////
 
     // Set up the "dump" data output file
     output << "Setting up output (dump) file\n";
 
     dump = Datafile(options->getSection("output"));
-    
+
     /// Open a file for the output
-    if(append) {
+    if (append) {
       dump.opena("%s/BOUT.dmp.%s", data_dir, dump_ext.c_str());
-    }else {
+    } else {
       dump.openw("%s/BOUT.dmp.%s", data_dir, dump_ext.c_str());
     }
 
     /// Add book-keeping variables to the output files
-    dump.add(const_cast<BoutReal&>(BOUT_VERSION), "BOUT_VERSION", false);
+    dump.add(const_cast<BoutReal &>(BOUT_VERSION), "BOUT_VERSION", false);
     dump.add(simtime, "t_array", true); // Appends the time of dumps into an array
     dump.add(iteration, "iteration", false);
 
     ////////////////////////////////////////////
 
     mesh->outputVars(dump); ///< Save mesh configuration into output file
-    
-  }catch(BoutException &e) {
+
+  } catch (BoutException &e) {
     output_error.write("Error encountered during initialisation: %s\n", e.what());
     BoutComm::cleanup();
     throw;
@@ -460,12 +461,12 @@ int BoutInitialise(int &argc, char **&argv) {
 }
 
 int bout_run(Solver *solver, rhsfunc physics_run) {
-  
+
   /// Set the RHS function
   solver->setRHS(physics_run);
-  
+
   /// Add the monitor function
-  Monitor * bout_monitor = new BoutMonitor();
+  Monitor *bout_monitor = new BoutMonitor();
   solver->addMonitor(bout_monitor, Solver::BACK);
 
   /// Run the simulation
@@ -509,10 +510,10 @@ int BoutFinalise() {
   Array<fcmplx>::cleanup();
   Array<int>::cleanup();
   Array<unsigned long>::cleanup();
-  
+
   // Cleanup boundary factory
   BoundaryFactory::cleanup();
-  
+
   // Cleanup timer
   Timer::cleanup();
 
@@ -531,7 +532,7 @@ int BoutFinalise() {
 
   // MPI communicator, including MPI_Finalize()
   BoutComm::cleanup();
-  
+
   return 0;
 }
 
@@ -547,10 +548,10 @@ int BoutMonitor::call(Solver *solver, BoutReal t, int iter, int NOUT) {
   // Data used for timing
   static bool first_time = true;
   static BoutReal wall_limit, mpi_start_time; // Keep track of remaining wall time
-  
-  static bool stopCheck;       // Check for file, exit if exists?
+
+  static bool stopCheck;            // Check for file, exit if exists?
   static std::string stopCheckName; // File checked, whose existence triggers a stop
-  
+
   // Set the global variables. This is done because they need to be
   // written to the output file before the first step (initial condition)
   simtime = t;
@@ -560,15 +561,16 @@ int BoutMonitor::call(Solver *solver, BoutReal t, int iter, int NOUT) {
   dump.write();
 
   /// Collect timing information
-  BoutReal wtime        = Timer::resetTime("run");
-  int ncalls            = solver->rhs_ncalls;
-  int ncalls_e		= solver->rhs_ncalls_e;
-  int ncalls_i		= solver->rhs_ncalls_i;
-  bool output_split     = solver->splitOperator();
-  BoutReal wtime_rhs    = Timer::resetTime("rhs");
+  BoutReal wtime = Timer::resetTime("run");
+  int ncalls = solver->rhs_ncalls;
+  int ncalls_e = solver->rhs_ncalls_e;
+  int ncalls_i = solver->rhs_ncalls_i;
+  bool output_split = solver->splitOperator();
+  BoutReal wtime_rhs = Timer::resetTime("rhs");
   BoutReal wtime_invert = Timer::resetTime("invert");
-  BoutReal wtime_comms  = Timer::resetTime("comms");  // Time spent communicating (part of RHS)
-  BoutReal wtime_io     = Timer::resetTime("io");      // Time spend on I/O
+  BoutReal wtime_comms =
+      Timer::resetTime("comms");              // Time spent communicating (part of RHS)
+  BoutReal wtime_io = Timer::resetTime("io"); // Time spend on I/O
 
   output_progress.print("\r"); // Only goes to screen
 
@@ -584,7 +586,8 @@ int BoutMonitor::call(Solver *solver, BoutReal t, int iter, int NOUT) {
     if (stopCheck) {
       // Get name of file whose existence triggers a stop
       OPTION(options, stopCheckName, "BOUT.stop");
-      // Now add data directory to start of name to ensure we look in a run specific location
+      // Now add data directory to start of name to ensure we look in a run specific
+      // location
       std::string data_dir;
       Options::getRoot()->get("datadir", data_dir, string(DEFAULT_DIR));
       stopCheckName = data_dir + "/" + stopCheckName;
@@ -597,38 +600,44 @@ int BoutMonitor::call(Solver *solver, BoutReal t, int iter, int NOUT) {
 
     /// Print the column header for timing info
     if (!output_split) {
-      output_progress.write("Sim Time  |  RHS evals  | Wall Time |  Calc    Inv   Comm    I/O   "
-                            "SOLVER\n\n");
+      output_progress.write(
+          "Sim Time  |  RHS evals  | Wall Time |  Calc    Inv   Comm    I/O   "
+          "SOLVER\n\n");
     } else {
-      output_progress.write("Sim Time  |  RHS_e evals  | RHS_I evals  | Wall Time |  Calc    Inv  "
-                            " Comm    I/O   SOLVER\n\n");
+      output_progress.write(
+          "Sim Time  |  RHS_e evals  | RHS_I evals  | Wall Time |  Calc    Inv  "
+          " Comm    I/O   SOLVER\n\n");
     }
   }
 
   if (!output_split) {
-    output_progress.write("%.3e      %5d       %.2e   %5.1f  %5.1f  %5.1f  %5.1f  %5.1f\n", 
-               simtime, ncalls, wtime,
-               100.0*(wtime_rhs - wtime_comms - wtime_invert)/wtime,
-               100.*wtime_invert/wtime,  // Inversions
-               100.0*wtime_comms/wtime,  // Communications
-               100.* wtime_io / wtime,      // I/O
-               100.*(wtime - wtime_io - wtime_rhs)/wtime); // Everything else
+    output_progress.write(
+        "%.3e      %5d       %.2e   %5.1f  %5.1f  %5.1f  %5.1f  %5.1f\n", simtime, ncalls,
+        wtime, 100.0 * (wtime_rhs - wtime_comms - wtime_invert) / wtime,
+        100. * wtime_invert / wtime,                    // Inversions
+        100.0 * wtime_comms / wtime,                    // Communications
+        100. * wtime_io / wtime,                        // I/O
+        100. * (wtime - wtime_io - wtime_rhs) / wtime); // Everything else
 
   } else {
-    output_progress.write("%.3e      %5d            %5d       %.2e   %5.1f  %5.1f  %5.1f  %5.1f  %5.1f\n",
-               simtime, ncalls_e, ncalls_i, wtime,
-               100.0*(wtime_rhs - wtime_comms - wtime_invert)/wtime,
-               100.*wtime_invert/wtime,  // Inversions
-               100.0*wtime_comms/wtime,  // Communications
-               100.* wtime_io / wtime,      // I/O
-               100.*(wtime - wtime_io - wtime_rhs)/wtime); // Everything else
+    output_progress.write(
+        "%.3e      %5d            %5d       %.2e   %5.1f  %5.1f  %5.1f  %5.1f  %5.1f\n",
+        simtime, ncalls_e, ncalls_i, wtime,
+        100.0 * (wtime_rhs - wtime_comms - wtime_invert) / wtime,
+        100. * wtime_invert / wtime,                    // Inversions
+        100.0 * wtime_comms / wtime,                    // Communications
+        100. * wtime_io / wtime,                        // I/O
+        100. * (wtime - wtime_io - wtime_rhs) / wtime); // Everything else
   }
-  
+
   // This bit only to screen, not log file
 
   BoutReal t_elapsed = MPI_Wtime() - mpi_start_time;
-  output_progress.print("%c  Step %d of %d. Elapsed %s", get_spin(), iteration+1, NOUT, (time_to_hms(t_elapsed)).c_str());
-  output_progress.print(" ETA %s", (time_to_hms(wtime * static_cast<BoutReal>(NOUT - iteration - 1))).c_str());
+  output_progress.print("%c  Step %d of %d. Elapsed %s", get_spin(), iteration + 1, NOUT,
+                        (time_to_hms(t_elapsed)).c_str());
+  output_progress.print(
+      " ETA %s",
+      (time_to_hms(wtime * static_cast<BoutReal>(NOUT - iteration - 1))).c_str());
 
   if (wall_limit > 0.0) {
     // Check if enough time left
@@ -648,8 +657,8 @@ int BoutMonitor::call(Solver *solver, BoutReal t, int iter, int NOUT) {
   if (stopCheck) {
     std::ifstream f(stopCheckName);
     if (f.good()) {
-      output << "\n" << "File " << stopCheckName
-             << " exists -- triggering exit." << endl;
+      output << "\n"
+             << "File " << stopCheckName << " exists -- triggering exit." << endl;
       return 1;
     }
   }
@@ -668,10 +677,9 @@ void bout_signal_handler(int sig) {
   // print number of process to stderr, so the user knows which log to check
   int world_rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-  fprintf(stderr,"\nSighandler called on process %d with sig %d\n"
-          ,world_rank,sig);
+  fprintf(stderr, "\nSighandler called on process %d with sig %d\n", world_rank, sig);
 
-  switch (sig){
+  switch (sig) {
   case SIGSEGV:
     throw BoutException("\n****** SEGMENTATION FAULT CAUGHT ******\n\n");
     break;
@@ -686,10 +694,10 @@ void bout_signal_handler(int sig) {
     throw BoutException("\n****** SigKill caught ******\n\n");
     break;
   case SIGUSR1:
-    user_requested_exit=true;
+    user_requested_exit = true;
     break;
   default:
-    throw BoutException("\n****** Signal %d  caught ******\n\n",sig);
+    throw BoutException("\n****** Signal %d  caught ******\n\n", sig);
     break;
   }
 }
@@ -718,16 +726,20 @@ char get_spin() {
   static int i = 0;
   char c = '|'; // Doesn't need to be assigned; squash warning
 
-  switch(i) {
-  case 0: 
-    c = '|'; break;
+  switch (i) {
+  case 0:
+    c = '|';
+    break;
   case 1:
-    c = '/'; break;
+    c = '/';
+    break;
   case 2:
-    c = '-'; break;
+    c = '-';
+    break;
   case 3:
-    c = '\\'; break;
+    c = '\\';
+    break;
   }
-  i = (i+1) % 4;
+  i = (i + 1) % 4;
   return c;
 }

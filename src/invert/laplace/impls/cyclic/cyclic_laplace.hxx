@@ -1,6 +1,6 @@
 /**************************************************************************
  * Perpendicular Laplacian inversion in serial or parallel
- * 
+ *
  * Simplified version of serial_tri and spt algorithms. Uses FFTs and
  * the cyclic reduction class to solve tridiagonal systems.
  *
@@ -8,7 +8,7 @@
  * Copyright 2013 B.D.Dudson
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -31,22 +31,22 @@ class LaplaceCyclic;
 #ifndef __LAP_CYCLIC_H__
 #define __LAP_CYCLIC_H__
 
-#include <invert_laplace.hxx>
-#include <cyclic_reduction.hxx>
-#include <dcomplex.hxx>
-#include <options.hxx>
+#include <bout/cyclic_reduction.hxx>
+#include <bout/dcomplex.hxx>
+#include <bout/invert_laplace.hxx>
+#include <bout/options.hxx>
 
-#include "utils.hxx"
+#include "bout/utils.hxx"
 
 /// Solves the 2D Laplacian equation using the CyclicReduce class
 /*!
- * 
+ *
  */
 class LaplaceCyclic : public Laplacian {
 public:
   LaplaceCyclic(Options *opt = NULL);
   ~LaplaceCyclic();
-  
+
   using Laplacian::setCoefA;
   void setCoefA(const Field2D &val) override { Acoef = val; }
   using Laplacian::setCoefC;
@@ -63,18 +63,19 @@ public:
   }
 
   using Laplacian::solve;
-  const FieldPerp solve(const FieldPerp &b) override {return solve(b,b);}
+  const FieldPerp solve(const FieldPerp &b) override { return solve(b, b); }
   const FieldPerp solve(const FieldPerp &b, const FieldPerp &x0) override;
+
 private:
   Field2D Acoef, Ccoef, Dcoef;
-  
+
   int nmode;  // Number of modes being solved
   int xs, xe; // Start and end X indices
   Matrix<dcomplex> a, b, c, bcmplx, xcmplx;
   Array<dcomplex> k1d;
-  
+
   bool dst;
-  
+
   CyclicReduce<dcomplex> *cr; ///< Tridiagonal solver
 };
 

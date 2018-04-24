@@ -1,12 +1,12 @@
 /*!************************************************************************
  * \file expressionparser.hxx
- * 
+ *
  * Parses strings containing expressions, returning a tree of generators
- * 
+ *
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -31,15 +31,15 @@ class ParseException;
 #ifndef __EXPRESSION_PARSER_H__
 #define __EXPRESSION_PARSER_H__
 
-#include "unused.hxx"
+#include "bout/unused.hxx"
 
-#include <string>
-#include <map>
-#include <list>
-#include <utility>
-#include <sstream>
-#include <memory>
 #include <exception>
+#include <list>
+#include <map>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <utility>
 
 //////////////////////////////////////////////////////////
 
@@ -49,21 +49,24 @@ class ParseException;
  */
 class FieldGenerator {
 public:
-  virtual ~FieldGenerator() { }
+  virtual ~FieldGenerator() {}
 
   /// Virtual constructor. Makes a copy of this FieldGenerator,
   /// initialised with the given list of arguments. It is up to the implementations
   /// to test whether the correct number of arguments is passed.
   ///
   /// @param[in] args   A (possibly empty) list of arguments to the generator function
-  virtual std::shared_ptr<FieldGenerator> clone(const std::list<std::shared_ptr<FieldGenerator> > UNUSED(args)) {return NULL;}
+  virtual std::shared_ptr<FieldGenerator>
+  clone(const std::list<std::shared_ptr<FieldGenerator>> UNUSED(args)) {
+    return NULL;
+  }
 
   /// Generate a value at the given coordinates (x,y,z,t)
   /// This should be deterministic, always returning the same value given the same inputs
   virtual double generate(double x, double y, double z, double t) = 0;
 
   /// Create a string representation of the generator, for debugging output
-  virtual const std::string str() {return std::string("?");}
+  virtual const std::string str() { return std::string("?"); }
 };
 
 /*!
@@ -76,7 +79,7 @@ public:
 class ExpressionParser {
 public:
   ExpressionParser();
-  virtual ~ExpressionParser() {};
+  virtual ~ExpressionParser(){};
 
   /// Add a generator to the parser, which can then be recognised and used
   /// in expressions.
@@ -101,47 +104,52 @@ public:
   ///  +, -  precedence = 10
   ///  *, /  precedence = 20
   ///  ^     precedence = 30
-  ///                        
+  ///
   void addBinaryOp(char sym, std::shared_ptr<FieldGenerator> b, int precedence);
-  
+
 protected:
   /// This will be called to resolve any unknown symbols
-  virtual std::shared_ptr<FieldGenerator> resolve(std::string &UNUSED(name)) {return NULL;}
+  virtual std::shared_ptr<FieldGenerator> resolve(std::string &UNUSED(name)) {
+    return NULL;
+  }
 
   /// Parses a given string into a tree of FieldGenerator objects
   std::shared_ptr<FieldGenerator> parseString(const std::string &input);
-  
+
 private:
-  
-  std::map<std::string, std::shared_ptr<FieldGenerator> > gen;  ///< Generators, addressed by name
-  std::map<char, std::pair<std::shared_ptr<FieldGenerator> , int> > bin_op; ///< Binary operations
-  
+  std::map<std::string, std::shared_ptr<FieldGenerator>>
+      gen; ///< Generators, addressed by name
+  std::map<char, std::pair<std::shared_ptr<FieldGenerator>, int>>
+      bin_op; ///< Binary operations
+
   /// List of allocated generators
-  std::list<std::shared_ptr<FieldGenerator> > genheap;
+  std::list<std::shared_ptr<FieldGenerator>> genheap;
 
   /// Lexing info, used when splitting input into tokens
   struct LexInfo {
-    
+
     LexInfo(std::string input);
-    
-    signed char curtok;  ///< Current token. -1 for number, -2 for string, 0 for "end of input"
+
+    signed char
+        curtok;    ///< Current token. -1 for number, -2 for string, 0 for "end of input"
     double curval; ///< Value if a number
     std::string curident; ///< Identifier, variable or function name
-    signed char LastChar;   ///< The last character read from the string
+    signed char LastChar; ///< The last character read from the string
     std::stringstream ss; ///< Used to read values from the input string
-    char nextToken(); ///< Get the next token in the string
-    
+    char nextToken();     ///< Get the next token in the string
+
     int getPos(); ///< Return position in the input
   };
-  
+
   std::shared_ptr<FieldGenerator> parseIdentifierExpr(LexInfo &lex);
   std::shared_ptr<FieldGenerator> parseParenExpr(LexInfo &lex);
   std::shared_ptr<FieldGenerator> parsePrimary(LexInfo &lex);
-  std::shared_ptr<FieldGenerator> parseBinOpRHS(LexInfo &lex, int prec, std::shared_ptr<FieldGenerator> lhs);
+  std::shared_ptr<FieldGenerator> parseBinOpRHS(LexInfo &lex, int prec,
+                                                std::shared_ptr<FieldGenerator> lhs);
   std::shared_ptr<FieldGenerator> parseExpression(LexInfo &lex);
-  
+
   /// Record generator in list, and return it
-  std::shared_ptr<FieldGenerator> record( std::shared_ptr<FieldGenerator> g) {
+  std::shared_ptr<FieldGenerator> record(std::shared_ptr<FieldGenerator> g) {
     genheap.push_back(g);
     return g;
   }
@@ -152,11 +160,18 @@ private:
 /// Binary operators
 class FieldBinary : public FieldGenerator {
 public:
-  FieldBinary(std::shared_ptr<FieldGenerator> l, std::shared_ptr<FieldGenerator> r, char o) : lhs(l), rhs(r), op(o) {}
-  std::shared_ptr<FieldGenerator> clone(const std::list<std::shared_ptr<FieldGenerator> > args);
+  FieldBinary(std::shared_ptr<FieldGenerator> l, std::shared_ptr<FieldGenerator> r,
+              char o)
+      : lhs(l), rhs(r), op(o) {}
+  std::shared_ptr<FieldGenerator>
+  clone(const std::list<std::shared_ptr<FieldGenerator>> args);
   double generate(double x, double y, double z, double t);
 
-  const std::string str() {return std::string("(")+lhs->str()+std::string(1,op)+rhs->str()+std::string(")");}
+  const std::string str() {
+    return std::string("(") + lhs->str() + std::string(1, op) + rhs->str() +
+           std::string(")");
+  }
+
 private:
   std::shared_ptr<FieldGenerator> lhs, rhs;
   char op;
@@ -166,13 +181,21 @@ private:
 class FieldValue : public FieldGenerator {
 public:
   FieldValue(double val) : value(val) {}
-  std::shared_ptr<FieldGenerator> clone(const std::list<std::shared_ptr<FieldGenerator> > UNUSED(args)) { return std::shared_ptr<FieldGenerator>(std::shared_ptr<FieldGenerator>( new FieldValue(value))); }
-  double generate(double UNUSED(x), double UNUSED(y), double UNUSED(z), double UNUSED(t)) { return value; }
+  std::shared_ptr<FieldGenerator>
+  clone(const std::list<std::shared_ptr<FieldGenerator>> UNUSED(args)) {
+    return std::shared_ptr<FieldGenerator>(
+        std::shared_ptr<FieldGenerator>(new FieldValue(value)));
+  }
+  double generate(double UNUSED(x), double UNUSED(y), double UNUSED(z),
+                  double UNUSED(t)) {
+    return value;
+  }
   const std::string str() {
     std::stringstream ss;
     ss << value;
     return ss.str();
   }
+
 private:
   double value;
 };
@@ -183,12 +206,11 @@ class ParseException : public std::exception {
 public:
   ParseException(const char *, ...);
   virtual ~ParseException() {}
-  
-  const char* what() const noexcept;
-  
+
+  const char *what() const noexcept;
+
 protected:
   std::string message;
 };
-
 
 #endif // __EXPRESSION_PARSER_H__

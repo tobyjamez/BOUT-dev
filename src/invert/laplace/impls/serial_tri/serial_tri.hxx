@@ -29,13 +29,13 @@ class LaplaceSerialTri;
 #ifndef __SERIAL_TRI_H__
 #define __SERIAL_TRI_H__
 
-#include <invert_laplace.hxx>
-#include <dcomplex.hxx>
-#include <options.hxx>
+#include <bout/dcomplex.hxx>
+#include <bout/invert_laplace.hxx>
+#include <bout/options.hxx>
 
 class LaplaceSerialTri : public Laplacian {
 public:
-  LaplaceSerialTri(Options *opt=NULL);
+  LaplaceSerialTri(Options *opt = NULL);
   ~LaplaceSerialTri(){};
 
   using Laplacian::setCoefA;
@@ -56,6 +56,7 @@ public:
   using Laplacian::solve;
   const FieldPerp solve(const FieldPerp &b) override;
   const FieldPerp solve(const FieldPerp &b, const FieldPerp &x0) override;
+
 private:
   // The coefficents in
   // D*grad_perp^2(x) + (1/C)*(grad_perp(C))*grad_perp(x) + A*x = b

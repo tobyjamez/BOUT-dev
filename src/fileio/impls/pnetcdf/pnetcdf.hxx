@@ -9,13 +9,13 @@
  * Records: In netCDF, the time dimension for each dimension must be
  * the same. Hence when a record is appended to a variable, the size
  * of all variables is increased. To work out which record to write to,
- * a map of variable names to record number is kept. 
- * 
+ * a map of variable names to record number is kept.
+ *
  **************************************************************************
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -45,7 +45,7 @@ class PncFormat;
 #ifndef __PNCFORMAT_H__
 #define __PNCFORMAT_H__
 
-#include "dataformat.hxx"
+#include "bout/dataformat.hxx"
 
 #include <map>
 #include <string>
@@ -54,71 +54,81 @@ using std::string;
 using std::map;
 
 class PncFormat : public DataFormat {
- public:
+public:
   PncFormat();
   PncFormat(const char *name);
   PncFormat(const string &name) : PncFormat(name.c_str()) {}
   ~PncFormat();
 
   bool openr(const char *name) override;
-  bool openr(const string &name, int mype) {return openr(name);}
+  bool openr(const string &name, int mype) { return openr(name); }
 
-  bool openw(const char *name, bool append=false) override;
-  bool openw(const string &name, int mype, bool append=false) {return openw(name, append);}
+  bool openw(const char *name, bool append = false) override;
+  bool openw(const string &name, int mype, bool append = false) {
+    return openw(name, append);
+  }
 
-  bool is_valid() override { return fname != NULL;}
-  
+  bool is_valid() override { return fname != NULL; }
+
   void close() override;
-  
+
   void flush() override;
 
-  const char* filename() { return fname; };
+  const char *filename() { return fname; };
 
   const vector<int> getSize(const char *var) override;
   const vector<int> getSize(const string &var) override { return getSize(var.c_str()); }
-  
+
   // Set the origin for all subsequent calls
   bool setGlobalOrigin(int x = 0, int y = 0, int z = 0) override;
   bool setRecord(int t) override; // negative -> latest
-  
+
   // Read / Write simple variables up to 3D
 
   bool read(int *var, const char *name, int lx = 1, int ly = 0, int lz = 0) override;
   bool read(int *var, const string &name, int lx = 1, int ly = 0, int lz = 0) override;
   bool read(BoutReal *var, const char *name, int lx = 1, int ly = 0, int lz = 0) override;
-  bool read(BoutReal *var, const string &name, int lx = 1, int ly = 0, int lz = 0) override;
+  bool read(BoutReal *var, const string &name, int lx = 1, int ly = 0,
+            int lz = 0) override;
 
   bool write(int *var, const char *name, int lx = 0, int ly = 0, int lz = 0) override;
   bool write(int *var, const string &name, int lx = 0, int ly = 0, int lz = 0) override;
-  bool write(BoutReal *var, const char *name, int lx = 0, int ly = 0, int lz = 0) override;
-  bool write(BoutReal *var, const string &name, int lx = 0, int ly = 0, int lz = 0) override;
+  bool write(BoutReal *var, const char *name, int lx = 0, int ly = 0,
+             int lz = 0) override;
+  bool write(BoutReal *var, const string &name, int lx = 0, int ly = 0,
+             int lz = 0) override;
 
   // Read / Write record-based variables
 
   bool read_rec(int *var, const char *name, int lx = 1, int ly = 0, int lz = 0) override;
-  bool read_rec(int *var, const string &name, int lx = 1, int ly = 0, int lz = 0) override;
-  bool read_rec(BoutReal *var, const char *name, int lx = 1, int ly = 0, int lz = 0) override;
-  bool read_rec(BoutReal *var, const string &name, int lx = 1, int ly = 0, int lz = 0) override;
+  bool read_rec(int *var, const string &name, int lx = 1, int ly = 0,
+                int lz = 0) override;
+  bool read_rec(BoutReal *var, const char *name, int lx = 1, int ly = 0,
+                int lz = 0) override;
+  bool read_rec(BoutReal *var, const string &name, int lx = 1, int ly = 0,
+                int lz = 0) override;
 
   bool write_rec(int *var, const char *name, int lx = 0, int ly = 0, int lz = 0) override;
-  bool write_rec(int *var, const string &name, int lx = 0, int ly = 0, int lz = 0) override;
-  bool write_rec(BoutReal *var, const char *name, int lx = 0, int ly = 0, int lz = 0) override;
-  bool write_rec(BoutReal *var, const string &name, int lx = 0, int ly = 0, int lz = 0) override;
-  
+  bool write_rec(int *var, const string &name, int lx = 0, int ly = 0,
+                 int lz = 0) override;
+  bool write_rec(BoutReal *var, const char *name, int lx = 0, int ly = 0,
+                 int lz = 0) override;
+  bool write_rec(BoutReal *var, const string &name, int lx = 0, int ly = 0,
+                 int lz = 0) override;
+
   void setLowPrecision() override { lowPrecision = true; }
 
- private:
-  
+private:
   char *fname; ///< Current file name
 
   /// ID of netCDF file
   int ncfile;
   bool valid; // True if the file is valid
-  
+
   /// Dimensions
   int xDim, yDim, zDim, tDim;
 
-  int *dimList; ///< List of dimensions (x,y,z)
+  int *dimList;      ///< List of dimensions (x,y,z)
   int recDimList[4]; ///< List of dimensions (t,x,y,z)
 
   bool appending;
@@ -127,7 +137,7 @@ class PncFormat : public DataFormat {
   int x0, y0, z0, t0; ///< Data origins (global offsets)
 
   map<string, int> rec_nr; // Record number for each variable (bit nasty)
-  int default_rec;  // Starting record. Useful when appending to existing file
+  int default_rec;         // Starting record. Useful when appending to existing file
 };
 
 #endif // __PNCFORMAT_H__

@@ -9,9 +9,9 @@ int main(int argc, char **argv) {
   // Construct a FieldGroup with an integer
   // Should fail to compile
   // (hopefully with a useful error message)
-  
+
   int i;
-  FieldGroup g(i); 
+  FieldGroup g(i);
 
   return 0;
 }

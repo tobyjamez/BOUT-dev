@@ -1,16 +1,16 @@
 #include "rkschemefactory.hxx"
 
-#include "impls/rkf45/rkf45.hxx"
 #include "impls/cashkarp/cashkarp.hxx"
 #include "impls/rk4simple/rk4simple.hxx"
 #include "impls/rkf34/rkf34.hxx"
+#include "impls/rkf45/rkf45.hxx"
 
-#include <boutexception.hxx>
+#include <bout/boutexception.hxx>
 
-RKSchemeFactory* RKSchemeFactory::instance = NULL;
+RKSchemeFactory *RKSchemeFactory::instance = NULL;
 
-RKSchemeFactory* RKSchemeFactory::getInstance() {
-  if(instance == NULL) {
+RKSchemeFactory *RKSchemeFactory::getInstance() {
+  if (instance == NULL) {
     // Create the singleton object
     instance = new RKSchemeFactory();
   }
@@ -23,31 +23,32 @@ inline RKSchemeType RKSchemeFactory::getDefaultRKSchemeType() {
   return type;
 }
 
-RKScheme* RKSchemeFactory::createRKScheme(Options *options) {
+RKScheme *RKSchemeFactory::createRKScheme(Options *options) {
   RKSchemeType type = getDefaultRKSchemeType();
 
-  if(options == NULL) 
+  if (options == NULL)
     options = Options::getRoot()->getSection("solver");
-  
+
   string scheme;
   options->get("scheme", scheme, "");
 
-  if(!scheme.empty()) type = scheme.c_str();
+  if (!scheme.empty())
+    type = scheme.c_str();
 
   return createRKScheme(type, options);
 }
 
-RKScheme* RKSchemeFactory::createRKScheme(RKSchemeType &type, Options *options) {
-  if(options == NULL)
+RKScheme *RKSchemeFactory::createRKScheme(RKSchemeType &type, Options *options) {
+  if (options == NULL)
     options = Options::getRoot()->getSection("solver");
-  
-  if(!strcasecmp(type, RKSCHEME_RKF45)) {
+
+  if (!strcasecmp(type, RKSCHEME_RKF45)) {
     return new RKF45Scheme(options);
-  }else if(!strcasecmp(type, RKSCHEME_CASHKARP)) {
+  } else if (!strcasecmp(type, RKSCHEME_CASHKARP)) {
     return new CASHKARPScheme(options);
-  }else if(!strcasecmp(type, RKSCHEME_RK4)) {
+  } else if (!strcasecmp(type, RKSCHEME_RK4)) {
     return new RK4SIMPLEScheme(options);
-  }else if(!strcasecmp(type, RKSCHEME_RKF34)) {
+  } else if (!strcasecmp(type, RKSCHEME_RKF34)) {
     return new RKF34Scheme(options);
   };
 

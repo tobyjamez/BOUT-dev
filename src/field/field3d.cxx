@@ -7,7 +7,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -25,23 +25,23 @@
  *
  **************************************************************************/
 
-#include <boutcomm.hxx>
-#include <globals.hxx>
+#include <bout/boutcomm.hxx>
+#include <bout/globals.hxx>
 
 #include <cmath>
 
-#include <field3d.hxx>
-#include <utils.hxx>
-#include <fft.hxx>
-#include <dcomplex.hxx>
-#include <interpolation.hxx>
-#include <boundary_op.hxx>
-#include <boundary_factory.hxx>
-#include <boutexception.hxx>
-#include <output.hxx>
-#include <msg_stack.hxx>
-#include <bout/constants.hxx>
 #include <bout/assert.hxx>
+#include <bout/boundary_factory.hxx>
+#include <bout/boundary_op.hxx>
+#include <bout/boutexception.hxx>
+#include <bout/constants.hxx>
+#include <bout/dcomplex.hxx>
+#include <bout/fft.hxx>
+#include <bout/field3d.hxx>
+#include <bout/interpolation.hxx>
+#include <bout/msg_stack.hxx>
+#include <bout/output.hxx>
+#include <bout/utils.hxx>
 
 /// Constructor
 Field3D::Field3D(Mesh *localmesh)
@@ -137,7 +137,7 @@ Field3D::Field3D(const BoutReal val, Mesh *localmesh)
 
 Field3D::~Field3D() {
   /// Delete the time derivative variable if allocated
-  if(deriv != NULL) {
+  if (deriv != NULL) {
     // The ddt of the yup/ydown_fields point to the same place as ddt.yup_field
     // only delete once
     // Also need to check that separate yup_field exists
@@ -149,24 +149,24 @@ Field3D::~Field3D() {
     // Now delete them as part of the deriv vector
     delete deriv;
   }
-  
-  if((yup_field != this) && (yup_field != nullptr))
+
+  if ((yup_field != this) && (yup_field != nullptr))
     delete yup_field;
-  
-  if((ydown_field != this) && (ydown_field != nullptr))
+
+  if ((ydown_field != this) && (ydown_field != nullptr))
     delete ydown_field;
 }
 
 void Field3D::allocate() {
-  if(data.empty()) {
-    if(!fieldmesh) {
+  if (data.empty()) {
+    if (!fieldmesh) {
       /// If no mesh, use the global
       fieldmesh = mesh;
       nx = fieldmesh->LocalNx;
       ny = fieldmesh->LocalNy;
       nz = fieldmesh->LocalNz;
     }
-    data = Array<BoutReal>(nx*ny*nz);
+    data = Array<BoutReal>(nx * ny * nz);
 #if CHECK > 2
     invalidateGuards(*this);
 #endif
@@ -174,8 +174,8 @@ void Field3D::allocate() {
     data.ensureUnique();
 }
 
-Field3D* Field3D::timeDeriv() {
-  if(deriv == nullptr) {
+Field3D *Field3D::timeDeriv() {
+  if (deriv == nullptr) {
     deriv = new Field3D(fieldmesh);
   }
   return deriv;
@@ -183,8 +183,8 @@ Field3D* Field3D::timeDeriv() {
 
 void Field3D::splitYupYdown() {
   TRACE("Field3D::splitYupYdown");
-  
-  if((yup_field != this) && (yup_field != nullptr))
+
+  if ((yup_field != this) && (yup_field != nullptr))
     return;
 
   // yup_field and ydown_field null
@@ -194,15 +194,15 @@ void Field3D::splitYupYdown() {
 
 void Field3D::mergeYupYdown() {
   TRACE("Field3D::mergeYupYdown");
-  
-  if(yup_field == this && ydown_field == this)
+
+  if (yup_field == this && ydown_field == this)
     return;
 
-  if(yup_field != nullptr){
+  if (yup_field != nullptr) {
     delete yup_field;
   }
 
-  if(ydown_field != nullptr) {
+  if (ydown_field != nullptr) {
     delete ydown_field;
   }
 
@@ -210,25 +210,29 @@ void Field3D::mergeYupYdown() {
   ydown_field = this;
 }
 
-Field3D& Field3D::ynext(int dir) {
-  switch(dir) {
+Field3D &Field3D::ynext(int dir) {
+  switch (dir) {
   case +1:
     return yup();
   case -1:
     return ydown();
   default:
-    throw BoutException("Field3D: Call to ynext with strange direction %d. Only +/-1 currently supported", dir);
+    throw BoutException(
+        "Field3D: Call to ynext with strange direction %d. Only +/-1 currently supported",
+        dir);
   }
 }
 
-const Field3D& Field3D::ynext(int dir) const {
-  switch(dir) {
+const Field3D &Field3D::ynext(int dir) const {
+  switch (dir) {
   case +1:
     return yup();
   case -1:
     return ydown();
   default:
-    throw BoutException("Field3D: Call to ynext with strange direction %d. Only +/-1 currently supported", dir);
+    throw BoutException(
+        "Field3D: Call to ynext with strange direction %d. Only +/-1 currently supported",
+        dir);
   }
 }
 
@@ -254,54 +258,43 @@ void Field3D::setLocation(CELL_LOC new_location) {
   }
 }
 
-CELL_LOC Field3D::getLocation() const {
-  return location;
-}
+CELL_LOC Field3D::getLocation() const { return location; }
 
 /***************************************************************
- *                         OPERATORS 
+ *                         OPERATORS
  ***************************************************************/
 
 const DataIterator Field3D::iterator() const {
-  return DataIterator(0, nx-1, 
-                      0, ny-1,
-                      0, nz-1);
+  return DataIterator(0, nx - 1, 0, ny - 1, 0, nz - 1);
 }
 
 const DataIterator Field3D::begin() const {
-  return DataIterator(0, nx-1, 
-                      0, ny-1,
-                      0, nz-1);
+  return DataIterator(0, nx - 1, 0, ny - 1, 0, nz - 1);
 }
 
 const DataIterator Field3D::end() const {
   // end() iterator should be one past the last element
-  return DataIterator(0, nx-1, 
-                      0, ny-1,
-                      0, nz-1,DI_GET_END);
+  return DataIterator(0, nx - 1, 0, ny - 1, 0, nz - 1, DI_GET_END);
 }
 
 const IndexRange Field3D::region(REGION rgn) const {
-  switch(rgn) {
+  switch (rgn) {
   case RGN_ALL: {
-    return IndexRange{0, nx-1,
-        0, ny-1,
-        0, nz-1};
+    return IndexRange{0, nx - 1, 0, ny - 1, 0, nz - 1};
   }
   case RGN_NOBNDRY: {
-    return IndexRange{fieldmesh->xstart, fieldmesh->xend,
-        fieldmesh->ystart, fieldmesh->yend,
-        0, nz-1};
+    return IndexRange{fieldmesh->xstart,
+                      fieldmesh->xend,
+                      fieldmesh->ystart,
+                      fieldmesh->yend,
+                      0,
+                      nz - 1};
   }
   case RGN_NOX: {
-    return IndexRange{fieldmesh->xstart, fieldmesh->xend,
-        0, ny-1,
-        0, nz-1};
+    return IndexRange{fieldmesh->xstart, fieldmesh->xend, 0, ny - 1, 0, nz - 1};
   }
   case RGN_NOY: {
-    return IndexRange{0, nx-1,
-        fieldmesh->ystart, fieldmesh->yend,
-        0, nz-1};
+    return IndexRange{0, nx - 1, fieldmesh->ystart, fieldmesh->yend, 0, nz - 1};
   }
   default: {
     throw BoutException("Field3D::region() : Requested region not implemented");
@@ -310,26 +303,19 @@ const IndexRange Field3D::region(REGION rgn) const {
 }
 
 const IndexRange Field3D::region2D(REGION rgn) const {
-  switch(rgn) {
+  switch (rgn) {
   case RGN_ALL: {
-    return IndexRange{0, nx-1,
-        0, ny-1,
-        0, 0};
+    return IndexRange{0, nx - 1, 0, ny - 1, 0, 0};
   }
   case RGN_NOBNDRY: {
-    return IndexRange{fieldmesh->xstart, fieldmesh->xend,
-        fieldmesh->ystart, fieldmesh->yend,
-        0, 0};
+    return IndexRange{
+        fieldmesh->xstart, fieldmesh->xend, fieldmesh->ystart, fieldmesh->yend, 0, 0};
   }
   case RGN_NOX: {
-    return IndexRange{fieldmesh->xstart, fieldmesh->xend,
-        0, ny-1,
-        0, 0};
+    return IndexRange{fieldmesh->xstart, fieldmesh->xend, 0, ny - 1, 0, 0};
   }
   case RGN_NOY: {
-    return IndexRange{0, nx-1,
-        fieldmesh->ystart, fieldmesh->yend,
-        0, 0};
+    return IndexRange{0, nx - 1, fieldmesh->ystart, fieldmesh->yend, 0, 0};
   }
   default: {
     throw BoutException("Field3D::region() : Requested region not implemented");
@@ -339,73 +325,75 @@ const IndexRange Field3D::region2D(REGION rgn) const {
 
 /////////////////// ASSIGNMENT ////////////////////
 
-Field3D & Field3D::operator=(const Field3D &rhs) {
+Field3D &Field3D::operator=(const Field3D &rhs) {
   /// Check for self-assignment
-  if(this == &rhs)
-    return(*this); // skip this assignment
+  if (this == &rhs)
+    return (*this); // skip this assignment
 
   TRACE("Field3D: Assignment from Field3D");
-  
+
   /// Check that the data is valid
   checkData(rhs);
-  
+
   // Copy the data and data sizes
   fieldmesh = rhs.fieldmesh;
-  nx = rhs.nx; ny = rhs.ny; nz = rhs.nz; 
-  
+  nx = rhs.nx;
+  ny = rhs.ny;
+  nz = rhs.nz;
+
   data = rhs.data;
-  
+
   location = rhs.location;
-  
+
   return *this;
 }
 
-Field3D & Field3D::operator=(const Field2D &rhs) {
+Field3D &Field3D::operator=(const Field2D &rhs) {
   TRACE("Field3D = Field2D");
-  
+
   ASSERT1(rhs.isAllocated());
-  
+
   /// Check that the data is valid
   checkData(rhs);
- 
+
   /// Make sure there's a unique array to copy data into
   allocate();
 
   /// Copy data
-  for(const auto& i : (*this))
+  for (const auto &i : (*this))
     (*this)[i] = rhs[i];
-  
+
   /// Only 3D fields have locations for now
-  //location = CELL_CENTRE;
-  
+  // location = CELL_CENTRE;
+
   return *this;
 }
 
 void Field3D::operator=(const FieldPerp &rhs) {
   ASSERT1(rhs.isAllocated());
-  
+
   /// Make sure there's a unique array to copy data into
   allocate();
 
   /// Copy data
-  for(const auto& i : rhs) {
+  for (const auto &i : rhs) {
     (*this)[i] = rhs[i];
   }
 }
 
-Field3D & Field3D::operator=(const BoutReal val) {
+Field3D &Field3D::operator=(const BoutReal val) {
   TRACE("Field3D = BoutReal");
   allocate();
 
 #if CHECK > 0
-  if(!finite(val))
+  if (!finite(val))
     throw BoutException("Field3D: Assignment from non-finite BoutReal\n");
 #endif
-  for(const auto& i : (*this))
+  for (const auto &i : (*this))
     (*this)[i] = val;
 
   // Only 3D fields have locations
-  //location = CELL_CENTRE;
+  // location = CELL_CENTRE;
   // DON'T RE-SET LOCATION
 
   return *this;
@@ -413,9 +401,7 @@ Field3D & Field3D::operator=(const BoutReal val) {
 
 ///////////////////// BOUNDARY CONDITIONS //////////////////
 
-void Field3D::setBackground(const Field2D &f2d) {
-  background = &f2d;
-}
+void Field3D::setBackground(const Field2D &f2d) { background = &f2d; }
 
 void Field3D::applyBoundary(bool init) {
   TRACE("Field3D::applyBoundary()");
@@ -423,60 +409,63 @@ void Field3D::applyBoundary(bool init) {
 #if CHECK > 0
   if (init) {
 
-    if(!boundaryIsSet)
-      output_warn << "WARNING: Call to Field3D::applyBoundary(), but no boundary set" << endl;
+    if (!boundaryIsSet)
+      output_warn << "WARNING: Call to Field3D::applyBoundary(), but no boundary set"
+                  << endl;
   }
 #endif
 
   ASSERT1(isAllocated());
-  
-  if(background != NULL) {
+
+  if (background != NULL) {
     // Apply boundary to the total of this and background
-    
+
     Field3D tot = *this + (*background);
     tot.copyBoundary(*this);
     tot.applyBoundary(init);
     *this = tot - (*background);
   } else {
     // Apply boundary to this field
-    for(const auto& bndry : bndry_op)
-      if ( !bndry->apply_to_ddt || init) // Always apply to the values when initialising fields, otherwise apply only if wanted
+    for (const auto &bndry : bndry_op)
+      if (!bndry->apply_to_ddt || init) // Always apply to the values when initialising
+                                        // fields, otherwise apply only if wanted
         bndry->apply(*this);
   }
 }
 
 void Field3D::applyBoundary(BoutReal t) {
   TRACE("Field3D::applyBoundary()");
-  
+
 #if CHECK > 0
-  if(!boundaryIsSet)
-    output_warn << "WARNING: Call to Field3D::applyBoundary(t), but no boundary set." << endl;
+  if (!boundaryIsSet)
+    output_warn << "WARNING: Call to Field3D::applyBoundary(t), but no boundary set."
+                << endl;
 #endif
 
   ASSERT1(isAllocated())
 
-  if(background != NULL) {
+  if (background != NULL) {
     // Apply boundary to the total of this and background
 
     Field3D tot = *this + (*background);
     tot.copyBoundary(*this);
     tot.applyBoundary(t);
     *this = tot - (*background);
-  }else {
+  } else {
     // Apply boundary to this field
-    for(const auto& bndry : bndry_op)
-      bndry->apply(*this,t);
+    for (const auto &bndry : bndry_op)
+      bndry->apply(*this, t);
   }
 }
 
 void Field3D::applyBoundary(const string &condition) {
   TRACE("Field3D::applyBoundary(condition)");
-  
+
   ASSERT1(isAllocated());
-  
-  if(background != NULL) {
+
+  if (background != NULL) {
     // Apply boundary to the total of this and background
-    
+
     Field3D tot = *this + (*background);
     tot.applyBoundary(condition);
     *this = tot - (*background);
@@ -485,15 +474,15 @@ void Field3D::applyBoundary(const string &condition) {
 
   /// Get the boundary factory (singleton)
   BoundaryFactory *bfact = BoundaryFactory::getInstance();
-  
+
   /// Loop over the mesh boundary regions
-  for(const auto& reg : fieldmesh->getBoundaries()) {
-    BoundaryOp* op = static_cast<BoundaryOp*>(bfact->create(condition, reg));
+  for (const auto &reg : fieldmesh->getBoundaries()) {
+    BoundaryOp *op = static_cast<BoundaryOp *>(bfact->create(condition, reg));
     op->apply(*this);
     delete op;
   }
 
-  //Field2D sets the corners to zero here, should we do the same here?
+  // Field2D sets the corners to zero here, should we do the same here?
 }
 
 void Field3D::applyBoundary(const string &region, const string &condition) {
@@ -501,53 +490,55 @@ void Field3D::applyBoundary(const string &region, const string &condition) {
 
   /// Get the boundary factory (singleton)
   BoundaryFactory *bfact = BoundaryFactory::getInstance();
-  
+
   /// Loop over the mesh boundary regions
-  for(const auto& reg : fieldmesh->getBoundaries()) {
-    if(reg->label.compare(region) == 0) {
-      BoundaryOp* op = static_cast<BoundaryOp*>(bfact->create(condition, reg));
+  for (const auto &reg : fieldmesh->getBoundaries()) {
+    if (reg->label.compare(region) == 0) {
+      BoundaryOp *op = static_cast<BoundaryOp *>(bfact->create(condition, reg));
       op->apply(*this);
       delete op;
       break;
     }
   }
 
-  //Field2D sets the corners to zero here, should we do the same here?
+  // Field2D sets the corners to zero here, should we do the same here?
 }
 
 void Field3D::applyTDerivBoundary() {
   TRACE("Field3D::applyTDerivBoundary()");
-  
+
   ASSERT1(isAllocated());
   ASSERT1(deriv != NULL);
   ASSERT1(deriv->isAllocated());
-  
-  if(background != NULL)
+
+  if (background != NULL)
     *this += *background;
-    
-  for(const auto& bndry : bndry_op)
+
+  for (const auto &bndry : bndry_op)
     bndry->apply_ddt(*this);
-  
-  if(background != NULL)
+
+  if (background != NULL)
     *this -= *background;
 }
 
 void Field3D::setBoundaryTo(const Field3D &f3d) {
   TRACE("Field3D::setBoundary(const Field3D&)");
-  
+
   allocate(); // Make sure data allocated
 
   ASSERT1(f3d.isAllocated());
 
   /// Loop over boundary regions
-  for(const auto& reg : fieldmesh->getBoundaries()) {
+  for (const auto &reg : fieldmesh->getBoundaries()) {
     /// Loop within each region
-    for(reg->first(); !reg->isDone(); reg->next()) {
-      for(int z=0;z<nz;z++) {
+    for (reg->first(); !reg->isDone(); reg->next()) {
+      for (int z = 0; z < nz; z++) {
         // Get value half-way between cells
-        BoutReal val = 0.5*(f3d(reg->x,reg->y,z) + f3d(reg->x-reg->bx, reg->y-reg->by, z));
+        BoutReal val =
+            0.5 * (f3d(reg->x, reg->y, z) + f3d(reg->x - reg->bx, reg->y - reg->by, z));
         // Set to this value
-        (*this)(reg->x,reg->y,z) = 2.*val - (*this)(reg->x-reg->bx, reg->y-reg->by, z);
+        (*this)(reg->x, reg->y, z) =
+            2. * val - (*this)(reg->x - reg->bx, reg->y - reg->by, z);
       }
     }
   }
@@ -559,14 +550,14 @@ void Field3D::applyParallelBoundary() {
 
   ASSERT1(isAllocated());
 
-  if(background != NULL) {
+  if (background != NULL) {
     // Apply boundary to the total of this and background
     Field3D tot = *this + (*background);
     tot.applyParallelBoundary();
     *this = tot - (*background);
   } else {
     // Apply boundary to this field
-    for(const auto& bndry : bndry_op_par) {
+    for (const auto &bndry : bndry_op_par) {
       bndry->apply(*this);
     }
   }
@@ -578,14 +569,14 @@ void Field3D::applyParallelBoundary(BoutReal t) {
 
   ASSERT1(isAllocated());
 
-  if(background != NULL) {
+  if (background != NULL) {
     // Apply boundary to the total of this and background
     Field3D tot = *this + (*background);
     tot.applyParallelBoundary(t);
     *this = tot - (*background);
   } else {
     // Apply boundary to this field
-    for(const auto& bndry : bndry_op_par) {
+    for (const auto &bndry : bndry_op_par) {
       bndry->apply(*this, t);
     }
   }
@@ -597,7 +588,7 @@ void Field3D::applyParallelBoundary(const string &condition) {
 
   ASSERT1(isAllocated());
 
-  if(background != NULL) {
+  if (background != NULL) {
     // Apply boundary to the total of this and background
     Field3D tot = *this + (*background);
     tot.applyParallelBoundary(condition);
@@ -607,8 +598,8 @@ void Field3D::applyParallelBoundary(const string &condition) {
     BoundaryFactory *bfact = BoundaryFactory::getInstance();
 
     /// Loop over the mesh boundary regions
-    for(const auto& reg : fieldmesh->getBoundariesPar()) {
-      BoundaryOpPar* op = static_cast<BoundaryOpPar*>(bfact->create(condition, reg));
+    for (const auto &reg : fieldmesh->getBoundariesPar()) {
+      BoundaryOpPar *op = static_cast<BoundaryOpPar *>(bfact->create(condition, reg));
       op->apply(*this);
       delete op;
     }
@@ -621,7 +612,7 @@ void Field3D::applyParallelBoundary(const string &region, const string &conditio
 
   ASSERT1(isAllocated());
 
-  if(background != NULL) {
+  if (background != NULL) {
     // Apply boundary to the total of this and background
     Field3D tot = *this + (*background);
     tot.applyParallelBoundary(region, condition);
@@ -631,9 +622,9 @@ void Field3D::applyParallelBoundary(const string &region, const string &conditio
     BoundaryFactory *bfact = BoundaryFactory::getInstance();
 
     /// Loop over the mesh boundary regions
-    for(const auto& reg : fieldmesh->getBoundariesPar()) {
-      if(reg->label.compare(region) == 0) {
-        BoundaryOpPar* op = static_cast<BoundaryOpPar*>(bfact->create(condition, reg));
+    for (const auto &reg : fieldmesh->getBoundariesPar()) {
+      if (reg->label.compare(region) == 0) {
+        BoundaryOpPar *op = static_cast<BoundaryOpPar *>(bfact->create(condition, reg));
         op->apply(*this);
         delete op;
         break;
@@ -642,13 +633,14 @@ void Field3D::applyParallelBoundary(const string &region, const string &conditio
   }
 }
 
-void Field3D::applyParallelBoundary(const string &region, const string &condition, Field3D *f) {
+void Field3D::applyParallelBoundary(const string &region, const string &condition,
+                                    Field3D *f) {
 
   TRACE("Field3D::applyParallelBoundary(region, condition, f)");
 
   ASSERT1(isAllocated());
 
-  if(background != NULL) {
+  if (background != NULL) {
     // Apply boundary to the total of this and background
     Field3D tot = *this + (*background);
     tot.applyParallelBoundary(region, condition, f);
@@ -658,13 +650,13 @@ void Field3D::applyParallelBoundary(const string &region, const string &conditio
     BoundaryFactory *bfact = BoundaryFactory::getInstance();
 
     /// Loop over the mesh boundary regions
-    for(const auto& reg : fieldmesh->getBoundariesPar()) {
-      if(reg->label.compare(region) == 0) {
+    for (const auto &reg : fieldmesh->getBoundariesPar()) {
+      if (reg->label.compare(region) == 0) {
         // BoundaryFactory can't create boundaries using Field3Ds, so get temporary
         // boundary of the right type
-        BoundaryOpPar* tmp = static_cast<BoundaryOpPar*>(bfact->create(condition, reg));
+        BoundaryOpPar *tmp = static_cast<BoundaryOpPar *>(bfact->create(condition, reg));
         // then clone that with the actual argument
-        BoundaryOpPar* op = tmp->clone(reg, f);
+        BoundaryOpPar *op = tmp->clone(reg, f);
         op->apply(*this);
         delete tmp;
         delete op;
@@ -673,7 +665,6 @@ void Field3D::applyParallelBoundary(const string &region, const string &conditio
     }
   }
 }
-
 
 /***************************************************************
  *               NON-MEMBER OVERLOADED OPERATORS
@@ -703,12 +694,12 @@ Field3D pow(const Field3D &lhs, const Field3D &rhs, REGION rgn) {
   result.allocate();
 
   // Iterate over indices
-  for(const auto& i : result.region(rgn)) {
+  for (const auto &i : result.region(rgn)) {
     result[i] = ::pow(lhs[i], rhs[i]);
   }
-  
-  result.setLocation( lhs.getLocation() );
-  
+
+  result.setLocation(lhs.getLocation());
+
   checkData(result, rgn);
   return result;
 }
@@ -725,12 +716,12 @@ Field3D pow(const Field3D &lhs, const Field2D &rhs, REGION rgn) {
   result.allocate();
 
   // Iterate over indices
-  for(const auto& i : result.region(rgn)) {
+  for (const auto &i : result.region(rgn)) {
     result[i] = ::pow(lhs[i], rhs[i]);
   }
 
-  result.setLocation( lhs.getLocation() );
-  
+  result.setLocation(lhs.getLocation());
+
   checkData(result, rgn);
   return result;
 }
@@ -743,11 +734,11 @@ Field3D pow(const Field3D &lhs, const FieldPerp &rhs, REGION rgn) {
   result.allocate();
 
   // Iterate over indices
-  for(const auto& i : result.region(rgn)) {
+  for (const auto &i : result.region(rgn)) {
     result[i] = ::pow(lhs[i], rhs[i]);
   }
 
-  result.setLocation( lhs.getLocation() );
+  result.setLocation(lhs.getLocation());
 
   checkData(result, rgn);
   return result;
@@ -760,11 +751,11 @@ Field3D pow(const Field3D &lhs, BoutReal rhs, REGION rgn) {
 
   Field3D result(lhs.getMesh());
   result.allocate();
-  for(const auto& i : result.region(rgn)) {
+  for (const auto &i : result.region(rgn)) {
     result[i] = ::pow(lhs[i], rhs);
   }
-  
-  result.setLocation( lhs.getLocation() );
+
+  result.setLocation(lhs.getLocation());
 
   checkData(result, rgn);
   return result;
@@ -779,28 +770,28 @@ Field3D pow(BoutReal lhs, const Field3D &rhs, REGION rgn) {
   Field3D result(rhs.getMesh());
   result.allocate();
 
-  for(const auto& i : result.region(rgn)) {
+  for (const auto &i : result.region(rgn)) {
     result[i] = ::pow(lhs, rhs[i]);
   }
-  
-  result.setLocation( rhs.getLocation() );
+
+  result.setLocation(rhs.getLocation());
 
   checkData(result, rgn);
   return result;
 }
 
 BoutReal min(const Field3D &f, bool allpe, REGION rgn) {
-  TRACE("Field3D::Min() %s",allpe? "over all PEs" : "");
+  TRACE("Field3D::Min() %s", allpe ? "over all PEs" : "");
 
   ASSERT2(f.isAllocated());
 
   BoutReal result = f[f.region(rgn).begin()];
-  
-  for(const auto& i: f.region(rgn))
-    if(f[i] < result)
+
+  for (const auto &i : f.region(rgn))
+    if (f[i] < result)
       result = f[i];
-  
-  if(allpe) {
+
+  if (allpe) {
     // MPI reduce
     BoutReal localresult = result;
     MPI_Allreduce(&localresult, &result, 1, MPI_DOUBLE, MPI_MIN, BoutComm::get());
@@ -810,22 +801,22 @@ BoutReal min(const Field3D &f, bool allpe, REGION rgn) {
 }
 
 BoutReal max(const Field3D &f, bool allpe, REGION rgn) {
-  TRACE("Field3D::Max() %s",allpe? "over all PEs" : "");
+  TRACE("Field3D::Max() %s", allpe ? "over all PEs" : "");
 
   ASSERT2(f.isAllocated());
-  
+
   BoutReal result = f[f.region(rgn).begin()];
-  
-  for(const auto& i: f.region(rgn))
-    if(f[i] > result)
+
+  for (const auto &i : f.region(rgn))
+    if (f[i] > result)
       result = f[i];
-  
-  if(allpe) {
+
+  if (allpe) {
     // MPI reduce
     BoutReal localresult = result;
     MPI_Allreduce(&localresult, &result, 1, MPI_DOUBLE, MPI_MAX, BoutComm::get());
   }
-  
+
   return result;
 }
 
@@ -881,13 +872,13 @@ F3D_FUNC(tanh, ::tanh);
 
 const Field3D filter(const Field3D &var, int N0, REGION rgn) {
   TRACE("filter(Field3D, int)");
-  
+
   ASSERT1(var.isAllocated());
 
   Mesh *localmesh = var.getMesh();
 
   int ncz = localmesh->LocalNz;
-  Array<dcomplex> f(ncz/2 + 1);
+  Array<dcomplex> f(ncz / 2 + 1);
 
   Field3D result(localmesh);
   result.allocate();
@@ -896,9 +887,9 @@ const Field3D filter(const Field3D &var, int N0, REGION rgn) {
 
     rfft(&(var(i.x, i.y, 0)), ncz, f.begin()); // Forward FFT
 
-    for(int jz=0;jz<=ncz/2;jz++) {
-      
-      if(jz != N0) {
+    for (int jz = 0; jz <= ncz / 2; jz++) {
+
+      if (jz != N0) {
         // Zero this component
         f[jz] = 0.0;
       }
@@ -906,11 +897,11 @@ const Field3D filter(const Field3D &var, int N0, REGION rgn) {
 
     irfft(f.begin(), ncz, &(result(i.x, i.y, 0))); // Reverse FFT
   }
-  
+
 #ifdef TRACK
-  result.name = "filter("+var.name+")";
+  result.name = "filter(" + var.name + ")";
 #endif
-  
+
   result.setLocation(var.getLocation());
 
   checkData(result, rgn);
@@ -926,10 +917,10 @@ const Field3D lowPass(const Field3D &var, int zmax, REGION rgn) {
   Mesh *localmesh = var.getMesh();
   int ncz = localmesh->LocalNz;
 
-  // Create an array 
-  Array<dcomplex> f(ncz/2 + 1);
-  
-  if((zmax >= ncz/2) || (zmax < 0)) {
+  // Create an array
+  Array<dcomplex> f(ncz / 2 + 1);
+
+  if ((zmax >= ncz / 2) || (zmax < 0)) {
     // Removing nothing
     return var;
   }
@@ -939,15 +930,15 @@ const Field3D lowPass(const Field3D &var, int zmax, REGION rgn) {
 
   for (const auto &i : result.region2D(rgn)) {
     // Take FFT in the Z direction
-    rfft(&(var(i.x,i.y,0)), ncz, f.begin());
-    
+    rfft(&(var(i.x, i.y, 0)), ncz, f.begin());
+
     // Filter in z
-    for(int jz=zmax+1;jz<=ncz/2;jz++)
+    for (int jz = zmax + 1; jz <= ncz / 2; jz++)
       f[jz] = 0.0;
 
-    irfft(f.begin(), ncz, &(result(i.x,i.y,0))); // Reverse FFT
+    irfft(f.begin(), ncz, &(result(i.x, i.y, 0))); // Reverse FFT
   }
-  
+
   result.setLocation(var.getLocation());
 
   checkData(result, rgn);
@@ -962,9 +953,9 @@ const Field3D lowPass(const Field3D &var, int zmax, int zmin, REGION rgn) {
   Mesh *localmesh = var.getMesh();
 
   int ncz = localmesh->LocalNz;
-  Array<dcomplex> f(ncz/2 + 1);
- 
-  if(((zmax >= ncz/2) || (zmax < 0)) && (zmin < 0)) {
+  Array<dcomplex> f(ncz / 2 + 1);
+
+  if (((zmax >= ncz / 2) || (zmax < 0)) && (zmin < 0)) {
     // Removing nothing
     return var;
   }
@@ -974,49 +965,49 @@ const Field3D lowPass(const Field3D &var, int zmax, int zmin, REGION rgn) {
 
   for (const auto &i : result.region2D(rgn)) {
     // Take FFT in the Z direction
-    rfft(&(var(i.x,i.y,0)), ncz, f.begin());
-    
+    rfft(&(var(i.x, i.y, 0)), ncz, f.begin());
+
     // Filter in z
-    for(int jz=zmax+1;jz<=ncz/2;jz++)
+    for (int jz = zmax + 1; jz <= ncz / 2; jz++)
       f[jz] = 0.0;
 
     // Filter zonal mode
-    if(zmin==0) {
+    if (zmin == 0) {
       f[0] = 0.0;
     }
-    irfft(f.begin(), ncz, &(result(i.x,i.y,0))); // Reverse FFT
+    irfft(f.begin(), ncz, &(result(i.x, i.y, 0))); // Reverse FFT
   }
-  
+
   result.setLocation(var.getLocation());
-  
+
   checkData(result, rgn);
   return result;
 }
 
-/* 
+/*
  * Use FFT to shift by an angle in the Z direction
  */
 void shiftZ(Field3D &var, int jx, int jy, double zangle) {
   TRACE("shiftZ");
   ASSERT1(var.isAllocated()); // Check that var has some data
-  var.allocate(); // Ensure that var is unique
-  
+  var.allocate();             // Ensure that var is unique
+
   int ncz = mesh->LocalNz;
-  if(ncz == 1)
+  if (ncz == 1)
     return; // Shifting doesn't do anything
-  
-  Array<dcomplex> v(ncz/2 + 1);
-  
-  rfft(&(var(jx,jy,0)), ncz, v.begin()); // Forward FFT
+
+  Array<dcomplex> v(ncz / 2 + 1);
+
+  rfft(&(var(jx, jy, 0)), ncz, v.begin()); // Forward FFT
 
   BoutReal zlength = mesh->coordinates()->zlength();
   // Apply phase shift
-  for(int jz=1;jz<=ncz/2;jz++) {
-    BoutReal kwave=jz*2.0*PI/zlength; // wave number is 1/[rad]
-    v[jz] *= dcomplex(cos(kwave*zangle) , -sin(kwave*zangle));
+  for (int jz = 1; jz <= ncz / 2; jz++) {
+    BoutReal kwave = jz * 2.0 * PI / zlength; // wave number is 1/[rad]
+    v[jz] *= dcomplex(cos(kwave * zangle), -sin(kwave * zangle));
   }
 
-  irfft(v.begin(), ncz, &(var(jx,jy,0))); // Reverse FFT
+  irfft(v.begin(), ncz, &(var(jx, jy, 0))); // Reverse FFT
 }
 
 void shiftZ(Field3D &var, double zangle, REGION rgn) {
@@ -1065,11 +1056,11 @@ const Field3D copy(const Field3D &f) {
 
 const Field3D floor(const Field3D &var, BoutReal f, REGION rgn) {
   Field3D result = copy(var);
-  
-  for(const auto& d : result.region(rgn))
-    if(result[d] < f)
+
+  for (const auto &d : result.region(rgn))
+    if (result[d] < f)
       result[d] = f;
-  
+
   return result;
 }
 
@@ -1081,7 +1072,7 @@ Field2D DC(const Field3D &f, REGION rgn) {
   result.allocate();
 
   for (const auto &i : result.region(rgn)) {
-    result(i.x,i.y) = 0.0;
+    result(i.x, i.y) = 0.0;
     for (int k = 0; k < localmesh->LocalNz; k++) {
       result(i.x, i.y) += f(i.x, i.y, k);
     }
@@ -1092,14 +1083,14 @@ Field2D DC(const Field3D &f, REGION rgn) {
   return result;
 }
 
-void invalidateGuards(Field3D &var){
+void invalidateGuards(Field3D &var) {
 #if CHECK > 2 // Strip out if not checking
   Mesh *localmesh = var.getMesh();
 
   // Inner x -- all y and all z
-  for(int ix=0; ix<localmesh->xstart; ix++){
+  for (int ix = 0; ix < localmesh->xstart; ix++) {
     for (int iy = 0; iy < localmesh->LocalNy; iy++) {
-      for(int iz=0; iz<localmesh->LocalNz; iz++){
+      for (int iz = 0; iz < localmesh->LocalNz; iz++) {
         var(ix, iy, iz) = std::nan("");
       }
     }
@@ -1108,7 +1099,7 @@ void invalidateGuards(Field3D &var){
   // Outer x -- all y and all z
   for (int ix = localmesh->xend + 1; ix < localmesh->LocalNx; ix++) {
     for (int iy = 0; iy < localmesh->LocalNy; iy++) {
-      for(int iz=0; iz<localmesh->LocalNz; iz++){
+      for (int iz = 0; iz < localmesh->LocalNz; iz++) {
         var(ix, iy, iz) = std::nan("");
       }
     }
@@ -1117,18 +1108,18 @@ void invalidateGuards(Field3D &var){
   // Remaining boundary point
   for (int ix = localmesh->xstart; ix <= localmesh->xend; ix++) {
     // Lower y -- non-boundary x and all z (could be all x but already set)
-    for(int iy=0; iy<localmesh->ystart; iy++){
-      for(int iz=0; iz<localmesh->LocalNz; iz++){
+    for (int iy = 0; iy < localmesh->ystart; iy++) {
+      for (int iz = 0; iz < localmesh->LocalNz; iz++) {
         var(ix, iy, iz) = std::nan("");
       }
     }
     // Lower y -- non-boundary x and all z (could be all x but already set)
-    for(int iy=localmesh->yend+1; iy<localmesh->LocalNy; iy++){
-      for(int iz=0; iz<localmesh->LocalNz; iz++){
+    for (int iy = localmesh->yend + 1; iy < localmesh->LocalNy; iy++) {
+      for (int iz = 0; iz < localmesh->LocalNz; iz++) {
         var(ix, iy, iz) = std::nan("");
       }
     }
   }
-#endif  
+#endif
   return;
 }

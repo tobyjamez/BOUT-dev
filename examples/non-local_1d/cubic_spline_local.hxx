@@ -6,7 +6,7 @@
  * Copyright 2012 J.T.Omotani
  *
  * Contact: John Omotani, john.omotani@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -27,28 +27,30 @@
 #ifndef __CUBICSPLINE_H__
 #define __CUBICSPLINE_H__
 
-#include <bout/constants.hxx>
 #include <bout.hxx>
-#include <derivs.hxx>
+#include <bout/constants.hxx>
+#include <bout/derivs.hxx>
 #include <cmath>
 
 class CubicSpline {
 public:
   CubicSpline();
   ~CubicSpline();
-  void initialise(const char &direction, const bool pass_include_boundary_guard_cells=true, const bool pass_staggered=false);
+  void initialise(const char &direction,
+                  const bool pass_include_boundary_guard_cells = true,
+                  const bool pass_staggered = false);
   void initialise(const CubicSpline &clone_from);
   void calculate(const Field3D &pass_input);
-  BoutReal * coefficients(bindex* position);
-  BoutReal * coefficients(const int &jx, const int &jy, const int &jz);
-  
+  BoutReal *coefficients(bindex *position);
+  BoutReal *coefficients(const int &jx, const int &jy, const int &jz);
+
 private:
   char direction;
   bool include_boundary_guard_cells;
   bool upper_boundary_offset;
   Field3D input;
   Field3D grad_input;
-  BoutReal * coeffs;
+  BoutReal *coeffs;
 };
 
 #endif // __CUBICSPLINE_H__

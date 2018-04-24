@@ -5,7 +5,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -23,16 +23,16 @@
  *
  **************************************************************************/
 
-#include <where.hxx>
+#include <bout/where.hxx>
 
 const Field3D where(const Field2D &test, const Field3D &gt0, const Field3D &le0) {
   Field3D result(test.getMesh());
   result.allocate();
-  
-  for(auto i : result) {
-    if(test[i] > 0.0) {
+
+  for (auto i : result) {
+    if (test[i] > 0.0) {
       result[i] = gt0[i];
-    }else {
+    } else {
       result[i] = le0[i];
     }
   }
@@ -42,11 +42,11 @@ const Field3D where(const Field2D &test, const Field3D &gt0, const Field3D &le0)
 const Field3D where(const Field2D &test, const Field3D &gt0, BoutReal le0) {
   Field3D result(test.getMesh());
   result.allocate();
-  
-  for(auto i : result) {
-    if(test[i] > 0.0) {
+
+  for (auto i : result) {
+    if (test[i] > 0.0) {
       result[i] = gt0[i];
-    }else {
+    } else {
       result[i] = le0;
     }
   }
@@ -56,45 +56,45 @@ const Field3D where(const Field2D &test, const Field3D &gt0, BoutReal le0) {
 const Field3D where(const Field2D &test, BoutReal gt0, const Field3D &le0) {
   Field3D result(test.getMesh());
   result.allocate();
-  
-  for(auto i : result) {
-    if(test[i] > 0.0) {
+
+  for (auto i : result) {
+    if (test[i] > 0.0) {
       result[i] = gt0;
-    }else {
+    } else {
       result[i] = le0[i];
     }
   }
-  
+
   return result;
 }
 
 const Field3D where(const Field2D &test, const Field3D &gt0, const Field2D &le0) {
   Field3D result(test.getMesh());
   result.allocate();
-  
-  for(auto i : result) {
-    if(test[i] > 0.0) {
+
+  for (auto i : result) {
+    if (test[i] > 0.0) {
       result[i] = gt0[i];
-    }else {
+    } else {
       result[i] = le0[i];
     }
   }
-  
+
   return result;
 }
 
 const Field3D where(const Field2D &test, const Field2D &gt0, const Field3D &le0) {
   Field3D result(test.getMesh());
   result.allocate();
-  
-  for(auto i : result) {
-    if(test[i] > 0.0) {
+
+  for (auto i : result) {
+    if (test[i] > 0.0) {
       result[i] = gt0[i];
-    }else {
+    } else {
       result[i] = le0[i];
     }
   }
-  
+
   return result;
 }
 
@@ -104,71 +104,71 @@ const Field3D where(const Field2D &test, const Field2D &gt0, const Field3D &le0)
 const Field2D where(const Field2D &test, const Field2D &gt0, const Field2D &le0) {
   Field2D result(test.getMesh());
   result.allocate();
-  
-  for(auto i : result) {
-    if(test[i] > 0.0) {
+
+  for (auto i : result) {
+    if (test[i] > 0.0) {
       result[i] = gt0[i];
-    }else {
+    } else {
       result[i] = le0[i];
     }
   }
-  
+
   return result;
 }
 
 const Field2D where(const Field2D &test, const Field2D &gt0, BoutReal le0) {
   Field2D result(test.getMesh());
   result.allocate();
-  
-  for(auto i : result) {
-    if(test[i] > 0.0) {
+
+  for (auto i : result) {
+    if (test[i] > 0.0) {
       result[i] = gt0[i];
-    }else {
+    } else {
       result[i] = le0;
     }
   }
-  
+
   return result;
 }
 
 const Field2D where(const Field2D &test, BoutReal gt0, const Field2D &le0) {
   Field2D result(test.getMesh());
   result.allocate();
-  
-  for(auto i : result) {
-    if(test[i] > 0.0) {
+
+  for (auto i : result) {
+    if (test[i] > 0.0) {
       result[i] = gt0;
-    }else {
+    } else {
       result[i] = le0[i];
     }
   }
-  
+
   return result;
 }
 
 const Field2D where(const Field2D &test, BoutReal gt0, BoutReal le0) {
   Field2D result(test.getMesh());
   result.allocate();
-  
-  for(auto i : result) {
-    if(test[i] > 0.0) {
+
+  for (auto i : result) {
+    if (test[i] > 0.0) {
       result[i] = gt0;
-    }else {
+    } else {
       result[i] = le0;
     }
   }
-  
+
   return result;
 }
 
 const Field3D where(const Field3D &test, BoutReal gt0, const Field3D &le0) {
   Field3D result(test.getMesh());
   result.allocate();
-  
-  for(auto i : result) {
-    if(test[i] > 0.0) {
+
+  for (auto i : result) {
+    if (test[i] > 0.0) {
       result[i] = gt0;
-    }else {
+    } else {
       result[i] = le0[i];
     }
   }

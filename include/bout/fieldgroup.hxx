@@ -1,11 +1,11 @@
 #ifndef __FIELDGROUP_H__
 #define __FIELDGROUP_H__
 
-#include "field_data.hxx"
-#include <field3d.hxx>
+#include "bout/field_data.hxx"
+#include <bout/field3d.hxx>
 
-#include <vector2d.hxx>
-#include <vector3d.hxx>
+#include <bout/vector2d.hxx>
+#include <bout/vector3d.hxx>
 
 #include <vector>
 
@@ -18,15 +18,18 @@
 /// however Vector2D and Vector3D are stored by reference to their
 /// components (x,y,z) as Field2D or Field3D objects.
 class FieldGroup {
- public:
+public:
   FieldGroup() {}
 
   FieldGroup(const FieldGroup &other) : fvec(other.fvec), f3vec(other.f3vec) {}
 
-  FieldGroup(FieldData &f) {fvec.push_back(&f); }
+  FieldGroup(FieldData &f) { fvec.push_back(&f); }
 
   /// Constructor with a single Field3D
-  FieldGroup(Field3D &f) {fvec.push_back(&f); f3vec.push_back(&f); }
+  FieldGroup(Field3D &f) {
+    fvec.push_back(&f);
+    f3vec.push_back(&f);
+  }
 
   /// Constructor with a single Vector2D
   /// This is needed so that fvec only contains Field2D or Field3D
@@ -53,23 +56,22 @@ class FieldGroup {
    * types. In particular arguments to add() cannot be implicitly converted
    * to FieldGroup, leading to an infinite loop.
    */
-  template <typename... Ts>
-  explicit FieldGroup(Ts&... ts) { add(ts...); }
-
+  template <typename... Ts> explicit FieldGroup(Ts &... ts) { add(ts...); }
 
   /*!
    * Copy contents of another FieldGroup into this group.
    */
   void add(const FieldGroup &other) {
-    fvec.insert(fvec.end(), other.fvec.begin(), other.fvec.end() );
-    f3vec.insert(f3vec.end(), other.f3vec.begin(), other.f3vec.end() );
+    fvec.insert(fvec.end(), other.fvec.begin(), other.fvec.end());
+    f3vec.insert(f3vec.end(), other.f3vec.begin(), other.f3vec.end());
   }
 
   /*!
    * Add another FieldGroup's contents
    */
-  FieldGroup& operator+=(const FieldGroup &other) {
-    add(other); return *this;
+  FieldGroup &operator+=(const FieldGroup &other) {
+    add(other);
+    return *this;
   }
 
   /*!
@@ -79,9 +81,7 @@ class FieldGroup {
    * so the lifetime of this variable should be longer
    * than the lifetime of this group.
    */
-  void add(FieldData &f) {
-    fvec.push_back(&f);
-  }
+  void add(FieldData &f) { fvec.push_back(&f); }
 
   /*!
    * Add a 3D field, which goes into both vectors.
@@ -117,26 +117,22 @@ class FieldGroup {
    * which allows Field3D objects to be treated as a special
    * case. An arbitrary number of fields can be added.
    */
-  template <typename... Ts>
-  void add(FieldData& t, Ts&... ts) {
+  template <typename... Ts> void add(FieldData &t, Ts &... ts) {
     add(t);     // Add the first using functions above
     add(ts...); // Add the rest
   }
 
-  template <typename... Ts>
-  void add(Field3D& t, Ts&... ts) {
+  template <typename... Ts> void add(Field3D &t, Ts &... ts) {
     add(t);     // Add the first using functions above
     add(ts...); // Add the rest
   }
 
-  template <typename... Ts>
-  void add(Vector3D& t, Ts&... ts) {
+  template <typename... Ts> void add(Vector3D &t, Ts &... ts) {
     add(t);     // Add the first using functions above
     add(ts...); // Add the rest
   }
 
-  template <typename... Ts>
-  void add(Vector2D& t, Ts&... ts) {
+  template <typename... Ts> void add(Vector2D &t, Ts &... ts) {
     add(t);     // Add the first using functions above
     add(ts...); // Add the rest
   }
@@ -144,71 +140,56 @@ class FieldGroup {
   /*!
    * Return number of fields
    */
-  int size() const {
-    return fvec.size();
-  }
+  int size() const { return fvec.size(); }
 
   /*!
    * Return number of Field3Ds
    */
-  int size_field3d() const {
-    return f3vec.size();
-  }
+  int size_field3d() const { return f3vec.size(); }
 
   /*!
    * Test whether this group is empty
    */
-  bool empty() const {
-    return fvec.empty();
-  }
+  bool empty() const { return fvec.empty(); }
 
   /*!
    * Remove all fields from this group
    */
-  void clear() {fvec.clear(); f3vec.clear(); }
+  void clear() {
+    fvec.clear();
+    f3vec.clear();
+  }
 
   /*
    * Iteration over all fields
    */
-  typedef std::vector<FieldData*>::iterator iterator;
-  iterator begin() {
-    return fvec.begin();
-  }
-  iterator end() {
-    return fvec.end();
-  }
+  typedef std::vector<FieldData *>::iterator iterator;
+  iterator begin() { return fvec.begin(); }
+  iterator end() { return fvec.end(); }
 
   /*
    * Const iteration over all fields
    */
-  typedef std::vector<FieldData*>::const_iterator const_iterator;
-  const_iterator begin() const {
-    return fvec.begin();
-  }
-  const_iterator end() const {
-    return fvec.end();
-  }
+  typedef std::vector<FieldData *>::const_iterator const_iterator;
+  const_iterator begin() const { return fvec.begin(); }
+  const_iterator end() const { return fvec.end(); }
 
-  const std::vector<FieldData*>& get() const {
-    return fvec;
-  }
+  const std::vector<FieldData *> &get() const { return fvec; }
 
   /*
    * Iteration over 3D fields
    */
-  const std::vector<Field3D*>& field3d() const {
-    return f3vec;
-  }
+  const std::vector<Field3D *> &field3d() const { return f3vec; }
 
   /*
    * Ensure that each field appears only once
    */
   void makeUnique();
- private:
-  std::vector<FieldData*> fvec;  // Vector of fields
-  std::vector<Field3D*>   f3vec; // Vector of 3D fields
-};
 
+private:
+  std::vector<FieldData *> fvec; // Vector of fields
+  std::vector<Field3D *> f3vec;  // Vector of 3D fields
+};
 
 FieldGroup operator+(const FieldGroup &lhs, const FieldGroup &rhs);
 

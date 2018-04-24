@@ -1,11 +1,11 @@
 #include "gtest/gtest.h"
 
+#include "bout/boutexception.hxx"
 #include "bout/constants.hxx"
 #include "bout/mesh.hxx"
-#include "boutexception.hxx"
-#include "vector3d.hxx"
+#include "bout/unused.hxx"
+#include "bout/vector3d.hxx"
 #include "test_extras.hxx"
-#include "unused.hxx"
 
 /// Global mesh
 extern Mesh *mesh;
@@ -59,13 +59,13 @@ TEST_F(Vector3DTest, ApplyBoundaryString) {
   v.applyBoundary("dirichlet(1.0)");
 
   // boundary cell in x
-  EXPECT_DOUBLE_EQ(v.x(0,2,0), 2.0);
-  EXPECT_DOUBLE_EQ(v.y(4,2,1), 2.0);
-  
+  EXPECT_DOUBLE_EQ(v.x(0, 2, 0), 2.0);
+  EXPECT_DOUBLE_EQ(v.y(4, 2, 1), 2.0);
+
   // boundary cell in y
-  EXPECT_DOUBLE_EQ(v.x(2,0,2), 2.0);
-  EXPECT_DOUBLE_EQ(v.z(2,4,0), 2.0);
+  EXPECT_DOUBLE_EQ(v.x(2, 0, 2), 2.0);
+  EXPECT_DOUBLE_EQ(v.z(2, 4, 0), 2.0);
 
   // Middle cell not changed
-  EXPECT_DOUBLE_EQ(v.x(2,2,1), 0.0);
+  EXPECT_DOUBLE_EQ(v.x(2, 2, 1), 0.0);
 }

@@ -6,19 +6,19 @@
  *
  */
 
+#include "bout/initialprofiles.hxx"
 #include "bout/physicsmodel.hxx"
-#include "initialprofiles.hxx"
 
-void create_and_dump(Field3D& field, const char* name) {
+void create_and_dump(Field3D &field, const char *name) {
   initial_profile(name, field);
   dump.add(field, name, false);
 }
-void create_and_dump(Field2D& field, const char* name) {
+void create_and_dump(Field2D &field, const char *name) {
   initial_profile(name, field);
   dump.add(field, name, false);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
 
   BoutInitialise(argc, argv);
 
@@ -32,9 +32,9 @@ int main(int argc, char** argv) {
   Field3D var_z;
   create_and_dump(var_z, "var_z");
 
-  // Include the functions to be tested
-  // ./runtest generates this file by reading the list of variables in
-  // data/BOUT.inp, excluding var_{x,y,z}
+// Include the functions to be tested
+// ./runtest generates this file by reading the list of variables in
+// data/BOUT.inp, excluding var_{x,y,z}
 #include "test_functions.cxx"
 
   dump.write();

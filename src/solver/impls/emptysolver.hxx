@@ -1,13 +1,13 @@
 /**************************************************************************
  * Empty solver class for throwing errors
- * 
+ *
  * NOTE: Only one solver can currently be compiled in
  *
  **************************************************************************
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -30,17 +30,17 @@ class EmptySolver;
 #ifndef __EMPTY_SOLVER_H__
 #define __EMPTY_SOLVER_H__
 
+#include <bout/boutexception.hxx>
 #include <bout/solver.hxx>
-#include <boutexception.hxx>
 
 class EmptySolver : public Solver {
 public:
-  EmptySolver(Options *UNUSED(opt) = NULL) {throw BoutException("Solver not enabled!");}
-  
-  int run() {return 0;}
-  BoutReal run(BoutReal UNUSED(tout), int &UNUSED(ncalls), BoutReal &UNUSED(rhstime)) {return 0;}
+  EmptySolver(Options *UNUSED(opt) = NULL) { throw BoutException("Solver not enabled!"); }
 
+  int run() { return 0; }
+  BoutReal run(BoutReal UNUSED(tout), int &UNUSED(ncalls), BoutReal &UNUSED(rhstime)) {
+    return 0;
+  }
 };
 
 #endif // __EMPTY_SOLVER_H__
-

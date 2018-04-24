@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
+#include "bout/boutexception.hxx"
 #include "bout/mesh.hxx"
-#include "boutexception.hxx"
 
 #include "test_extras.hxx"
 

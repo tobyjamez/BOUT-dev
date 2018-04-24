@@ -1,10 +1,10 @@
-#include "gtest/gtest.h"
+#include "bout/optionsreader.hxx"
 #include "test_extras.hxx"
-#include "optionsreader.hxx"
+#include "gtest/gtest.h"
 
-#include "boutexception.hxx"
-#include "output.hxx"
-#include "utils.hxx"
+#include "bout/boutexception.hxx"
+#include "bout/output.hxx"
+#include "bout/utils.hxx"
 
 #include <cstdio>
 #include <fstream>
@@ -48,7 +48,7 @@ TEST_F(OptionsReaderTest, BadCommandLineMultipleEquals) {
   OptionsReader reader;
   Options *options = Options::getRoot();
 
-  char **argv = static_cast<char **>(malloc(2*(sizeof(char*))));
+  char **argv = static_cast<char **>(malloc(2 * (sizeof(char *))));
   argv[0] = copy_string("prog");
   argv[1] = copy_string("int_key=42=31");
 
@@ -63,7 +63,7 @@ TEST_F(OptionsReaderTest, BadCommandLineEmptyKey) {
   OptionsReader reader;
   Options *options = Options::getRoot();
 
-  char **argv = static_cast<char **>(malloc(2*(sizeof(char*))));
+  char **argv = static_cast<char **>(malloc(2 * (sizeof(char *))));
   argv[0] = copy_string("prog");
   argv[1] = copy_string("=42");
 
@@ -78,7 +78,7 @@ TEST_F(OptionsReaderTest, BadCommandLineEmptyValue) {
   OptionsReader reader;
   Options *options = Options::getRoot();
 
-  char **argv = static_cast<char **>(malloc(2*(sizeof(char*))));
+  char **argv = static_cast<char **>(malloc(2 * (sizeof(char *))));
   argv[0] = copy_string("prog");
   argv[1] = copy_string("int_key=");
 
@@ -93,7 +93,7 @@ TEST_F(OptionsReaderTest, ParseCommandLine) {
   OptionsReader reader;
   Options *options = Options::getRoot();
 
-  char **argv = static_cast<char **>(malloc(2*(sizeof(char*))));
+  char **argv = static_cast<char **>(malloc(2 * (sizeof(char *))));
   argv[0] = copy_string("prog");
   argv[1] = copy_string("int_key=42");
 
@@ -115,7 +115,7 @@ TEST_F(OptionsReaderTest, ParseCommandLineGlobalInstance) {
   OptionsReader *reader = OptionsReader::getInstance();
   Options *options = Options::getRoot();
 
-  char **argv = static_cast<char **>(malloc(2*(sizeof(char*))));
+  char **argv = static_cast<char **>(malloc(2 * (sizeof(char *))));
   argv[0] = copy_string("prog");
   argv[1] = copy_string("int_key=42");
 
@@ -139,7 +139,7 @@ TEST_F(OptionsReaderTest, ParseCommandLineWithSpaces) {
   OptionsReader reader;
   Options *options = Options::getRoot();
 
-  char **argv = static_cast<char **>(malloc(4*(sizeof(char*))));
+  char **argv = static_cast<char **>(malloc(4 * (sizeof(char *))));
   argv[0] = copy_string("prog");
   argv[1] = copy_string("int_key");
   argv[2] = copy_string("=");
@@ -165,7 +165,7 @@ TEST_F(OptionsReaderTest, ParseCommandLineWithTrailingSpace) {
   OptionsReader reader;
   Options *options = Options::getRoot();
 
-  char **argv = static_cast<char **>(malloc(3*(sizeof(char*))));
+  char **argv = static_cast<char **>(malloc(3 * (sizeof(char *))));
   argv[0] = copy_string("prog");
   argv[1] = copy_string("int_key=");
   argv[2] = copy_string("42");
@@ -189,7 +189,7 @@ TEST_F(OptionsReaderTest, ParseCommandLineFlag) {
   OptionsReader reader;
   Options *options = Options::getRoot();
 
-  char **argv = static_cast<char **>(malloc(3*(sizeof(char*))));
+  char **argv = static_cast<char **>(malloc(3 * (sizeof(char *))));
   argv[0] = copy_string("prog");
   argv[1] = copy_string("-flag");
   argv[2] = copy_string("command");
@@ -220,7 +220,7 @@ TEST_F(OptionsReaderTest, ParseCommandLineWithSection) {
   OptionsReader reader;
   Options *options = Options::getRoot();
 
-  char **argv = static_cast<char **>(malloc(2*(sizeof(char*))));
+  char **argv = static_cast<char **>(malloc(2 * (sizeof(char *))));
   argv[0] = copy_string("prog");
   argv[1] = copy_string("subsection1:int_key=42");
 

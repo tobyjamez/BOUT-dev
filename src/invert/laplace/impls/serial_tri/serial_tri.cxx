@@ -24,28 +24,29 @@
  *
  **************************************************************************/
 
-#include "globals.hxx"
 #include "serial_tri.hxx"
+#include "bout/globals.hxx"
 
-#include <boutexception.hxx>
-#include <utils.hxx>
-#include <fft.hxx>
-#include <lapack_routines.hxx>
+#include <bout/boutexception.hxx>
 #include <bout/constants.hxx>
+#include <bout/fft.hxx>
+#include <bout/lapack_routines.hxx>
 #include <bout/openmpwrap.hxx>
+#include <bout/utils.hxx>
 #include <cmath>
 
-#include <output.hxx>
+#include <bout/output.hxx>
 
-LaplaceSerialTri::LaplaceSerialTri(Options *opt) : Laplacian(opt), A(0.0), C(1.0), D(1.0) {
+LaplaceSerialTri::LaplaceSerialTri(Options *opt)
+    : Laplacian(opt), A(0.0), C(1.0), D(1.0) {
 
-  if(!mesh->firstX() || !mesh->lastX()) {
+  if (!mesh->firstX() || !mesh->lastX()) {
     throw BoutException("LaplaceSerialTri only works for mesh->NXPE = 1");
   }
 }
 
 const FieldPerp LaplaceSerialTri::solve(const FieldPerp &b) {
-  return solve(b,b);   // Call the solver below
+  return solve(b, b); // Call the solver below
 }
 
 /*!
@@ -83,7 +84,7 @@ const FieldPerp LaplaceSerialTri::solve(const FieldPerp &b, const FieldPerp &x0)
 
   // Setting the width of the boundary.
   // NOTE: The default is a width of 2 guard cells
-  int inbndry = 2, outbndry=2;
+  int inbndry = 2, outbndry = 2;
 
   // If the flags to assign that only one guard cell should be used is set
   if (global_flags & INVERT_BOTH_BNDRY_ONE) {
@@ -221,14 +222,14 @@ const FieldPerp LaplaceSerialTri::solve(const FieldPerp &b, const FieldPerp &x0)
   // Done inversion, transform back
   for (int ix = 0; ix < ncx; ix++) {
 
-    if(global_flags & INVERT_ZERO_DC)
+    if (global_flags & INVERT_ZERO_DC)
       xk(ix, 0) = 0.0;
 
     irfft(&xk(ix, 0), ncz, x[ix]);
 
 #if CHECK > 2
-    for(int kz=0;kz<ncz;kz++)
-      if(!finite(x(ix,kz)))
+    for (int kz = 0; kz < ncz; kz++)
+      if (!finite(x(ix, kz)))
         throw BoutException("Non-finite at %d, %d, %d", ix, jy, kz);
 #endif
   }

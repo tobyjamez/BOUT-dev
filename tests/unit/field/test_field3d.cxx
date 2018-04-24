@@ -1,12 +1,12 @@
 #include "gtest/gtest.h"
 
+#include "bout/boutexception.hxx"
 #include "bout/constants.hxx"
+#include "bout/field3d.hxx"
 #include "bout/mesh.hxx"
-#include "boutexception.hxx"
-#include "field3d.hxx"
+#include "bout/unused.hxx"
+#include "bout/utils.hxx"
 #include "test_extras.hxx"
-#include "unused.hxx"
-#include "utils.hxx"
 
 #include <cmath>
 #include <set>
@@ -215,9 +215,9 @@ TEST_F(Field3DTest, SplitYupYDown) {
 
   EXPECT_TRUE(field.hasYupYdown());
 
-  auto& yup = field.yup();
+  auto &yup = field.yup();
   EXPECT_NE(&field, &yup);
-  auto& ydown = field.ydown();
+  auto &ydown = field.ydown();
   EXPECT_NE(&field, &ydown);
 
   // Should be able to split again without any problems
@@ -225,9 +225,9 @@ TEST_F(Field3DTest, SplitYupYDown) {
 
   // Would be nice to check yup2 != yup, but not sure this is possible
   // to do in general
-  auto& yup2 = field.yup();
+  auto &yup2 = field.yup();
   EXPECT_NE(&field, &yup2);
-  auto& ydown2 = field.ydown();
+  auto &ydown2 = field.ydown();
   EXPECT_NE(&field, &ydown2);
 }
 
@@ -242,17 +242,17 @@ TEST_F(Field3DTest, MergeYupYDown) {
 
   EXPECT_TRUE(field.hasYupYdown());
 
-  auto& yup = field.yup();
+  auto &yup = field.yup();
   EXPECT_EQ(&field, &yup);
-  auto& ydown = field.ydown();
+  auto &ydown = field.ydown();
   EXPECT_EQ(&field, &ydown);
 
   // Should be able to merge again without any problems
   field.mergeYupYdown();
 
-  auto& yup2 = field.yup();
+  auto &yup2 = field.yup();
   EXPECT_EQ(&field, &yup2);
-  auto& ydown2 = field.ydown();
+  auto &ydown2 = field.ydown();
   EXPECT_EQ(&field, &ydown2);
 }
 
@@ -262,16 +262,16 @@ TEST_F(Field3DTest, SplitThenMergeYupYDown) {
   field = 0.;
   field.splitYupYdown();
 
-  auto& yup = field.yup();
+  auto &yup = field.yup();
   EXPECT_NE(&field, &yup);
-  auto& ydown = field.ydown();
+  auto &ydown = field.ydown();
   EXPECT_NE(&field, &ydown);
 
   field.mergeYupYdown();
 
-  auto& yup2 = field.yup();
+  auto &yup2 = field.yup();
   EXPECT_EQ(&field, &yup2);
-  auto& ydown2 = field.ydown();
+  auto &ydown2 = field.ydown();
   EXPECT_EQ(&field, &ydown2);
 }
 
@@ -281,9 +281,9 @@ TEST_F(Field3DTest, Ynext) {
   field = 0.;
   field.splitYupYdown();
 
-  auto& yup = field.ynext(1);
+  auto &yup = field.ynext(1);
   EXPECT_NE(&field, &yup);
-  auto& ydown = field.ynext(-1);
+  auto &ydown = field.ynext(-1);
   EXPECT_NE(&field, &ydown);
   EXPECT_NE(&yup, &ydown);
 
@@ -295,11 +295,11 @@ TEST_F(Field3DTest, ConstYnext) {
 
   field.splitYupYdown();
 
-  const Field3D& field2 = field;
+  const Field3D &field2 = field;
 
-  auto& yup = field2.ynext(1);
+  auto &yup = field2.ynext(1);
   EXPECT_NE(&field2, &yup);
-  auto& ydown = field2.ynext(-1);
+  auto &ydown = field2.ynext(-1);
   EXPECT_NE(&field2, &ydown);
   EXPECT_NE(&yup, &ydown);
 
@@ -388,7 +388,7 @@ TEST_F(Field3DTest, IterateOverWholeField) {
   const int num_sentinels = test_indices.size();
 
   // Assign sentinel value to watch out for to our chosen points
-  for (const auto& index : test_indices) {
+  for (const auto &index : test_indices) {
     field(index[0], index[1], index[2]) = sentinel;
   }
 
@@ -809,7 +809,6 @@ TEST_F(Field3DTest, CheckData) {
   EXPECT_NO_THROW(checkData(field));
   EXPECT_NO_THROW(checkData(field, RGN_NOBNDRY));
   EXPECT_THROW(checkData(field, RGN_ALL), BoutException);
-  
 }
 
 TEST_F(Field3DTest, InvalidateGuards) {
@@ -1096,7 +1095,7 @@ TEST_F(Field3DTest, AddField3DField3DStagger) {
   b.setLocation(CELL_CENTRE);
   c.setLocation(CELL_CENTRE);
 
-  // Throw as two rhs fields at different locations
+// Throw as two rhs fields at different locations
 #if CHECK > 0
   EXPECT_THROW(c = a + b, BoutException);
 #else
@@ -1249,7 +1248,7 @@ TEST_F(Field3DTest, MultiplyField3DField3DStagger) {
   b.setLocation(CELL_CENTRE);
   c.setLocation(CELL_CENTRE);
 
-  // Throw as two rhs fields at different locations
+// Throw as two rhs fields at different locations
 #if CHECK > 0
   EXPECT_THROW(c = a * b, BoutException);
 #else
@@ -1402,7 +1401,7 @@ TEST_F(Field3DTest, SubtractField3DField3DStagger) {
   b.setLocation(CELL_CENTRE);
   c.setLocation(CELL_CENTRE);
 
-  // Throw as two rhs fields at different locations
+// Throw as two rhs fields at different locations
 #if CHECK > 0
   EXPECT_THROW(c = a - b, BoutException);
 #else
@@ -1555,7 +1554,7 @@ TEST_F(Field3DTest, DivideField3DField3DStagger) {
   b.setLocation(CELL_CENTRE);
   c.setLocation(CELL_CENTRE);
 
-  // Throw as two rhs fields at different locations
+// Throw as two rhs fields at different locations
 #if CHECK > 0
   EXPECT_THROW(c = a / b, BoutException);
 #else
@@ -1771,7 +1770,7 @@ TEST_F(Field3DTest, DC) {
   Field3D field;
 
   field = 1.0;
-  for (const auto& i : field) {
+  for (const auto &i : field) {
     field[i] = i.z;
   }
 

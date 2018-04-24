@@ -23,11 +23,11 @@
  *
  **************************************************************************/
 
+#include <bout/output.hxx>
+#include <bout/utils.hxx>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include <output.hxx>
-#include <utils.hxx>
 
 void Output::enable() {
   add(std::cout);

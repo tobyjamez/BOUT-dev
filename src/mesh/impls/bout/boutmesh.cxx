@@ -35,17 +35,17 @@
 
 #include "boutmesh.hxx"
 
+#include <bout/boutcomm.hxx>
+#include <bout/boutexception.hxx>
 #include <bout/constants.hxx>
+#include <bout/dcomplex.hxx>
+#include <bout/derivs.hxx>
+#include <bout/fft.hxx>
+#include <bout/msg_stack.hxx>
+#include <bout/options.hxx>
+#include <bout/output.hxx>
 #include <bout/sys/timer.hxx>
-#include <boutcomm.hxx>
-#include <boutexception.hxx>
-#include <dcomplex.hxx>
-#include <derivs.hxx>
-#include <fft.hxx>
-#include <msg_stack.hxx>
-#include <options.hxx>
-#include <output.hxx>
-#include <utils.hxx>
+#include <bout/utils.hxx>
 
 /// MPI type of BoutReal for communications
 #define PVEC_REAL_MPI_TYPE MPI_DOUBLE
@@ -236,8 +236,9 @@ int BoutMesh::load() {
     MX = nx - 2 * MXG;
 
     NXPE = -1; // Best option
-    
-    BoutReal ideal = sqrt(MX * NPES / static_cast<BoutReal>(ny)); // Results in square domains
+
+    BoutReal ideal =
+        sqrt(MX * NPES / static_cast<BoutReal>(ny)); // Results in square domains
 
     output_info.write("Finding value for NXPE (ideal = %f)\n", ideal);
 
@@ -770,7 +771,7 @@ int BoutMesh::load() {
   } else {
     output_info << "No boundary regions in this processor" << endl;
   }
-  
+
   output_info << "Constructing default regions" << endl;
   createDefaultRegions();
   output_info.write("\tdone\n");
@@ -2159,7 +2160,9 @@ const Field3D BoutMesh::smoothSeparatrix(const Field3D &f) {
 BoutReal BoutMesh::GlobalX(int jx) const {
   if (symmetricGlobalX) {
     // With this definition the boundary sits dx/2 away form the first/last inner points
-    return static_cast<BoutReal>((0.5 + XGLOBAL(jx) - static_cast<BoutReal>(nx-MX)*0.5)) / static_cast<BoutReal>(MX);
+    return static_cast<BoutReal>(
+               (0.5 + XGLOBAL(jx) - static_cast<BoutReal>(nx - MX) * 0.5)) /
+           static_cast<BoutReal>(MX);
   }
   return static_cast<BoutReal>(XGLOBAL(jx)) / static_cast<BoutReal>(MX);
 }
@@ -2172,7 +2175,8 @@ BoutReal BoutMesh::GlobalX(BoutReal jx) const {
 
   if (symmetricGlobalX) {
     // With this definition the boundary sits dx/2 away form the first/last inner points
-    return static_cast<BoutReal>((0.5 + xglo - static_cast<BoutReal>(nx-MX)*0.5)) / static_cast<BoutReal>(MX);
+    return static_cast<BoutReal>((0.5 + xglo - static_cast<BoutReal>(nx - MX) * 0.5)) /
+           static_cast<BoutReal>(MX);
   }
   return xglo / static_cast<BoutReal>(MX);
 }

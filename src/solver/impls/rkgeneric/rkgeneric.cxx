@@ -3,70 +3,69 @@
 #include "rkschemefactory.hxx"
 #include <bout/rkscheme.hxx>
 
-#include <boutcomm.hxx>
-#include <utils.hxx>
-#include <boutexception.hxx>
-#include <msg_stack.hxx>
+#include <bout/boutcomm.hxx>
+#include <bout/boutexception.hxx>
+#include <bout/msg_stack.hxx>
+#include <bout/utils.hxx>
 
 #include <cmath>
 
-#include <output.hxx>
+#include <bout/output.hxx>
 
 RKGenericSolver::RKGenericSolver(Options *options) : Solver(options) {
-  //Create scheme
-  scheme=RKSchemeFactory::getInstance()->createRKScheme(options);
+  // Create scheme
+  scheme = RKSchemeFactory::getInstance()->createRKScheme(options);
 }
 
-RKGenericSolver::~RKGenericSolver() {
-  delete scheme;
-}
+RKGenericSolver::~RKGenericSolver() { delete scheme; }
 
 void RKGenericSolver::setMaxTimestep(BoutReal dt) {
-  if(dt > timestep)
+  if (dt > timestep)
     return; // Already less than this
-  
-  if(adaptive)
+
+  if (adaptive)
     timestep = dt; // Won't be used this time, but next
 }
 
 int RKGenericSolver::init(int nout, BoutReal tstep) {
 
   TRACE("Initialising RKGeneric solver");
-  
+
   /// Call the generic initialisation first
   if (Solver::init(nout, tstep))
     return 1;
 
-  //Read options
-  if(options == nullptr)
+  // Read options
+  if (options == nullptr)
     options = Options::getRoot()->getSection("solver");
 
-  output << "\n\tRunge-Kutta generic solver with scheme type "<<scheme->getType()<<"\n";
+  output << "\n\tRunge-Kutta generic solver with scheme type " << scheme->getType()
+         << "\n";
 
   nsteps = nout; // Save number of output steps
   out_timestep = tstep;
   max_dt = tstep;
-  
+
   // Calculate number of variables
   nlocal = getLocalN();
-  
+
   // Get total problem size
   int ntmp;
-  if(MPI_Allreduce(&nlocal, &ntmp, 1, MPI_INT, MPI_SUM, BoutComm::get())) {
+  if (MPI_Allreduce(&nlocal, &ntmp, 1, MPI_INT, MPI_SUM, BoutComm::get())) {
     throw BoutException("MPI_Allreduce failed!");
   }
   neq = ntmp;
-  
-  output.write("\t3d fields = %d, 2d fields = %d neq=%d, local_N=%d\n",
-	       n3Dvars(), n2Dvars(), neq, nlocal);
-  
+
+  output.write("\t3d fields = %d, 2d fields = %d neq=%d, local_N=%d\n", n3Dvars(),
+               n2Dvars(), neq, nlocal);
+
   // Get options
-  OPTION(options, atol, 1.e-5); // Absolute tolerance
-  OPTION(options, rtol, 1.e-3); // Relative tolerance
-  OPTION(options, max_timestep, tstep); // Maximum timestep
+  OPTION(options, atol, 1.e-5);            // Absolute tolerance
+  OPTION(options, rtol, 1.e-3);            // Relative tolerance
+  OPTION(options, max_timestep, tstep);    // Maximum timestep
   OPTION(options, timestep, max_timestep); // Starting timestep
-  OPTION(options, mxstep, 500); // Maximum number of steps between outputs
-  OPTION(options, adaptive, true); // Prefer adaptive scheme
+  OPTION(options, mxstep, 500);            // Maximum number of steps between outputs
+  OPTION(options, adaptive, true);         // Prefer adaptive scheme
 
   // Allocate memory
   f0 = Array<BoutReal>(nlocal); // Input
@@ -76,18 +75,18 @@ int RKGenericSolver::init(int nout, BoutReal tstep) {
   // Put starting values into f0
   save_vars(std::begin(f0));
 
-  //Initialise scheme
-  scheme->init(nlocal,neq,adaptive,atol,rtol,options);
+  // Initialise scheme
+  scheme->init(nlocal, neq, adaptive, atol, rtol, options);
 
   return 0;
 }
 
 int RKGenericSolver::run() {
   TRACE("RKGenericSolver::run()");
-  
-  for(int s=0;s<nsteps;s++) {
+
+  for (int s = 0; s < nsteps; s++) {
     BoutReal target = simtime + out_timestep;
-    
+
     BoutReal dt;
     bool running = true;
     int internal_steps = 0;
@@ -98,86 +97,89 @@ int RKGenericSolver::run() {
       do {
         dt = timestep;
         running = true;
-        if((simtime + dt) >= target) {
-          dt = target - simtime; // Make sure the last timestep is on the output 
+        if ((simtime + dt) >= target) {
+          dt = target - simtime; // Make sure the last timestep is on the output
           running = false;
         }
 
-	BoutReal err;
+        BoutReal err;
 
-	//Take a step
-	err = take_step(simtime, dt, f0, f2);
+        // Take a step
+        err = take_step(simtime, dt, f0, f2);
 
-	//Calculate and check error if adaptive
-        if(adaptive) {
-	  //Really the following should apply to both adaptive and non-adaptive
-	  //approaches, but the non-adaptive can be determined without needing
-	  //to do any solves so could perhaps be check during init instead.
+        // Calculate and check error if adaptive
+        if (adaptive) {
+          // Really the following should apply to both adaptive and non-adaptive
+          // approaches, but the non-adaptive can be determined without needing
+          // to do any solves so could perhaps be check during init instead.
           internal_steps++;
-          if(internal_steps > mxstep)
-            throw BoutException("ERROR: MXSTEP exceeded. timestep = %e, err=%e\n", timestep, err);
+          if (internal_steps > mxstep)
+            throw BoutException("ERROR: MXSTEP exceeded. timestep = %e, err=%e\n",
+                                timestep, err);
 
-	  //Update the time step if required, note we ignore increases to the timestep
-	  //when on the last internal step as here we may have an artificially small dt
-	  if((err > rtol) || ((err < 0.1*rtol) && running)) {
-	    
-	    //Get new timestep
-	    timestep=scheme->updateTimestep(dt,err);
+          // Update the time step if required, note we ignore increases to the timestep
+          // when on the last internal step as here we may have an artificially small dt
+          if ((err > rtol) || ((err < 0.1 * rtol) && running)) {
 
-	    //Limit timestep to specified maximum
-            if((max_timestep > 0) && (timestep > max_timestep))
+            // Get new timestep
+            timestep = scheme->updateTimestep(dt, err);
+
+            // Limit timestep to specified maximum
+            if ((max_timestep > 0) && (timestep > max_timestep))
               timestep = max_timestep;
           }
 
-	  //If accuracy ok then break
-          if(err < rtol) break;
+          // If accuracy ok then break
+          if (err < rtol)
+            break;
 
-        }else {
+        } else {
           // No adaptive timestepping so just accept step
           break;
         }
-      }while(true);
-      
+      } while (true);
+
       // Taken a step, swap buffers to put result into f0
       swap(f2, f0);
       simtime += dt;
 
-      //Call the per internal timestep monitors
+      // Call the per internal timestep monitors
       call_timestep_monitors(simtime, dt);
 
-    }while(running);
+    } while (running);
 
     load_vars(std::begin(f0)); // Put result into variables
 
-    run_rhs(simtime); //Ensure aux. variables are up to date
+    run_rhs(simtime); // Ensure aux. variables are up to date
 
     iteration++; // Advance iteration number
-    
+
     /// Call the output step monitor function
-    if(call_monitors(simtime, s, nsteps)) break; // Stop simulation
-    
+    if (call_monitors(simtime, s, nsteps))
+      break; // Stop simulation
+
     // Reset iteration and wall-time count
     rhs_ncalls = 0;
   }
-  
+
   return 0;
 }
 
-//Returns the evolved state vector along with an error estimate
+// Returns the evolved state vector along with an error estimate
 BoutReal RKGenericSolver::take_step(const BoutReal timeIn, const BoutReal dt,
                                     const Array<BoutReal> &start,
                                     Array<BoutReal> &resultFollow) {
 
-  //Calculate the intermediate stages
-  for(int curStage=0;curStage<scheme->getStageCount();curStage++){
-    //Use scheme to get this stage's time and state
-    BoutReal curTime=scheme->setCurTime(timeIn,dt,curStage);
+  // Calculate the intermediate stages
+  for (int curStage = 0; curStage < scheme->getStageCount(); curStage++) {
+    // Use scheme to get this stage's time and state
+    BoutReal curTime = scheme->setCurTime(timeIn, dt, curStage);
     scheme->setCurState(start, tmpState, curStage, dt);
 
-    //Get derivs for this stage
+    // Get derivs for this stage
     load_vars(std::begin(tmpState));
     run_rhs(curTime);
-    save_derivs(&(scheme->steps(curStage,0)));
+    save_derivs(&(scheme->steps(curStage, 0)));
   }
 
   return scheme->setOutputStates(start, dt, resultFollow);

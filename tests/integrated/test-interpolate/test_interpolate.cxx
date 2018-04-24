@@ -12,8 +12,8 @@
 
 #include "bout.hxx"
 #include "bout/constants.hxx"
-#include "field_factory.hxx"
-#include "interpolation_factory.hxx"
+#include "bout/field_factory.hxx"
+#include "bout/interpolation_factory.hxx"
 
 /// Get a FieldGenerator from the options for a variable
 std::shared_ptr<FieldGenerator> getGeneratorFromOptions(const std::string varname,

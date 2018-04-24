@@ -1,7 +1,7 @@
 /*
  */
-#include <bout/physicsmodel.hxx>
 #include <bout.hxx>
+#include <bout/physicsmodel.hxx>
 
 // simplify the datafile with sane defaults
 // Note that you should never ever copy the datafile ...
@@ -9,93 +9,88 @@
 // of a section.
 // Unlike the default Datafile, SimpleDatafile always ends up in the
 // correct folder, and should throw if it possible to detect the error.
-class SimpleDatafile: public Datafile{
+class SimpleDatafile : public Datafile {
 public:
-  SimpleDatafile(std::string section):SimpleDatafile(Options::getRoot()->getSection(section.c_str())
-                                                     ,section){};
-    SimpleDatafile(Options* ops,std::string section="Default"):Datafile(ops){
+  SimpleDatafile(std::string section)
+      : SimpleDatafile(Options::getRoot()->getSection(section.c_str()), section){};
+  SimpleDatafile(Options *ops, std::string section = "Default") : Datafile(ops) {
     // Open a file for the output
     std::string datadir;
-    if (ops->isSet("path")){
-      ops->get("path",datadir,"data");// default never needed
+    if (ops->isSet("path")) {
+      ops->get("path", datadir, "data"); // default never needed
     } else {
-      OPTION(Options::getRoot(),datadir,"data"); // I need to know data is default :(
+      OPTION(Options::getRoot(), datadir, "data"); // I need to know data is default :(
     }
     std::string file;
-    file = section+".dmp";
-    OPTION(ops,file,file);
+    file = section + ".dmp";
+    OPTION(ops, file, file);
     bool append;
-    if (ops->isSet("append")){
-      OPTION(ops,append,false);
+    if (ops->isSet("append")) {
+      OPTION(ops, append, false);
     } else {
-      OPTION(Options::getRoot(),append,false); // I hope that is the correct default
+      OPTION(Options::getRoot(), append, false); // I hope that is the correct default
     }
-    std::string dump_ext="nc"; // bad style, but I only use nc
+    std::string dump_ext = "nc"; // bad style, but I only use nc
 
-    if(append) {
+    if (append) {
       if (!this->opena("%s/%s.%s", datadir.c_str(), file.c_str(), dump_ext.c_str()))
         throw BoutException("Failed to open file for appending!");
-      //output.write("opend succesfully for appending\n");
-    }else {
+      // output.write("opend succesfully for appending\n");
+    } else {
       if (!this->openw("%s/%s.%s", datadir.c_str(), file.c_str(), dump_ext.c_str()))
         throw BoutException("Failed to open file for writing!");
-      //output.write("opend succesfully for writing\n");
+      // output.write("opend succesfully for writing\n");
     }
   }
 };
 
 // Monitor to write out 1d Data
-class Monitor1dDump:public Monitor{
+class Monitor1dDump : public Monitor {
 public:
-  Monitor1dDump(BoutReal timestep,std::string section_name)
-    :Monitor(timestep),
-    dump(new SimpleDatafile(section_name))
-  {
-    dump->add(time,"t_array",true);
+  Monitor1dDump(BoutReal timestep, std::string section_name)
+      : Monitor(timestep), dump(new SimpleDatafile(section_name)) {
+    dump->add(time, "t_array", true);
   };
-  int call(Solver * solver,double _time,int i1,int i2) override{
-    time=_time;
+  int call(Solver *solver, double _time, int i1, int i2) override {
+    time = _time;
     dump->write(); // this should throw if it doesn't work
     return 0;
   }
-  void add(BoutReal &data,std::string name){
-    dump->add(data,name.c_str(),true);
-  }
+  void add(BoutReal &data, std::string name) { dump->add(data, name.c_str(), true); }
+
 private:
   BoutReal time;
-  Datafile * dump;
+  Datafile *dump;
 };
-
-
 
 class MonitorExample : public PhysicsModel {
 protected:
   int init(bool restarting) {
-    SOLVE_FOR2(n,T);
+    SOLVE_FOR2(n, T);
     // our monitor writes out data every 100th of a time unit
     // note that this is independent of time_step.
     // Especially if the monitor influences the physics, and isn't
     // just used to output data, this is probably what you want.
-    probes=new Monitor1dDump(.01, "probes");
+    probes = new Monitor1dDump(.01, "probes");
     // In case the monitor should be relative to the timestep, the
     // timestep needs to be read first:
     BoutReal timestep;
-    OPTION(Options::getRoot(),timestep,-1);
+    OPTION(Options::getRoot(), timestep, -1);
     // There is no 'slow' section in BOUT.inp, therfore it will write
     // to data/slow.dmp.0.nc
-    Monitor1dDump * slow=new Monitor1dDump(timestep*2,"slow");
+    Monitor1dDump *slow = new Monitor1dDump(timestep * 2, "slow");
     // now we can add the monitors
     solver->addMonitor(probes);
     solver->addMonitor(slow);
     // the derived monitor Monitor1dData can dump 1d data, which we can
     // now add:
-    Indices start{mesh->xstart,mesh->ystart,0};
-    probes->add(n[start],"n_up");
-    probes->add(T[start],"T_up");
+    Indices start{mesh->xstart, mesh->ystart, 0};
+    probes->add(n[start], "n_up");
+    probes->add(T[start], "T_up");
     // add the corner value
-    slow->add(T(0,0,0),"T"); // T is already present in BOUT.dmp - but
-                             // as it is a differnt file, this doesn't
-                             // cause issues.
+    slow->add(T(0, 0, 0), "T"); // T is already present in BOUT.dmp - but
+                                // as it is a differnt file, this doesn't
+                                // cause issues.
     return 0;
   }
 
@@ -104,11 +99,11 @@ protected:
     ddt(T) = -n;
     return 0;
   }
-private:
-  Field3D n,T;
 
-  Monitor1dDump * probes, * slow;
+private:
+  Field3D n, T;
+
+  Monitor1dDump *probes, *slow;
 };
 
 BOUTMAIN(MonitorExample);
-

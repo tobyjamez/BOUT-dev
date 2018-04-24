@@ -1,6 +1,6 @@
+#include "bout/boutexception.hxx"
+#include "bout/output.hxx"
 #include "gtest/gtest.h"
-#include "boutexception.hxx"
-#include "output.hxx"
 
 #include <cstdio>
 #include <string>

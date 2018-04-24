@@ -5,7 +5,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -23,27 +23,27 @@
  *
  **************************************************************************/
 
-#include <boutcomm.hxx>
-#include <globals.hxx>
+#include <bout/boutcomm.hxx>
+#include <bout/globals.hxx>
 
-#include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
 
-#include <fieldperp.hxx>
-#include <utils.hxx>
-#include <boutexception.hxx>
-#include <msg_stack.hxx>
+#include <bout/boutexception.hxx>
+#include <bout/fieldperp.hxx>
+#include <bout/msg_stack.hxx>
+#include <bout/utils.hxx>
 
 FieldPerp::FieldPerp(Mesh *localmesh) : Field(localmesh), yindex(-1) {
   if (fieldmesh) {
     nx = fieldmesh->LocalNx;
     nz = fieldmesh->LocalNz;
   }
-  
+
 #if CHECK > 0
   else {
-    nx=-1;
-    nz=-1;
+    nx = -1;
+    nz = -1;
   }
 #endif
 }
@@ -71,10 +71,10 @@ void FieldPerp::allocate() {
 }
 
 /***************************************************************
- *                         ASSIGNMENT 
+ *                         ASSIGNMENT
  ***************************************************************/
 
-FieldPerp & FieldPerp::operator=(const FieldPerp &rhs) {
+FieldPerp &FieldPerp::operator=(const FieldPerp &rhs) {
   nx = rhs.nx;
   nz = rhs.nz;
   yindex = rhs.yindex;
@@ -82,7 +82,7 @@ FieldPerp & FieldPerp::operator=(const FieldPerp &rhs) {
   return *this;
 }
 
-FieldPerp & FieldPerp::operator=(const BoutReal rhs) {
+FieldPerp &FieldPerp::operator=(const BoutReal rhs) {
   TRACE("FieldPerp = BoutReal");
 
   allocate();
@@ -103,34 +103,29 @@ FieldPerp & FieldPerp::operator=(const BoutReal rhs) {
  ***************************************************************/
 
 const DataIterator FieldPerp::begin() const {
-  return DataIterator( 0, nx-1,
-                      yindex, yindex,
-                      0, nz-1);
+  return DataIterator(0, nx - 1, yindex, yindex, 0, nz - 1);
 }
 
 const DataIterator FieldPerp::end() const {
-  return DataIterator( 0, nx-1,
-                      yindex, yindex,
-		       0, nz-1,DI_GET_END);
+  return DataIterator(0, nx - 1, yindex, yindex, 0, nz - 1, DI_GET_END);
 }
 
-
 /***************************************************************
- *                         OPERATORS 
+ *                         OPERATORS
  ***************************************************************/
 
-#define FPERP_OP_FIELD(op, bop, ftype)			\
-  FieldPerp& FieldPerp::operator op(const ftype &rhs) { \
-    if(data.unique()) {                                 \
-      /* Only reference to the data */			\
-      for(int i=0;i<nx;i++)                             \
-        for(int k=0;k<nz;k++)                           \
-          (*this)(i,k) op rhs(i, yindex, k);            \
-    }else {  			                        \
-      /* Shared with another FieldPerp */		\
-      (*this) = (*this) bop rhs;                        \
-    }                                                   \
-    return *this;                                       \
+#define FPERP_OP_FIELD(op, bop, ftype)                                                   \
+  FieldPerp &FieldPerp::operator op(const ftype &rhs) {                                  \
+    if (data.unique()) {                                                                 \
+      /* Only reference to the data */                                                   \
+      for (int i = 0; i < nx; i++)                                                       \
+        for (int k = 0; k < nz; k++)                                                     \
+          (*this)(i, k) op rhs(i, yindex, k);                                            \
+    } else {                                                                             \
+      /* Shared with another FieldPerp */                                                \
+      (*this) = (*this)bop rhs;                                                          \
+    }                                                                                    \
+    return *this;                                                                        \
   }
 
 FPERP_OP_FIELD(+=, +, FieldPerp);
@@ -149,18 +144,18 @@ FPERP_OP_FIELD(/=, /, FieldPerp);
 FPERP_OP_FIELD(/=, /, Field3D);
 FPERP_OP_FIELD(/=, /, Field2D);
 
-#define FPERP_OP_REAL(op, bop)  			\
-  FieldPerp& FieldPerp::operator op(BoutReal rhs) { \
-    if(data.unique()) {                                 \
-      /* Only reference to the data */           	\
-      for(int i=0;i<nx;i++)                             \
-        for(int k=0;k<nz;k++)                           \
-          (*this)(i,k) op rhs;				\
-    }else {  			                        \
-      /* Shared with another FieldPerp */		\
-      (*this) = (*this) bop rhs;                        \
-    }                                                   \
-    return *this;                                       \
+#define FPERP_OP_REAL(op, bop)                                                           \
+  FieldPerp &FieldPerp::operator op(BoutReal rhs) {                                      \
+    if (data.unique()) {                                                                 \
+      /* Only reference to the data */                                                   \
+      for (int i = 0; i < nx; i++)                                                       \
+        for (int k = 0; k < nz; k++)                                                     \
+          (*this)(i, k) op rhs;                                                          \
+    } else {                                                                             \
+      /* Shared with another FieldPerp */                                                \
+      (*this) = (*this)bop rhs;                                                          \
+    }                                                                                    \
+    return *this;                                                                        \
   }
 
 FPERP_OP_REAL(+=, +);
@@ -325,7 +320,7 @@ const FieldPerp floor(const FieldPerp &var, BoutReal f, REGION rgn) {
   return result;
 }
 
-const FieldPerp sliceXZ(const Field3D& f, int y) {
+const FieldPerp sliceXZ(const Field3D &f, int y) {
   // Source field should be valid
   ASSERT1(f.isAllocated());
 
@@ -335,9 +330,9 @@ const FieldPerp sliceXZ(const Field3D& f, int y) {
   result.allocate();
   result.setIndex(y);
 
-  for(auto i : result)
+  for (auto i : result)
     result[i] = f[i];
-  
+
   return result;
 }
 

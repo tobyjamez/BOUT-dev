@@ -1,12 +1,12 @@
 /**************************************************************************
  * Power method for eigenvalue
- * 
+ *
  * Finds the largest (fastest growing) eigenvector and eigenvalue
  **************************************************************************
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -29,31 +29,30 @@ class PowerSolver;
 #ifndef __POWER_SOLVER_H__
 #define __POWER_SOLVER_H__
 
-#include <bout_types.hxx>
+#include <bout/bout_types.hxx>
 #include <bout/solver.hxx>
 
 class PowerSolver : public Solver {
- public:
+public:
   PowerSolver() : Solver() {}
   ~PowerSolver(){};
-  
-  int init(int nout, BoutReal tstep) override;
-  
-  int run() override;
- private:
 
+  int init(int nout, BoutReal tstep) override;
+
+  int run() override;
+
+private:
   BoutReal curtime; // Current simulation time (fixed)
-  
+
   BoutReal eigenvalue;
 
   int nlocal, nglobal; // Number of variables
   Array<BoutReal> f0;  // The system state
-  
+
   int nsteps; // Number of output steps
-  
+
   BoutReal norm(Array<BoutReal> &state);
   void divide(Array<BoutReal> &in, BoutReal value);
 };
 
 #endif // __KARNIADAKIS_SOLVER_H__
-

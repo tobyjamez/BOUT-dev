@@ -1,9 +1,9 @@
 #include <bout.hxx>
-#include <boutmain.hxx>
-#include <initialprofiles.hxx>
-#include <derivs.hxx>
-#include <math.h>
+#include <bout/boutmain.hxx>
 #include <bout/constants.hxx>
+#include <bout/derivs.hxx>
+#include <bout/initialprofiles.hxx>
+#include <math.h>
 
 Field3D N;
 
@@ -16,17 +16,18 @@ int physics_init(bool restarting) {
 
   Coordinates *coords = mesh->coordinates();
 
-  meshoptions->get("Lx",Lx,1.0);
-  meshoptions->get("Ly",Ly,1.0);
+  meshoptions->get("Lx", Lx, 1.0);
+  meshoptions->get("Ly", Ly, 1.0);
 
   /*this assumes equidistant grid*/
-  coords->dx = Lx/(mesh->GlobalNx - 2*mesh->xstart);
-  
-  coords->dy = Ly/(mesh->GlobalNy - 2*mesh->ystart);
-  
-  output.write("SIZES: %d, %d, %e\n", mesh->GlobalNy, (mesh->GlobalNy - 2*mesh->ystart), coords->dy(0,0));
+  coords->dx = Lx / (mesh->GlobalNx - 2 * mesh->xstart);
 
-  SAVE_ONCE2(Lx,Ly);
+  coords->dy = Ly / (mesh->GlobalNy - 2 * mesh->ystart);
+
+  output.write("SIZES: %d, %d, %e\n", mesh->GlobalNy, (mesh->GlobalNy - 2 * mesh->ystart),
+               coords->dy(0, 0));
+
+  SAVE_ONCE2(Lx, Ly);
 
   Options *cytooptions = Options::getRoot()->getSection("cyto");
   OPTION(cytooptions, Dx, 1.0);
@@ -35,7 +36,7 @@ int physics_init(bool restarting) {
 
   SAVE_ONCE3(Dx, Dy, Dz);
 
-  //set mesh
+  // set mesh
   coords->g11 = 1.0;
   coords->g22 = 1.0;
   coords->g33 = 1.0;
@@ -61,16 +62,15 @@ int physics_run(BoutReal t) {
   mesh->communicate(N); // Communicate guard cells
 
   ddt(N) = 0.0;
-  
-  if(Dx > 0.0)
+
+  if (Dx > 0.0)
     ddt(N) += Dx * D2DX2(N);
-  
-  if(Dy > 0.0)
+
+  if (Dy > 0.0)
     ddt(N) += Dy * D2DY2(N);
-  
-  if(Dz > 0.0)
+
+  if (Dz > 0.0)
     ddt(N) += Dz * D2DZ2(N);
-  
+
   return 0;
 }
-

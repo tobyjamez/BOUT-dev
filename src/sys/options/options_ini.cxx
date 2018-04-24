@@ -8,7 +8,7 @@
  * name = string # comment
  *
  * [section:subsection]  # Sub-sections separated by colons. Arbitrary depth.
- * 
+ *
  * ChangeLog
  * =========
  *
@@ -49,18 +49,16 @@
  *
  **************************************************************************/
 
-#include <utils.hxx>
-#include <boutexception.hxx>
-#include <msg_stack.hxx>
 #include "options_ini.hxx"
+#include <bout/boutexception.hxx>
+#include <bout/msg_stack.hxx>
+#include <bout/utils.hxx>
 
 using namespace std;
 
-OptionINI::OptionINI() {
-}
+OptionINI::OptionINI() {}
 
-OptionINI::~OptionINI() {
-}
+OptionINI::~OptionINI() {}
 
 /**************************************************************************
  * Read input file
@@ -78,62 +76,65 @@ void OptionINI::read(Options *options, const string &filename) {
   do {
     string buffer = getNextLine(fin);
 
-    if(!buffer.empty()) {
+    if (!buffer.empty()) {
 
       // Check for section
       size_t startpos, endpos;
       startpos = buffer.find_first_of("[");
-      endpos   = buffer.find_last_of("]");
+      endpos = buffer.find_last_of("]");
 
       if (startpos != string::npos) {
         // A section header
-        if (endpos == string::npos) throw BoutException("\t'%s': Missing ']'\n\tLine: %s", filename.c_str(), buffer.c_str());
+        if (endpos == string::npos)
+          throw BoutException("\t'%s': Missing ']'\n\tLine: %s", filename.c_str(),
+                              buffer.c_str());
 
         buffer = trim(buffer, "[]");
 
-        if(buffer.empty()) throw BoutException("\t'%s': Missing section name\n\tLine: %s", filename.c_str(), buffer.c_str());
-        
+        if (buffer.empty())
+          throw BoutException("\t'%s': Missing section name\n\tLine: %s",
+                              filename.c_str(), buffer.c_str());
+
         section = options;
         size_t scorepos;
-        while((scorepos = buffer.find_first_of(":")) != string::npos) {
+        while ((scorepos = buffer.find_first_of(":")) != string::npos) {
           // sub-section
-          string sectionname = trim(buffer.substr(0,scorepos));
-          buffer = trim(buffer.substr(scorepos+1));
-          
+          string sectionname = trim(buffer.substr(0, scorepos));
+          buffer = trim(buffer.substr(scorepos + 1));
+
           section = section->getSection(sectionname);
         }
         section = section->getSection(buffer);
       } else {
         // A key=value pair
-        
+
         string key, value;
         // Get a key = value pair
         parse(buffer, key, value);
         // Add this to the current section
         section->set(key, value, filename);
       } // section test
-    } // buffer.empty
-  } while(!fin.eof());
+    }   // buffer.empty
+  } while (!fin.eof());
 
   fin.close();
 }
 
 void OptionINI::write(Options *options, const std::string &filename) {
   TRACE("OptionsINI::write");
-  
+
   std::ofstream fout;
   fout.open(filename, ios::out | ios::trunc);
 
   if (!fout.good()) {
     throw BoutException("Could not open output file '%s'\n", filename.c_str());
   }
-  
+
   // Call recursive function to write to file
   writeSection(options, fout);
-  
+
   fout.close();
 }
-
 
 /**************************************************************************
  * Private functions
@@ -149,9 +150,8 @@ string OptionINI::getNextLine(ifstream &fin) {
   return line;
 }
 
-void OptionINI::parse(const string &buffer, string &key, string &value)
-{
-   // A key/value pair, separated by a '='
+void OptionINI::parse(const string &buffer, string &key, string &value) {
+  // A key/value pair, separated by a '='
 
   size_t startpos = buffer.find_first_of("=");
 
@@ -164,9 +164,10 @@ void OptionINI::parse(const string &buffer, string &key, string &value)
   }
 
   key = trim(buffer.substr(0, startpos), " \t\r\n\"");
-  value = trim(buffer.substr(startpos+1), " \t\r\n\"");
+  value = trim(buffer.substr(startpos + 1), " \t\r\n\"");
 
-  if(key.empty() || value.empty()) throw BoutException("\tEmpty key or value\n\tLine: %s", buffer.c_str());
+  if (key.empty() || value.empty())
+    throw BoutException("\tEmpty key or value\n\tLine: %s", buffer.c_str());
 }
 
 void OptionINI::writeSection(Options *options, std::ofstream &fout) {
@@ -177,17 +178,16 @@ void OptionINI::writeSection(Options *options, std::ofstream &fout) {
     fout << "[" << section_name << "]" << endl;
   }
   // Iterate over all values
-  for(const auto& it : options->values()) {
+  for (const auto &it : options->values()) {
     fout << it.first << " = " << it.second.value;
-    if (! it.second.used ) {
-      fout << "  # not used , from: "
-	   << it.second.source;
+    if (!it.second.used) {
+      fout << "  # not used , from: " << it.second.source;
     }
     fout << endl;
   }
 
   // Iterate over sub-sections
-  for(const auto& it : options->subsections()) {
+  for (const auto &it : options->subsections()) {
     fout << endl;
     writeSection(it.second, fout);
   }

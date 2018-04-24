@@ -1,10 +1,10 @@
-#include <options.hxx>
-#include <boutexception.hxx>
-#include <utils.hxx>
+#include <bout/boutexception.hxx>
+#include <bout/options.hxx>
+#include <bout/output.hxx>
+#include <bout/utils.hxx>
 #include <sstream>
-#include <output.hxx>
 
-#include <field_factory.hxx> // Used for parsing expressions
+#include <bout/field_factory.hxx> // Used for parsing expressions
 
 const string DEFAULT_SOURCE{"default"}; // The source label given to default values
 
@@ -88,7 +88,8 @@ void Options::get(const string &key, int &val, int def) {
   // Use FieldFactory to evaluate expression
   // Parse the string, giving this Option pointer for the context
   // then generate a value at t,x,y,z = 0,0,0,0
-  std::shared_ptr<FieldGenerator>  gen = FieldFactory::get()->parse( it->second.value, this );
+  std::shared_ptr<FieldGenerator> gen =
+      FieldFactory::get()->parse(it->second.value, this);
   if (!gen) {
     throw BoutException("Couldn't get integer from %s:%s = '%s'", sectionName.c_str(),
                         key.c_str(), it->second.value.c_str());
@@ -139,7 +140,8 @@ void Options::get(const string &key, BoutReal &val, BoutReal def) {
   // Use FieldFactory to evaluate expression
   // Parse the string, giving this Option pointer for the context
   // then generate a value at t,x,y,z = 0,0,0,0
-  std::shared_ptr<FieldGenerator>  gen = FieldFactory::get()->parse( it->second.value, this );
+  std::shared_ptr<FieldGenerator> gen =
+      FieldFactory::get()->parse(it->second.value, this);
   if (!gen) {
     throw BoutException("Couldn't get BoutReal from %s:%s = '%s'", sectionName.c_str(),
                         key.c_str(), it->second.value.c_str());
@@ -185,7 +187,7 @@ void Options::get(const string &key, bool &val, bool def) {
   }
 
   it->second.used = true;
-  
+
   char c = static_cast<char>(toupper((it->second.value)[0]));
   if ((c == 'Y') || (c == 'T') || (c == '1')) {
     val = true;
@@ -289,6 +291,4 @@ void Options::printUnused() {
   }
 }
 
-void Options::cleanCache() {
-  FieldFactory::get()->cleanCache();
-}
+void Options::cleanCache() { FieldFactory::get()->cleanCache(); }

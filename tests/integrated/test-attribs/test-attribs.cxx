@@ -1,6 +1,6 @@
 #include "bout.hxx"
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
   BoutInitialise(argc, argv);
 
   Field3D a = 0.0;

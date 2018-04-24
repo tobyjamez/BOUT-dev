@@ -37,14 +37,14 @@
  **************************************************************************/
 
 #include "fci.hxx"
-#include "interpolation_factory.hxx"
-#include "parallel_boundary_op.hxx"
-#include "parallel_boundary_region.hxx"
+#include "bout/interpolation_factory.hxx"
+#include "bout/parallel_boundary_op.hxx"
+#include "bout/parallel_boundary_region.hxx"
+#include <bout/bout_types.hxx> // See this for codes
 #include <bout/constants.hxx>
 #include <bout/mesh.hxx>
-#include <bout_types.hxx> // See this for codes
-#include <msg_stack.hxx>
-#include <utils.hxx>
+#include <bout/msg_stack.hxx>
+#include <bout/utils.hxx>
 
 /**
  * Return the sign of val
@@ -89,7 +89,8 @@ FCIMap::FCIMap(Mesh &mesh, int dir, bool zperiodic)
     boundary = new BoundaryRegionPar("FCI_backward", BNDRY_PAR_BKWD, dir);
   } else {
     // Definitely shouldn't be called
-    throw BoutException("FCIMap called with strange direction: %d. Only +/-1 currently supported.", dir);
+    throw BoutException(
+        "FCIMap called with strange direction: %d. Only +/-1 currently supported.", dir);
   }
 
   // Add the boundary region to the mesh's vector of parallel boundaries
@@ -177,11 +178,13 @@ FCIMap::FCIMap(Mesh &mesh, int dir, bool zperiodic)
           // Invert 2x2 matrix to get change in index
           BoutReal dx = (dZ_dz * dR - dR_dz * dZ) / det;
           BoutReal dz = (dR_dx * dZ - dZ_dx * dR) / det;
-          boundary->add_point(x, y, z, 
-                              x + dx, y + 0.5*dir, z + dz,  // Intersection point in local index space
-                              0.5*coord.dy(x,y), //sqrt( SQ(dR) + SQ(dZ) ),  // Distance to intersection
-                              PI   // Right-angle intersection
-                              );
+          boundary->add_point(
+              x, y, z, x + dx, y + 0.5 * dir,
+              z + dz, // Intersection point in local index space
+              0.5 *
+                  coord.dy(x, y), // sqrt( SQ(dR) + SQ(dZ) ),  // Distance to intersection
+              PI                  // Right-angle intersection
+              );
         }
 
         //----------------------------------------

@@ -26,12 +26,12 @@
 #ifndef __FCITRANSFORM_H__
 #define __FCITRANSFORM_H__
 
-#include <bout/paralleltransform.hxx>
 #include <bout/deprecated.hxx>
-#include <interpolation.hxx>
-#include <mask.hxx>
-#include <parallel_boundary_region.hxx>
-#include <unused.hxx>
+#include <bout/interpolation.hxx>
+#include <bout/mask.hxx>
+#include <bout/parallel_boundary_region.hxx>
+#include <bout/paralleltransform.hxx>
+#include <bout/unused.hxx>
 
 /*!
  * Field line map - contains the coefficients for interpolation
@@ -42,18 +42,19 @@ class FCIMap {
 
   /// Private constructor - must be initialised with mesh
   FCIMap();
+
 public:
   /// dir MUST be either +1 or -1
-  FCIMap(Mesh& mesh, int dir, bool zperiodic);
+  FCIMap(Mesh &mesh, int dir, bool zperiodic);
   DEPRECATED(FCIMap(Mesh &mesh, int dir, bool UNUSED(yperiodic), bool zperiodic))
       : FCIMap(mesh, dir, zperiodic) {}
 
-  int dir;                     /**< Direction of map */
+  int dir; /**< Direction of map */
 
-  BoutMask boundary_mask;      /**< boundary mask - has the field line left the domain */
-  Field3D y_prime;             /**< distance to intersection with boundary */
+  BoutMask boundary_mask; /**< boundary mask - has the field line left the domain */
+  Field3D y_prime;        /**< distance to intersection with boundary */
 
-  BoundaryRegionPar* boundary; /**< boundary region */
+  BoundaryRegionPar *boundary; /**< boundary region */
 
   const Field3D interpolate(Field3D &f) const { return interp->interpolate(f); }
 };
@@ -79,18 +80,17 @@ public:
     throw BoutException("FCI method cannot transform into field aligned grid");
   }
 
-  bool canToFromFieldAligned() override{
-    return false;
-  }
+  bool canToFromFieldAligned() override { return false; }
+
 private:
   FCITransform();
 
-  Mesh& mesh;
+  Mesh &mesh;
 
-  FCIMap forward_map;           /**< FCI map for field lines in +ve y */
-  FCIMap backward_map;          /**< FCI map for field lines in -ve y */
+  FCIMap forward_map;  /**< FCI map for field lines in +ve y */
+  FCIMap backward_map; /**< FCI map for field lines in -ve y */
 
-  bool zperiodic;               /**< Is the z-direction periodic? */
+  bool zperiodic; /**< Is the z-direction periodic? */
 };
 
 #endif // __FCITRANSFORM_H__

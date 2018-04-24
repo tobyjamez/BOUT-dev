@@ -1,36 +1,34 @@
 
-#include <globals.hxx>
-#include <bout/mesh.hxx>
 #include <bout/coordinates.hxx>
-#include <utils.hxx>
-#include <derivs.hxx>
-#include <msg_stack.hxx>
+#include <bout/derivs.hxx>
+#include <bout/globals.hxx>
+#include <bout/mesh.hxx>
+#include <bout/msg_stack.hxx>
+#include <bout/utils.hxx>
 
 #include <cmath>
 
 #include "meshfactory.hxx"
 
-#include <output.hxx>
+#include <bout/output.hxx>
 
 #include "parallel/fci.hxx"
 
-Mesh* Mesh::create(GridDataSource *s, Options *opt) {
+Mesh *Mesh::create(GridDataSource *s, Options *opt) {
   return MeshFactory::getInstance()->createMesh(s, opt);
 }
 
-Mesh* Mesh::create(Options *opt) {
-  return create(NULL, opt);
-}
+Mesh *Mesh::create(Options *opt) { return create(NULL, opt); }
 
-Mesh::Mesh(GridDataSource *s, Options* opt) : source(s), coords(0), options(opt) {
-  if(s == NULL)
+Mesh::Mesh(GridDataSource *s, Options *opt) : source(s), coords(0), options(opt) {
+  if (s == NULL)
     throw BoutException("GridDataSource passed to Mesh::Mesh() is NULL");
-  
+
   /// Get mesh options
-  OPTION(options, StaggerGrids,   false); // Stagger grids
+  OPTION(options, StaggerGrids, false); // Stagger grids
   OPTION(options, maxregionblocksize, MAXREGIONBLOCKSIZE);
   // Initialise derivatives
-  derivs_init(options);  // in index_derivs.cxx for now
+  derivs_init(options); // in index_derivs.cxx for now
 }
 
 Mesh::~Mesh() {
@@ -54,7 +52,7 @@ Mesh::~Mesh() {
 int Mesh::get(int &ival, const string &name) {
   TRACE("Mesh::get(ival)");
 
-  if(!source->get(this, ival, name))
+  if (!source->get(this, ival, name))
     return 1;
 
   return 0;
@@ -64,7 +62,7 @@ int Mesh::get(int &ival, const string &name) {
 int Mesh::get(BoutReal &rval, const string &name) {
   TRACE("Mesh::get(rval)");
 
-  if(!source->get(this, rval, name))
+  if (!source->get(this, rval, name))
     return 1;
 
   return 0;
@@ -76,7 +74,7 @@ int Mesh::get(Field2D &var, const string &name, BoutReal def) {
   // Ensure data allocated
   var.allocate();
 
-  if(!source->get(this, var, name, def))
+  if (!source->get(this, var, name, def))
     return 1;
 
   // Communicate to get guard cell data
@@ -94,11 +92,11 @@ int Mesh::get(Field3D &var, const string &name, BoutReal def, bool communicate) 
   // Ensure data allocated
   var.allocate();
 
-  if(!source->get(this, var, name, def))
+  if (!source->get(this, var, name, def))
     return 1;
 
   // Communicate to get guard cell data
-  if(communicate) {
+  if (communicate) {
     Mesh::communicate(var);
   }
 
@@ -115,19 +113,19 @@ int Mesh::get(Field3D &var, const string &name, BoutReal def, bool communicate) 
 int Mesh::get(Vector2D &var, const string &name) {
   TRACE("Loading 2D vector: Mesh::get(Vector2D, %s)", name.c_str());
 
-  if(var.covariant) {
+  if (var.covariant) {
     output << "\tReading covariant vector " << name << endl;
 
-    get(var.x, name+"_x");
-    get(var.y, name+"_y");
-    get(var.z, name+"_z");
+    get(var.x, name + "_x");
+    get(var.y, name + "_y");
+    get(var.z, name + "_z");
 
-  }else {
+  } else {
     output << "\tReading contravariant vector " << name << endl;
 
-    get(var.x, name+"x");
-    get(var.y, name+"y");
-    get(var.z, name+"z");
+    get(var.x, name + "x");
+    get(var.y, name + "y");
+    get(var.z, name + "z");
   }
 
   return 0;
@@ -136,27 +134,25 @@ int Mesh::get(Vector2D &var, const string &name) {
 int Mesh::get(Vector3D &var, const string &name) {
   TRACE("Loading 3D vector: Mesh::get(Vector3D, %s)", name.c_str());
 
-  if(var.covariant) {
+  if (var.covariant) {
     output << "\tReading covariant vector " << name << endl;
 
-    get(var.x, name+"_x");
-    get(var.y, name+"_y");
-    get(var.z, name+"_z");
+    get(var.x, name + "_x");
+    get(var.y, name + "_y");
+    get(var.z, name + "_z");
 
-  }else {
+  } else {
     output << "\tReading contravariant vector " << name << endl;
 
-    get(var.x, name+"x");
-    get(var.y, name+"y");
-    get(var.z, name+"z");
+    get(var.x, name + "x");
+    get(var.y, name + "y");
+    get(var.z, name + "z");
   }
 
   return 0;
 }
 
-bool Mesh::sourceHasVar(const string &name) {
-  return source->hasVar(name);
-}
+bool Mesh::sourceHasVar(const string &name) { return source->hasVar(name); }
 
 /**************************************************************************
  * Communications
@@ -182,7 +178,7 @@ void Mesh::communicate(FieldGroup &g) {
   wait(h);
 
   // Calculate yup and ydown fields for 3D fields
-  for(const auto& fptr : g.field3d())
+  for (const auto &fptr : g.field3d())
     getParallelTransform().calcYUpDown(*fptr);
 }
 
@@ -190,30 +186,31 @@ void Mesh::communicate(FieldGroup &g) {
 /// The FieldData class needs to be changed to accomodate FieldPerp objects
 void Mesh::communicate(FieldPerp &f) {
   comm_handle recv[2];
-  
-  int nin = xstart; // Number of x points in inner guard cell
-  int nout = LocalNx-xend-1; // Number of x points in outer guard cell
+
+  int nin = xstart;              // Number of x points in inner guard cell
+  int nout = LocalNx - xend - 1; // Number of x points in outer guard cell
 
   // Post receives for guard cell regions
 
-  recv[0] = irecvXIn(f[0],       nin*LocalNz, 0);
-  recv[1] = irecvXOut(f[xend+1], nout*LocalNz, 1);
-  
+  recv[0] = irecvXIn(f[0], nin * LocalNz, 0);
+  recv[1] = irecvXOut(f[xend + 1], nout * LocalNz, 1);
+
   // Send data
-  sendXIn(f[xstart], nin*LocalNz, 1);
-  sendXOut(f[xend-nout+1], nout*LocalNz, 0);
- 
+  sendXIn(f[xstart], nin * LocalNz, 1);
+  sendXOut(f[xend - nout + 1], nout * LocalNz, 0);
+
   // Wait for receive
   wait(recv[0]);
   wait(recv[1]);
 }
 
-int Mesh::msg_len(const vector<FieldData*> &var_list, int xge, int xlt, int yge, int ylt) {
+int Mesh::msg_len(const vector<FieldData *> &var_list, int xge, int xlt, int yge,
+                  int ylt) {
   int len = 0;
 
   /// Loop over variables
-  for(const auto& var : var_list) {
-    if(var->is3D()) {
+  for (const auto &var : var_list) {
+    if (var->is3D()) {
       len += (xlt - xge) * (ylt - yge) * LocalNz * var->BoutRealSize();
     } else {
       len += (xlt - xge) * (ylt - yge) * var->BoutRealSize();
@@ -224,7 +221,8 @@ int Mesh::msg_len(const vector<FieldData*> &var_list, int xge, int xlt, int yge,
 }
 
 bool Mesh::periodicY(int jx) const {
-  BoutReal ts; return periodicY(jx, ts);
+  BoutReal ts;
+  return periodicY(jx, ts);
 }
 
 int Mesh::ySize(int jx) const {
@@ -239,7 +237,8 @@ int Mesh::ySize(int jx) const {
 
 bool Mesh::hasBndryLowerY() {
   static bool calc = false, answer;
-  if(calc) return answer; // Already calculated
+  if (calc)
+    return answer; // Already calculated
 
   int mybndry = static_cast<int>(!(iterateBndryLowerY().isDone()));
   int allbndry;
@@ -251,7 +250,8 @@ bool Mesh::hasBndryLowerY() {
 
 bool Mesh::hasBndryUpperY() {
   static bool calc = false, answer;
-  if(calc) return answer; // Already calculated
+  if (calc)
+    return answer; // Already calculated
 
   int mybndry = static_cast<int>(!(iterateBndryUpperY().isDone()));
   int allbndry;
@@ -264,12 +264,12 @@ bool Mesh::hasBndryUpperY() {
 const vector<int> Mesh::readInts(const string &name, int n) {
   vector<int> result;
 
-  if(source->hasVar(name)) {
-    if(!source->get(this, result, name, n, 0)) {
+  if (source->hasVar(name)) {
+    if (!source->get(this, result, name, n, 0)) {
       // Error reading
       throw BoutException("Could not read integer array '%s'\n", name.c_str());
     }
-  }else {
+  } else {
     // Not found
     throw BoutException("Missing integer array %s\n", name.c_str());
   }
@@ -284,76 +284,74 @@ void Mesh::setParallelTransform() {
 
   // Convert to lower case for comparison
   ptstr = lowercase(ptstr);
-    
-  if(ptstr == "identity") {
+
+  if (ptstr == "identity") {
     // Identity method i.e. no transform needed
     transform = std::unique_ptr<ParallelTransform>(new ParallelTransformIdentity());
-      
-  }else if(ptstr == "shifted") {
+
+  } else if (ptstr == "shifted") {
     // Shifted metric method
     transform = std::unique_ptr<ParallelTransform>(new ShiftedMetric(*this));
-      
-  }else if(ptstr == "fci") {
+
+  } else if (ptstr == "fci") {
 
     Options *fci_options = Options::getRoot()->getSection("fci");
     // Flux Coordinate Independent method
     bool fci_zperiodic;
     fci_options->get("z_periodic", fci_zperiodic, true);
-    transform = std::unique_ptr<ParallelTransform>(new FCITransform(*this, fci_zperiodic));
-      
-  }else {
+    transform =
+        std::unique_ptr<ParallelTransform>(new FCITransform(*this, fci_zperiodic));
+
+  } else {
     throw BoutException("Unrecognised paralleltransform option.\n"
                         "Valid choices are 'identity', 'shifted', 'fci'");
   }
 }
 
-ParallelTransform& Mesh::getParallelTransform() {
-  if(!transform) {
+ParallelTransform &Mesh::getParallelTransform() {
+  if (!transform) {
     // No ParallelTransform object yet. Set from options
     setParallelTransform();
   }
-  
+
   // Return a reference to the ParallelTransform object
   return *transform;
 }
 
-Coordinates *Mesh::createDefaultCoordinates() {
-  return new Coordinates(this);
+Coordinates *Mesh::createDefaultCoordinates() { return new Coordinates(this); }
+
+Region<> &Mesh::getRegion3D(const std::string &region_name) {
+  auto found = regionMap3D.find(region_name);
+  if (found == end(regionMap3D)) {
+    throw BoutException("Couldn't find region %s in regionMap3D", region_name.c_str());
+  }
+  return found->second;
 }
 
-
-Region<> & Mesh::getRegion3D(const std::string &region_name){
-   auto found = regionMap3D.find(region_name);
-   if (found == end(regionMap3D)) {
-     throw BoutException("Couldn't find region %s in regionMap3D", region_name.c_str());
-   }
-   return found->second;
+Region<Ind2D> &Mesh::getRegion2D(const std::string &region_name) {
+  auto found = regionMap2D.find(region_name);
+  if (found == end(regionMap2D)) {
+    throw BoutException("Couldn't find region %s in regionMap2D", region_name.c_str());
+  }
+  return found->second;
 }
 
-Region<Ind2D> & Mesh::getRegion2D(const std::string &region_name){
-   auto found = regionMap2D.find(region_name);
-   if (found == end(regionMap2D)) {
-     throw BoutException("Couldn't find region %s in regionMap2D", region_name.c_str());
-   }
-   return found->second;
-}
-  
-void Mesh::addRegion3D(const std::string &region_name, Region<> region){
-   if (regionMap3D.count(region_name)) {
-     throw BoutException("Trying to add an already existing region %s to regionMap3D");
-   }
-   regionMap3D[region_name] = region;
+void Mesh::addRegion3D(const std::string &region_name, Region<> region) {
+  if (regionMap3D.count(region_name)) {
+    throw BoutException("Trying to add an already existing region %s to regionMap3D");
+  }
+  regionMap3D[region_name] = region;
 }
 
-void Mesh::addRegion2D(const std::string &region_name, Region<Ind2D> region){
+void Mesh::addRegion2D(const std::string &region_name, Region<Ind2D> region) {
   if (regionMap2D.count(region_name)) {
     throw BoutException("Trying to add an already existing region %s to regionMap2D");
   }
   regionMap2D[region_name] = region;
 }
- 
-void Mesh::createDefaultRegions(){
-  //3D regions
+
+void Mesh::createDefaultRegions() {
+  // 3D regions
   addRegion3D("RGN_ALL", Region<Ind3D>(0, LocalNx - 1, 0, LocalNy - 1, 0, LocalNz - 1,
                                        LocalNy, LocalNz, maxregionblocksize));
   addRegion3D("RGN_NOBNDRY", Region<Ind3D>(xstart, xend, ystart, yend, 0, LocalNz - 1,
@@ -363,7 +361,7 @@ void Mesh::createDefaultRegions(){
   addRegion3D("RGN_NOY", Region<Ind3D>(0, LocalNx - 1, ystart, yend, 0, LocalNz - 1,
                                        LocalNy, LocalNz, maxregionblocksize));
 
-  //2D regions
+  // 2D regions
   addRegion2D("RGN_ALL", Region<Ind2D>(0, LocalNx - 1, 0, LocalNy - 1, 0, 0, LocalNy, 1,
                                        maxregionblocksize));
   addRegion2D("RGN_NOBNDRY", Region<Ind2D>(xstart, xend, ystart, yend, 0, 0, LocalNy, 1,

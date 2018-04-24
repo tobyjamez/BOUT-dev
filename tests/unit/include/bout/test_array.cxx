@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 
 #include "bout/array.hxx"
-#include "boutexception.hxx"
+#include "bout/boutexception.hxx"
 
 #include <iostream>
 
@@ -13,7 +13,7 @@ class ArrayTest : public ::testing::Test {
 public:
   ArrayTest() { Array<double>::useStore(true); }
   // Note: Calling cleanup() disables the store
-  ~ArrayTest() { }
+  ~ArrayTest() {}
 };
 
 TEST_F(ArrayTest, ArraySize) {

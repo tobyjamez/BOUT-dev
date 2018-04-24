@@ -5,19 +5,18 @@ class Laplace3DFactory;
 #define __LAPLACE3D_FACTORY_H__
 
 #include <bout/invert/laplace3d.hxx>
-#include <options.hxx>
+#include <bout/options.hxx>
 
 class Laplace3DFactory {
- public:
+public:
   /// Return a pointer to the only instance
-  static Laplace3DFactory* getInstance();
-  
-  Laplace3D* createLaplace3D(Options *options = NULL);
-  
+  static Laplace3DFactory *getInstance();
+
+  Laplace3D *createLaplace3D(Options *options = NULL);
+
 private:
-  Laplace3DFactory() {} // Prevent instantiation of this class
-  static Laplace3DFactory* instance; ///< The only instance of this class (Singleton)
+  Laplace3DFactory() {}              // Prevent instantiation of this class
+  static Laplace3DFactory *instance; ///< The only instance of this class (Singleton)
 };
 
 #endif // __LAPLACE3D_FACTORY_H__
-

@@ -7,9 +7,9 @@
 /// which reduce the number of loops over the domain
 ///
 
-#include <bout/physicsmodel.hxx> // Commonly used BOUT++ components
-#include <derivs.hxx>            // To use DDZ()
-#include <invert_laplace.hxx>    // Laplacian inversion
+#include <bout/derivs.hxx>         // To use DDZ()
+#include <bout/invert_laplace.hxx> // Laplacian inversion
+#include <bout/physicsmodel.hxx>   // Commonly used BOUT++ components
 
 #include <bout/operators_di.hxx> // For DataIterator indexed operators
 
@@ -93,7 +93,7 @@ protected:
     //  Create a solver for potential
 
     if (boussinesq) {
-       // BOUT.inp section "phiBoussinesq"
+      // BOUT.inp section "phiBoussinesq"
       phiSolver = Laplacian::create(Options::getRoot()->getSection("phiBoussinesq"));
     } else {
       // BOUT.inp section "phiSolver"

@@ -1,10 +1,10 @@
 /*!************************************************************************
  *
  * @mainpage BOUT++
- * 
+ *
  * @version 3.0
- * 
- * @par Description 
+ *
+ * @par Description
  * Framework for the solution of partial differential
  * equations, in particular fluid models in plasma physics.
  *
@@ -15,7 +15,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -36,45 +36,45 @@
 #ifndef __BOUT_H__
 #define __BOUT_H__
 
-#include "boutcomm.hxx"
+#include "bout/boutcomm.hxx"
 
-#include "globals.hxx"
+#include "bout/globals.hxx"
 
-#include "field2d.hxx"
-#include "field3d.hxx"
-#include "vector2d.hxx"
-#include "vector3d.hxx"
+#include "bout/field2d.hxx"
+#include "bout/field3d.hxx"
+#include "bout/vector2d.hxx"
+#include "bout/vector3d.hxx"
 
-#include "difops.hxx" // Differential operators
+#include "bout/difops.hxx" // Differential operators
 
-#include "vecops.hxx" // Vector differential operations
+#include "bout/vecops.hxx" // Vector differential operations
 
-#include "smoothing.hxx" // Smoothing functions
+#include "bout/smoothing.hxx" // Smoothing functions
 
-#include "sourcex.hxx"     // source and mask functions
+#include "bout/sourcex.hxx" // source and mask functions
 
 #include "bout/solver.hxx"
 
-#include "datafile.hxx"
+#include "bout/datafile.hxx"
 
-#include "where.hxx"
+#include "bout/where.hxx"
 
-#include "output.hxx"
+#include "bout/output.hxx"
 
-#include "utils.hxx"
+#include "bout/utils.hxx"
 
-const BoutReal BOUT_VERSION = BOUT_VERSION_DOUBLE;  ///< Version number
+const BoutReal BOUT_VERSION = BOUT_VERSION_DOUBLE; ///< Version number
 
 // BOUT++ main functions
 
 /*!
  * BOUT++ initialisation. This function must be
  * called first, passing command-line arguments.
- * 
+ *
  * This will call MPI_Initialize, and if BOUT++
  * has been configured with external libraries such as
  * PETSc then these will be initialised as well.
- * 
+ *
  * Example
  * -------
  *
@@ -82,14 +82,14 @@ const BoutReal BOUT_VERSION = BOUT_VERSION_DOUBLE;  ///< Version number
  *
  *     int main(int argc, char** argv) {
  *       BoutInitialise(argc, argv);
- *       
+ *
  *       BoutFinalise();
  *     }
  *
  * Usually this function is called in a standard main() function,
  * either by including boutmain.hxx or by including bout/physicsmodel.hxx
  * and using the BOUTMAIN macro.
- *     
+ *
  */
 int BoutInitialise(int &argc, char **&argv);
 
@@ -98,17 +98,17 @@ int BoutInitialise(int &argc, char **&argv);
  * for old-style physics models with standalone C functions
  * The main() function in boutmain.hxx calls this function
  * to set up the RHS function and add bout_monitor.
- * 
+ *
  */
 int bout_run(Solver *solver, rhsfunc physics_run);
 
 /*!
  * Monitor class for output. Called by the solver every output timestep.
- * 
+ *
  * This is added to the solver in bout_run (for C-style models)
  * or in bout/physicsmodel.hxx
  */
-class BoutMonitor: public Monitor{
+class BoutMonitor : public Monitor {
   int call(Solver *solver, BoutReal t, int iter, int NOUT) override;
 };
 

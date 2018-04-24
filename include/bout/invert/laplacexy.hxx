@@ -1,18 +1,18 @@
 /**************************************************************************
  * Laplacian solver in 2D (X-Y)
  *
- * Equation solved is: 
+ * Equation solved is:
  *
  * Div( A * Grad_perp(x) ) + B*x = b
  *
  * Intended for use in solving n = 0 component of potential
  * from inversion of vorticity equation
- * 
+ *
  **************************************************************************
  * Copyright 2015 B.Dudson
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -38,9 +38,9 @@
 
 #warning LaplaceXY requires PETSc. No LaplaceXY available
 
+#include <bout/boutexception.hxx>
 #include <bout/mesh.hxx>
-#include <options.hxx>
-#include <boutexception.hxx>
+#include <bout/options.hxx>
 
 /*!
  * Create a dummy class so that code will compile
@@ -48,7 +48,7 @@
  * LaplaceXY is used.
  */
 class LaplaceXY {
- public:
+public:
   LaplaceXY(Mesh *m, Options *opt = NULL) {
     throw BoutException("LaplaceXY requires PETSc. No LaplaceXY available");
   }
@@ -58,14 +58,14 @@ class LaplaceXY {
 
 #else // BOUT_HAS_PETSC
 
+#include "bout/utils.hxx"
+#include <bout/cyclic_reduction.hxx>
 #include <bout/mesh.hxx>
 #include <bout/petsclib.hxx>
-#include <cyclic_reduction.hxx>
-#include "utils.hxx"
 
 class LaplaceXY {
 public:
-  /*! 
+  /*!
    * Constructor
    */
   LaplaceXY(Mesh *m, Options *opt = NULL);
@@ -79,10 +79,10 @@ public:
    * Div( A * Grad_perp(x) ) + B*x = b
    */
   void setCoefs(const Field2D &A, const Field2D &B);
-  
+
   /*!
    * Solve Laplacian in X-Y
-   * 
+   *
    * Inputs
    * ======
    *
@@ -90,12 +90,12 @@ public:
    *        and contain valid data.
    * x0   - Initial guess at the solution. If this is unallocated
    *        then an initial guess of zero will be used.
-   * 
+   *
    * Returns
    * =======
-   * 
+   *
    * The solution as a Field2D. On failure an exception will be raised
-   * 
+   *
    */
   const Field2D solve(const Field2D &rhs, const Field2D &x0);
 
@@ -105,16 +105,16 @@ public:
    * and should not be called by external users
    */
   int precon(Vec x, Vec y);
-private:
-  
-  PetscLib lib;     ///< Requires PETSc library
-  Mat MatA;         ///< Matrix to be inverted
-  Vec xs, bs;       ///< Solution and RHS vectors
-  KSP ksp;          ///< Krylov Subspace solver
-  PC pc;            ///< Preconditioner
 
-  Mesh *mesh;   ///< The mesh this operates on, provides metrics and communication
-  
+private:
+  PetscLib lib; ///< Requires PETSc library
+  Mat MatA;     ///< Matrix to be inverted
+  Vec xs, bs;   ///< Solution and RHS vectors
+  KSP ksp;      ///< Krylov Subspace solver
+  PC pc;        ///< Preconditioner
+
+  Mesh *mesh; ///< The mesh this operates on, provides metrics and communication
+
   // Preconditioner
   int xstart, xend;
   int nloc, nsys;
@@ -123,22 +123,22 @@ private:
 
   // Y derivatives
   bool include_y_derivs; // Include Y derivative terms?
-  
+
   // Boundary conditions
   bool x_inner_dirichlet; // Dirichlet on inner X boundary?
   bool x_outer_dirichlet; // Dirichlet on outer X boundary?
   bool y_bndry_dirichlet; // Dirichlet on Y boundary?
-  
+
   /*!
    * Number of grid points on this processor
    */
   int localSize();
-  
+
   /*!
    * Return the communicator for XY
    */
   MPI_Comm communicator();
-  
+
   /*!
    * Return the global index of a local (x,y) coordinate
    * including guard cells.
@@ -149,14 +149,13 @@ private:
    * to an integer. Guard cells are filled by communication
    * so no additional logic is needed in Mesh.
    */
-  int globalIndex(int x, int y);  
+  int globalIndex(int x, int y);
   Field2D indexXY; ///< Global index (integer stored as BoutReal)
 
   /*!
    * Round a number to the nearest integer
    */
   int roundInt(BoutReal f);
-  
 };
 
 #endif // BOUT_HAS_PETSC

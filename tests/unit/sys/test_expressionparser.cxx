@@ -1,5 +1,5 @@
-#include "gtest/gtest.h"
 #include "bout/sys/expressionparser.hxx"
+#include "gtest/gtest.h"
 
 #include <vector>
 

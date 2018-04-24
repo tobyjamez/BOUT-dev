@@ -1,7 +1,7 @@
-#include "interpolation_factory.hxx"
-#include "output.hxx"
+#include "bout/interpolation_factory.hxx"
+#include "bout/output.hxx"
 
-InterpolationFactory* InterpolationFactory::instance = nullptr;
+InterpolationFactory *InterpolationFactory::instance = nullptr;
 
 /**
  * Add the available interpolation methods to the internal map
@@ -13,9 +13,7 @@ InterpolationFactory::InterpolationFactory() {
   add(Bilinear::CreateBilinear, "bilinear");
 }
 
-inline string InterpolationFactory::getDefaultInterpType() {
-  return "hermitespline";
-}
+inline string InterpolationFactory::getDefaultInterpType() { return "hermitespline"; }
 
 /**
  * Create or get the singleton instance of the factory
@@ -23,7 +21,7 @@ inline string InterpolationFactory::getDefaultInterpType() {
  *
  * @return The singleton instance of the InterpolationFactory
  */
-InterpolationFactory* InterpolationFactory::getInstance() {
+InterpolationFactory *InterpolationFactory::getInstance() {
   if (instance == nullptr) {
     // Create the singleton object
     instance = new InterpolationFactory();
@@ -52,7 +50,7 @@ void InterpolationFactory::cleanup() {
  *
  * @return A new copy of an Interpolation object
  */
-Interpolation* InterpolationFactory::create(Options *options, Mesh *mesh) {
+Interpolation *InterpolationFactory::create(Options *options, Mesh *mesh) {
   // Get the default interpolation type
   string type = getDefaultInterpType();
 
@@ -64,12 +62,14 @@ Interpolation* InterpolationFactory::create(Options *options, Mesh *mesh) {
   string interp_option;
   options->get("type", interp_option, type);
 
-  if (!interp_option.empty()) type = interp_option.c_str();
+  if (!interp_option.empty())
+    type = interp_option.c_str();
 
   return create(type, options, mesh);
 }
 
-Interpolation* InterpolationFactory::create(const string &name, Options *options, Mesh *localmesh) {
+Interpolation *InterpolationFactory::create(const string &name, Options *options,
+                                            Mesh *localmesh) {
   // If no options section passed (e.g. for a variable), then use the
   // "interpolation" section
   if (options == nullptr)
@@ -102,7 +102,8 @@ void InterpolationFactory::add(CreateInterpCallback interp, const string &name) 
  *
  * @return A pointer to the Interpolation object in the map
  */
-InterpolationFactory::CreateInterpCallback InterpolationFactory::findInterpolation(const string &name) {
+InterpolationFactory::CreateInterpCallback
+InterpolationFactory::findInterpolation(const string &name) {
   auto interp = interp_map.find(lowercase(name));
   if (interp == end(interp_map))
     return nullptr;

@@ -1,19 +1,19 @@
 /*!************************************************************************
 * Reads in the configuration file, supplying
 * an interface to get options
-* 
+*
 * File is an ini file with sections
 * [section]
 * and variables as
 * name = string ; comment
-* 
+*
 * Ben Dudson, September 2007
 *
 **************************************************************************
 * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
 *
 * Contact: Ben Dudson, bd512@york.ac.uk
-* 
+*
 * This file is part of BOUT++.
 *
 * BOUT++ is free software: you can redistribute it and/or modify
@@ -38,8 +38,8 @@ class OptionINI;
 
 #include "optionparser.hxx"
 
-#include <string>
 #include <fstream>
+#include <string>
 
 /// Class for reading INI style configuration files
 /*!
@@ -55,8 +55,8 @@ public:
 
   /// Write options to file
   void write(Options *options, const std::string &filename) override;
-private:
 
+private:
   // Helper functions for reading
   void parse(const std::string &, std::string &, std::string &);
   string getNextLine(std::ifstream &fin);

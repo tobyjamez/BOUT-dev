@@ -20,15 +20,16 @@
  *
  **************************************************************************/
 
+#include "bout/globals.hxx"
+#include "bout/interpolation.hxx"
 #include "bout/mesh.hxx"
-#include "globals.hxx"
-#include "interpolation.hxx"
 
 #include <string>
 #include <vector>
 
 Bilinear::Bilinear(int y_offset, Mesh *mesh)
-  : Interpolation(y_offset, mesh), w0(localmesh), w1(localmesh), w2(localmesh), w3(localmesh) {
+    : Interpolation(y_offset, mesh), w0(localmesh), w1(localmesh), w2(localmesh),
+      w3(localmesh) {
 
   // Index arrays contain guard cells in order to get subscripts right
   i_corner = Tensor<int>(localmesh->LocalNx, localmesh->LocalNy, localmesh->LocalNz);
@@ -42,11 +43,12 @@ Bilinear::Bilinear(int y_offset, Mesh *mesh)
 }
 
 void Bilinear::calcWeights(const Field3D &delta_x, const Field3D &delta_z) {
-  for(int x=localmesh->xstart;x<=localmesh->xend;x++) {
-    for(int y=localmesh->ystart; y<=localmesh->yend;y++) {
-      for(int z=0;z<localmesh->LocalNz;z++) {
+  for (int x = localmesh->xstart; x <= localmesh->xend; x++) {
+    for (int y = localmesh->ystart; y <= localmesh->yend; y++) {
+      for (int z = 0; z < localmesh->LocalNz; z++) {
 
-        if (skip_mask(x, y, z)) continue;
+        if (skip_mask(x, y, z))
+          continue;
 
         // The integer part of xt_prime, zt_prime are the indices of the cell
         // containing the field line end-point
@@ -61,37 +63,38 @@ void Bilinear::calcWeights(const Field3D &delta_x, const Field3D &delta_z) {
         BoutReal t_z1 = BoutReal(1.0) - t_z;
 
         // Check that t_x and t_z are in range
-        if( (t_x < 0.0) || (t_x > 1.0) )
-          throw BoutException("t_x=%e out of range at (%d,%d,%d)", t_x, x,y,z);
+        if ((t_x < 0.0) || (t_x > 1.0))
+          throw BoutException("t_x=%e out of range at (%d,%d,%d)", t_x, x, y, z);
 
-        if( (t_z < 0.0) || (t_z > 1.0) )
-          throw BoutException("t_z=%e out of range at (%d,%d,%d)", t_z, x,y,z);
+        if ((t_z < 0.0) || (t_z > 1.0))
+          throw BoutException("t_z=%e out of range at (%d,%d,%d)", t_z, x, y, z);
 
-        w0(x,y,z) = t_x1 * t_z1;
-        w1(x,y,z) = t_x  * t_z1;
-        w2(x,y,z) = t_x1 * t_z;
-        w3(x,y,z) = t_x  * t_z;
-
+        w0(x, y, z) = t_x1 * t_z1;
+        w1(x, y, z) = t_x * t_z1;
+        w2(x, y, z) = t_x1 * t_z;
+        w3(x, y, z) = t_x * t_z;
       }
     }
   }
 }
 
-void Bilinear::calcWeights(const Field3D &delta_x, const Field3D &delta_z, BoutMask mask) {
+void Bilinear::calcWeights(const Field3D &delta_x, const Field3D &delta_z,
+                           BoutMask mask) {
   skip_mask = mask;
   calcWeights(delta_x, delta_z);
 }
 
-Field3D Bilinear::interpolate(const Field3D& f) const {
+Field3D Bilinear::interpolate(const Field3D &f) const {
   ASSERT1(f.getMesh() == localmesh);
   Field3D f_interp(f.getMesh());
   f_interp.allocate();
 
-  for(int x=localmesh->xstart;x<=localmesh->xend;x++) {
-    for(int y=localmesh->ystart; y<=localmesh->yend;y++) {
-      for(int z=0;z<localmesh->LocalNz;z++) {
+  for (int x = localmesh->xstart; x <= localmesh->xend; x++) {
+    for (int y = localmesh->ystart; y <= localmesh->yend; y++) {
+      for (int z = 0; z < localmesh->LocalNz; z++) {
 
-        if (skip_mask(x, y, z)) continue;
+        if (skip_mask(x, y, z))
+          continue;
 
         int y_next = y + y_offset;
         // Due to lack of guard cells in z-direction, we need to ensure z-index
@@ -110,12 +113,14 @@ Field3D Bilinear::interpolate(const Field3D& f) const {
   return f_interp;
 }
 
-Field3D Bilinear::interpolate(const Field3D& f, const Field3D &delta_x, const Field3D &delta_z) {
+Field3D Bilinear::interpolate(const Field3D &f, const Field3D &delta_x,
+                              const Field3D &delta_z) {
   calcWeights(delta_x, delta_z);
   return interpolate(f);
 }
 
-Field3D Bilinear::interpolate(const Field3D& f, const Field3D &delta_x, const Field3D &delta_z, BoutMask mask) {
+Field3D Bilinear::interpolate(const Field3D &f, const Field3D &delta_x,
+                              const Field3D &delta_z, BoutMask mask) {
   calcWeights(delta_x, delta_z, mask);
   return interpolate(f);
 }

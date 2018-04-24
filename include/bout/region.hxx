@@ -179,11 +179,15 @@ inline bool operator<=(const SpecificInd &lhs, const SpecificInd &rhs) {
 }
 
 /// Arithmetic operators with integers
-inline SpecificInd operator+(SpecificInd lhs, const SpecificInd &rhs) { return lhs += rhs; }
+inline SpecificInd operator+(SpecificInd lhs, const SpecificInd &rhs) {
+  return lhs += rhs;
+}
 inline SpecificInd operator+(SpecificInd lhs, int n) { return lhs += n; }
 inline SpecificInd operator+(int n, SpecificInd rhs) { return rhs += n; }
 inline SpecificInd operator-(SpecificInd lhs, int n) { return lhs -= n; }
-inline SpecificInd operator-(SpecificInd lhs, const SpecificInd &rhs) { return lhs -= rhs; }
+inline SpecificInd operator-(SpecificInd lhs, const SpecificInd &rhs) {
+  return lhs -= rhs;
+}
 
 /// Index-type for `Field3D`s
 class Ind3D : public SpecificInd {
@@ -287,7 +291,8 @@ public:
 
   /// Indices to iterate over
   typedef std::vector<T> RegionIndices;
-  /// Start and end of contiguous region. This describes a range [block.first,block.second)
+  /// Start and end of contiguous region. This describes a range
+  /// [block.first,block.second)
   typedef std::pair<T, T> ContiguousBlock;
   /// Collection of contiguous regions
   typedef std::vector<ContiguousBlock> ContiguousBlocks;
@@ -311,13 +316,12 @@ public:
     blocks = getContiguousBlocks(maxregionblocksize);
   };
 
-  Region<T>(RegionIndices &indices, int maxregionblocksize = MAXREGIONBLOCKSIZE) : indices(indices) {
+  Region<T>(RegionIndices &indices, int maxregionblocksize = MAXREGIONBLOCKSIZE)
+      : indices(indices) {
     blocks = getContiguousBlocks(maxregionblocksize);
   };
 
-  Region<T>(ContiguousBlocks &blocks) : blocks(blocks) {
-    indices = getRegionIndices();
-  };
+  Region<T>(ContiguousBlocks &blocks) : blocks(blocks) { indices = getRegionIndices(); };
 
   /// Destructor
   ~Region(){};
@@ -336,27 +340,27 @@ public:
   RegionIndices getIndices() const { return indices; };
 
   /// Set the indices and ensure blocks updated
-  void setIndices (RegionIndices &indicesIn, int maxregionblocksize = MAXREGIONBLOCKSIZE) {
+  void setIndices(RegionIndices &indicesIn, int maxregionblocksize = MAXREGIONBLOCKSIZE) {
     indices = indicesIn;
     blocks = getContiguousBlocks(maxregionblocksize);
   };
 
   /// Set the blocks and ensure indices updated
-  void setBlocks (ContiguousBlocks &blocksIn) {
+  void setBlocks(ContiguousBlocks &blocksIn) {
     blocks = blocksIn;
     indices = getRegionIndices();
   };
 
   /// Return a new Region that has the same indices as this one but
   /// ensures the indices are sorted.
-  Region<T> asSorted(){
+  Region<T> asSorted() {
     auto sortedIndices = getIndices();
     std::sort(std::begin(sortedIndices), std::end(sortedIndices));
     return Region<T>(sortedIndices);
   };
 
   /// Sort this Region in place
-  Region<T> sort(){
+  Region<T> sort() {
     *this = this->asSorted();
     return *this;
   }
@@ -378,14 +382,14 @@ public:
   }
 
   /// Make this Region unique in-place
-  Region<T> unique(){
+  Region<T> unique() {
     *this = this->asUnique();
     return *this;
   }
 
   /// Return a new region equivalent to *this but with indices contained
   /// in mask Region removed
-  Region<T> mask(const Region<T> & maskRegion){
+  Region<T> mask(const Region<T> &maskRegion) {
     // Get mask indices and sort as we're going to be searching through
     // this vector so if it's sorted we can be more efficient
     auto maskIndices = maskRegion.getIndices();
@@ -397,16 +401,14 @@ public:
 
     // Lambda that returns true/false depending if the passed value is in maskIndices
     // With C++14 T can be auto instead
-    auto isInVector = [&](T val){
+    auto isInVector = [&](T val) {
       return std::binary_search(std::begin(maskIndices), std::end(maskIndices), val);
     };
 
     // Erase elements of currentIndices that are in maskIndices
     currentIndices.erase(
-             std::remove_if(std::begin(currentIndices), std::end(currentIndices),
-                    isInVector),
-             std::end(currentIndices)
-             );
+        std::remove_if(std::begin(currentIndices), std::end(currentIndices), isInVector),
+        std::end(currentIndices));
 
     // Update indices
     setIndices(currentIndices);
@@ -415,7 +417,7 @@ public:
   };
 
   /// Accumulate operator
-  Region<T> & operator+=(const Region<T> &rhs){
+  Region<T> &operator+=(const Region<T> &rhs) {
     (*this) = (*this) + rhs;
     return *this;
   }
@@ -445,22 +447,23 @@ public:
   /// directions (e.g. z). For example for shift = 1, period = mesh->LocalNz
   /// we would find the zplus indices. For shift = mesh->LocalNy*mesh->LocalNz,
   /// period = mesh->LocalNx*mesh->LocalNy*mesh->LocalNz we find xplus indices.
-  Region<T> & periodicShift(int shift, int period){
+  Region<T> &periodicShift(int shift, int period) {
     // Exit early if possible
-    if ( shift == 0 || period == 1 ){
+    if (shift == 0 || period == 1) {
       return *this;
     }
     // Handle -ve shifts as a +ve shift
-    if ( shift < 0 ){
-      return periodicShift(period+shift, period);
+    if (shift < 0) {
+      return periodicShift(period + shift, period);
     }
     auto newInd = getIndices();
 
     // The calculation of the periodic shifted index is as follows
-    //   localPos = index + shift % period;  // Find the shifted position within the period
+    //   localPos = index + shift % period;  // Find the shifted position within the
+    //   period
     //   globalPos = (index/period) * period; // Find which period block we're in
     //   newIndex = globalPos + localPos;
-    for (unsigned int i = 0; i < newInd.size(); i++){
+    for (unsigned int i = 0; i < newInd.size(); i++) {
       int index = newInd[i].ind;
       int whichBlock = index / period;
       newInd[i] = ((index + shift) % period) + period * whichBlock;
@@ -506,7 +509,8 @@ private:
     ASSERT1(len > 0);
     RegionIndices region;
     // Guard against invalid length ranges
-    if (len <= 0 ) return region;
+    if (len <= 0)
+      return region;
     region.resize(len);
 
     int x = xstart;
@@ -534,13 +538,12 @@ private:
     return region;
   }
 
-
   /// Returns a vector of all contiguous blocks contained in the passed region.
   /// Limits the maximum size of any contiguous block to maxBlockSize.
   /// A contiguous block is described by the inclusive start and the exclusive end
   /// of the contiguous block.
   ContiguousBlocks getContiguousBlocks(int maxregionblocksize) const {
-    ASSERT1(maxregionblocksize>0);
+    ASSERT1(maxregionblocksize > 0);
     const int npoints = indices.size();
     ContiguousBlocks result;
     int index = 0; // Index within vector of indices
@@ -563,7 +566,7 @@ private:
       }
 
       // This contains the inclusive end currently
-      T lastIndex = indices[index-1];
+      T lastIndex = indices[index - 1];
       // Increase the index stored by one to get exclusive end
       lastIndex++;
       // Add pair to output, denotes inclusive start and exclusive end
@@ -572,7 +575,6 @@ private:
 
     return result;
   }
-
 
   /// Constructs the vector of indices from the stored blocks information
   RegionIndices getRegionIndices() {
@@ -585,20 +587,13 @@ private:
 };
 
 /// Return a new region with sorted indices
-template<typename T>
-Region<T> sort(Region<T> &region) {
-  return region.asSorted();
-};
+template <typename T> Region<T> sort(Region<T> &region) { return region.asSorted(); };
 
 /// Return a new region with unique indices
-template<typename T>
-Region<T> unique(Region<T> &region) {
-  return region.asUnique();
-};
+template <typename T> Region<T> unique(Region<T> &region) { return region.asUnique(); };
 
 /// Return a masked version of a region
-template<typename T>
-Region<T> mask(const Region<T> &region, const Region<T> &mask) {
+template <typename T> Region<T> mask(const Region<T> &region, const Region<T> &mask) {
   auto result = region;
   return result.mask(mask);
 };
@@ -606,8 +601,7 @@ Region<T> mask(const Region<T> &region, const Region<T> &mask) {
 /// Return a new region with combined indices from two Regions
 /// This doesn't attempt to avoid duplicate elements or enforce
 /// any sorting etc. but could be done if desired.
-template<typename T>
-Region<T> operator+(const Region<T> &lhs, const Region<T> &rhs){
+template <typename T> Region<T> operator+(const Region<T> &lhs, const Region<T> &rhs) {
   auto indices = lhs.getIndices(); // Indices is a copy of the indices
   auto indicesRhs = rhs.getIndices();
   indices.insert(std::end(indices), std::begin(indicesRhs), std::end(indicesRhs));
@@ -616,8 +610,7 @@ Region<T> operator+(const Region<T> &lhs, const Region<T> &rhs){
 
 /// Returns a new region based on input but with indices offset by
 /// a constant
-template<typename T>
-Region<T> offset(const Region<T> &region, int offset){
+template <typename T> Region<T> offset(const Region<T> &region, int offset) {
   auto result = region;
   return result.offset(offset);
 }

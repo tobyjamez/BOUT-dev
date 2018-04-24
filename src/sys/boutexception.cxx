@@ -1,17 +1,17 @@
-#include <mpi.h>
-#include <boutcomm.hxx>
-#include <boutexception.hxx>
+#include <bout/boutcomm.hxx>
+#include <bout/boutexception.hxx>
+#include <bout/msg_stack.hxx>
+#include <bout/output.hxx>
 #include <iostream>
-#include <msg_stack.hxx>
-#include <output.hxx>
+#include <mpi.h>
 #include <stdarg.h>
 
 #ifdef BACKTRACE
-#include <execinfo.h>
 #include <dlfcn.h>
+#include <execinfo.h>
 #endif
 
-#include <utils.hxx>
+#include <bout/utils.hxx>
 
 void BoutParallelThrowRhsFail(int status, const char *message) {
   int allstatus;
@@ -38,7 +38,7 @@ void BoutException::Backtrace() {
   message += "Enable checking (configure with --enable-check or set flag -DCHECK > 1) to "
              "get a trace\n";
 #endif
-  
+
 #ifdef BACKTRACE
 
   trace_size = backtrace(trace, TRACE_MAX);
@@ -49,10 +49,10 @@ void BoutException::Backtrace() {
 #endif
 }
 
-std::string BoutException::BacktraceGenerate() const{
+std::string BoutException::BacktraceGenerate() const {
   std::string message;
 #ifdef BACKTRACE
-    // skip first stack frame (points here)
+  // skip first stack frame (points here)
   message = ("====== Exception path ======\n");
   char buf[1024];
   for (int i = 1; i < trace_size; ++i) {
@@ -69,17 +69,17 @@ std::string BoutException::BacktraceGenerate() const{
     char syscom[256];
     // If we are compiled as PIE, need to get base pointer of .so and substract
     Dl_info info;
-    void * ptr;
-    if (dladdr(trace[i],&info)){
-      ptr=(void*) ((size_t)trace[i]-(size_t)info.dli_fbase);
+    void *ptr;
+    if (dladdr(trace[i], &info)) {
+      ptr = (void *)((size_t)trace[i] - (size_t)info.dli_fbase);
     } else {
-      ptr=trace[i];
+      ptr = trace[i];
     }
 
     // Pipe stderr to /dev/null to avoid cluttering output
     // when addr2line fails or is not installed
-    snprintf(syscom, sizeof(syscom) - 1, "addr2line %p -Cfpie %.*s 2> /dev/null",
-             ptr, p, messages[i]);
+    snprintf(syscom, sizeof(syscom) - 1, "addr2line %p -Cfpie %.*s 2> /dev/null", ptr, p,
+             messages[i]);
     // last parameter is the file name of the symbol
     FILE *fp = popen(syscom, "r");
     if (fp != NULL) {
@@ -94,7 +94,6 @@ std::string BoutException::BacktraceGenerate() const{
 #endif
   return message;
 }
-
 
 #define INIT_EXCEPTION(s)                                                                \
   {                                                                                      \
@@ -131,10 +130,10 @@ BoutException::BoutException(const std::string msg) {
   this->Backtrace();
 }
 
-const char *BoutException::what() const noexcept{
+const char *BoutException::what() const noexcept {
 #ifdef BACKTRACE
-  _tmp=message;
-  _tmp+=BacktraceGenerate();
+  _tmp = message;
+  _tmp += BacktraceGenerate();
   return _tmp.c_str();
 #else
   return message.c_str();

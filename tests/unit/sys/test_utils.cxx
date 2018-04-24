@@ -1,5 +1,5 @@
+#include "bout/utils.hxx"
 #include "gtest/gtest.h"
-#include "utils.hxx"
 
 #include <string>
 
@@ -379,7 +379,8 @@ TEST(Invert3x3Test, BadCondition) {
   // Non-default small
   input = 0.;
   input(0, 0) = 1.0e-12;
-  input(1, 1) = 1.0; input(2, 2) = 1.0;
+  input(1, 1) = 1.0;
+  input(2, 2) = 1.0;
   EXPECT_NO_THROW(invert3x3(input, -1.0e-10));
 }
 
@@ -453,26 +454,20 @@ TEST(NumberUtilitiesTest, MinModInt) {
 }
 
 #if CHECK > 0
-TEST(NumberUtilitiesTest, CheckDataGood) {
-  EXPECT_NO_THROW(checkData(5.0));
-}
+TEST(NumberUtilitiesTest, CheckDataGood) { EXPECT_NO_THROW(checkData(5.0)); }
 
 TEST(NumberUtilitiesTest, CheckDataBad) {
   EXPECT_THROW(checkData(nan("")), BoutException);
 }
 #else
-TEST(NumberUtilitiesTest, CheckDataGoodDisabled) {
-  EXPECT_NO_THROW(checkData(5.0));
-}
+TEST(NumberUtilitiesTest, CheckDataGoodDisabled) { EXPECT_NO_THROW(checkData(5.0)); }
 
-TEST(NumberUtilitiesTest, CheckDataBadDisabled) {
-  EXPECT_NO_THROW(checkData(nan("")));
-}
+TEST(NumberUtilitiesTest, CheckDataBadDisabled) { EXPECT_NO_THROW(checkData(nan(""))); }
 #endif
 
 TEST(StringUtilitiesTest, CopyString) {
   const char hello[] = "Hello, world";
-  char* copy = copy_string(hello);
+  char *copy = copy_string(hello);
 
   EXPECT_STREQ(hello, copy);
 

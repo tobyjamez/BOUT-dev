@@ -1,7 +1,7 @@
 /*!
  * Visitor class for fields
  *
- * 
+ *
  */
 
 class FieldVisitor;
@@ -22,7 +22,6 @@ public:
   virtual void accept(Field3D &f) = 0;
   virtual void accept(Vector2D &f) = 0;
   virtual void accept(Vector3D &f) = 0;
-  
 };
 
 #endif // __FIELD_VISITOR_H__

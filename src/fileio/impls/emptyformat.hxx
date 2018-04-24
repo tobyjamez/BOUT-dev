@@ -1,12 +1,12 @@
 /**************************************************************************
  * Empty format class for throwing errors
- * 
+ *
  *
  **************************************************************************
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -29,61 +29,101 @@ class EmptyFormat;
 #ifndef __EMPTYSOLVER_H__
 #define __EMPTYSOLVER_H__
 
-#include <dataformat.hxx>
-#include <boutexception.hxx>
-#include <unused.hxx>
+#include <bout/boutexception.hxx>
+#include <bout/dataformat.hxx>
+#include <bout/unused.hxx>
 
 class EmptyFormat {
-  EmptyFormat() {throw BoutException("File format not enabled!");}
-  
-  bool openr(const string &UNUSED(name)) {return false; }
-  bool openw(const string &UNUSED(name), bool UNUSED(append)) {return false; }
-  
-  bool is_valid() {return false;}
-  
+  EmptyFormat() { throw BoutException("File format not enabled!"); }
+
+  bool openr(const string &UNUSED(name)) { return false; }
+  bool openw(const string &UNUSED(name), bool UNUSED(append)) { return false; }
+
+  bool is_valid() { return false; }
+
   void close() {}
-  
-  const vector<int> getSize(const char *UNUSED(var)) {vector<int> tmp; return tmp;}
-  const vector<int> getSize(const string &UNUSED(var)) {vector<int> tmp; return tmp;}
-  
-  bool setOrigin(int UNUSED(x) = 0, int UNUSED(y) = 0, int UNUSED(z) = 0) {return false;}
-  bool setRecord(int UNUSED(t)) {return false;}
-  
+
+  const vector<int> getSize(const char *UNUSED(var)) {
+    vector<int> tmp;
+    return tmp;
+  }
+  const vector<int> getSize(const string &UNUSED(var)) {
+    vector<int> tmp;
+    return tmp;
+  }
+
+  bool setOrigin(int UNUSED(x) = 0, int UNUSED(y) = 0, int UNUSED(z) = 0) {
+    return false;
+  }
+  bool setRecord(int UNUSED(t)) { return false; }
+
   bool read(int *UNUSED(var), const char *UNUSED(name), int UNUSED(lx) = 1,
-            int UNUSED(ly) = 0, int UNUSED(lz) = 0)        {return false;}
+            int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool read(int *UNUSED(var), const string &UNUSED(name), int UNUSED(lx) = 1,
-            int UNUSED(ly) = 0, int UNUSED(lz) = 0)      {return false;}
+            int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool read(BoutReal *UNUSED(var), const char *UNUSED(name), int UNUSED(lx) = 1,
-            int UNUSED(ly) = 0, int UNUSED(lz) = 0)   {return false;}
+            int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool read(BoutReal *UNUSED(var), const string &UNUSED(name), int UNUSED(lx) = 1,
-            int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
-  
+            int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
+
   bool write(int *UNUSED(var), const char *UNUSED(name), int UNUSED(lx) = 0,
-             int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
+             int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool write(int *UNUSED(var), const string &UNUSED(name), int UNUSED(lx) = 0,
-             int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
+             int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool write(BoutReal *UNUSED(var), const char *UNUSED(name), int UNUSED(lx) = 0,
-             int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
+             int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool write(BoutReal *UNUSED(var), const string &UNUSED(name), int UNUSED(lx) = 0,
-             int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
-  
+             int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
+
   bool read_rec(int *UNUSED(var), const char *UNUSED(name), int UNUSED(lx) = 1,
-                int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
+                int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool read_rec(int *UNUSED(var), const string &UNUSED(name), int UNUSED(lx) = 1,
-                int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
+                int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool read_rec(BoutReal *UNUSED(var), const char *UNUSED(name), int UNUSED(lx) = 1,
-                int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
+                int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool read_rec(BoutReal *UNUSED(var), const string &UNUSED(name), int UNUSED(lx) = 1,
-                int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
+                int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
 
   bool write_rec(int *UNUSED(var), const char *UNUSED(name), int UNUSED(lx) = 0,
-                 int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
+                 int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool write_rec(int *UNUSED(var), const string &UNUSED(name), int UNUSED(lx) = 0,
-                 int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
+                 int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool write_rec(BoutReal *UNUSED(var), const char *UNUSED(name), int UNUSED(lx) = 0,
-                 int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
+                 int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
   bool write_rec(BoutReal *UNUSED(var), const string &UNUSED(name), int UNUSED(lx) = 0,
-                 int UNUSED(ly) = 0, int UNUSED(lz) = 0) {return false;}
+                 int UNUSED(ly) = 0, int UNUSED(lz) = 0) {
+    return false;
+  }
 };
 
 #endif // __EMPTYSOLVER_H__

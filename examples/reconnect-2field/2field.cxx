@@ -5,10 +5,10 @@
 
 #include <bout/physicsmodel.hxx>
 
-#include <invert_laplace.hxx>
-#include <invert_parderiv.hxx>
-#include <initialprofiles.hxx>
 #include <bout/constants.hxx>
+#include <bout/initialprofiles.hxx>
+#include <bout/invert_laplace.hxx>
+#include <bout/invert_parderiv.hxx>
 
 class TwoField : public PhysicsModel {
 private:
@@ -62,7 +62,7 @@ protected:
     // Load 2D profiles
     GRID_LOAD3(Jpar0, Te0, Ni0);
     Ni0 *= 1e20; // To m^-3
-    
+
     // Coordinate system
     coord = mesh->coordinates();
 
@@ -203,7 +203,7 @@ protected:
 
     // Give the solver the preconditioner function
     setPrecon((preconfunc)&TwoField::precon);
-    
+
     // Initialise parallel inversion class
     inv = InvertPar::Create();
     inv->setCoefA(1.0);
@@ -330,14 +330,14 @@ public:
         for (int i = jpar_bndry; i >= 0; i--)
           for (int j = 0; j < mesh->LocalNy; j++)
             for (int k = 0; k < mesh->LocalNz; k++) {
-              Jp(i,j,k) = Jp(i + 1,j,k);
+              Jp(i, j, k) = Jp(i + 1, j, k);
             }
       }
       if (mesh->lastX()) {
         for (int i = mesh->LocalNx - jpar_bndry - 1; i < mesh->LocalNx; i++)
           for (int j = 0; j < mesh->LocalNy; j++)
             for (int k = 0; k < mesh->LocalNz; k++) {
-              Jp(i,j,k) = Jp(i - 1,j,k);
+              Jp(i, j, k) = Jp(i - 1, j, k);
             }
       }
     }

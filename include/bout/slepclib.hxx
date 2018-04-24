@@ -1,28 +1,28 @@
 /**************************************************************************
  * Provides access to the SLEPc library, handling initialisation and
- * finalisation. 
+ * finalisation.
  *
  * Usage
  * -----
  *
  * #include <bout/slepclib.hxx>
- * 
+ *
  * class MyClass {
  *   public:
- *   
+ *
  *   private:
  *     SlepcLib lib;
  * };
- * 
+ *
  *
  * This will then automatically initialise Slepc the first time an object
  * is created, and finalise it when the last object is destroyed.
- * 
+ *
  **************************************************************************
  * Copyright 2012 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -53,36 +53,38 @@ class SlepcLib {
 public:
   SlepcLib();
   ~SlepcLib();
-  
-  static void setArgs(int &c, char** &v) { pargc = &c; pargv = &v;}
-  
+
+  static void setArgs(int &c, char **&v) {
+    pargc = &c;
+    pargv = &v;
+  }
+
   static void cleanup(); // Force cleanup
 private:
-  static int count; // How many instances?
+  static int count;   // How many instances?
   static char help[]; // Help string
-  
+
   // Command-line arguments
-  static int* pargc;
-  static char*** pargv;
-  
+  static int *pargc;
+  static char ***pargv;
+
   static PetscLogEvent USER_EVENT;
 };
 
 #else // BOUT_HAS_SLEPC
 
-#include "unused.hxx"
+#include "bout/unused.hxx"
 
 class SlepcLib {
 public:
   SlepcLib() {}
   ~SlepcLib() {}
-  
-  static void setArgs(int &UNUSED(c), char** &UNUSED(v)) {}
-  
+
+  static void setArgs(int &UNUSED(c), char **&UNUSED(v)) {}
+
   static void cleanup() {}
 };
 
 #endif // BOUT_HAS_SLEPC
-
 
 #endif //  __SLEPCLIB_H__

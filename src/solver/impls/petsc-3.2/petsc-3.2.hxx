@@ -6,7 +6,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -33,10 +33,10 @@ class PetscSolver;
 
 #include <petsc.h>
 
-#include <field2d.hxx>
-#include <field3d.hxx>
-#include <vector2d.hxx>
-#include <vector3d.hxx>
+#include <bout/field2d.hxx>
+#include <bout/field3d.hxx>
+#include <bout/vector2d.hxx>
+#include <bout/vector3d.hxx>
 
 #include <bout/solver.hxx>
 
@@ -52,38 +52,38 @@ typedef PetscBool boole;
 using std::vector;
 
 extern BoutReal simtime;
-extern PetscErrorCode PetscMonitor(TS,PetscInt,PetscReal,Vec,void *ctx);
-extern int jstruc(int NVARS, int NXPE, int MXSUB, int NYPE, int MYSUB, int MZ, int MYG, int MXG);
+extern PetscErrorCode PetscMonitor(TS, PetscInt, PetscReal, Vec, void *ctx);
+extern int jstruc(int NVARS, int NXPE, int MXSUB, int NYPE, int MYSUB, int MZ, int MYG,
+                  int MXG);
 
-class PetscSolver: public Solver {
- public:
+class PetscSolver : public Solver {
+public:
   PetscSolver();
   ~PetscSolver();
-  
+
   int init(int NOUT, BoutReal TIMESTEP) override;
 
   int run() override;
 
   // These functions used internally (but need to be public)
-  PetscErrorCode rhs(TS ts,PetscReal t,Vec globalin,Vec globalout);  
-  friend PetscErrorCode PetscMonitor(TS,PetscInt,PetscReal,Vec,void *ctx);
+  PetscErrorCode rhs(TS ts, PetscReal t, Vec globalin, Vec globalout);
+  friend PetscErrorCode PetscMonitor(TS, PetscInt, PetscReal, Vec, void *ctx);
 
- private:
-  PetscLib lib; 
-  
-  Vec           u;
-  TS            ts;
-  Mat           J,Jmf;
+private:
+  PetscLib lib;
+
+  Vec u;
+  TS ts;
+  Mat J, Jmf;
   MatFDColoring matfdcoloring;
 
-  int nout;   // The number of outputs
+  int nout;       // The number of outputs
   BoutReal tstep; // Time between outputs
 
-  BoutReal next_output;  // When the monitor should be called next
+  BoutReal next_output; // When the monitor should be called next
 
   PetscBool interpolate; // Whether to interpolate or not
 };
-
 
 #endif // __PETSC_SOLVER_H__
 

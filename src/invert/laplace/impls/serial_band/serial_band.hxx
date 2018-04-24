@@ -6,7 +6,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -29,16 +29,16 @@ class LaplaceSerialBand;
 #ifndef __SERIAL_BAND_H__
 #define __SERIAL_BAND_H__
 
-#include <invert_laplace.hxx>
-#include <dcomplex.hxx>
-#include <options.hxx>
-#include <utils.hxx>
+#include <bout/dcomplex.hxx>
+#include <bout/invert_laplace.hxx>
+#include <bout/options.hxx>
+#include <bout/utils.hxx>
 
 class LaplaceSerialBand : public Laplacian {
 public:
   LaplaceSerialBand(Options *opt = NULL);
   ~LaplaceSerialBand(){};
-  
+
   using Laplacian::setCoefA;
   void setCoefA(const Field2D &val) override { Acoef = val; }
   using Laplacian::setCoefC;
@@ -57,9 +57,10 @@ public:
   using Laplacian::solve;
   const FieldPerp solve(const FieldPerp &b) override;
   const FieldPerp solve(const FieldPerp &b, const FieldPerp &x0) override;
+
 private:
   Field2D Acoef, Ccoef, Dcoef;
-  
+
   Matrix<dcomplex> bk, xk, A;
   Array<dcomplex> bk1d, xk1d;
 };

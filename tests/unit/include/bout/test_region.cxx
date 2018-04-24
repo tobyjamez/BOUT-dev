@@ -1,12 +1,12 @@
 #include "gtest/gtest.h"
 
+#include "bout/boutexception.hxx"
 #include "bout/constants.hxx"
 #include "bout/mesh.hxx"
+#include "bout/output.hxx"
 #include "bout/region.hxx"
-#include "boutexception.hxx"
-#include "output.hxx"
+#include "bout/unused.hxx"
 #include "test_extras.hxx"
-#include "unused.hxx"
 
 #include <algorithm>
 #include <list>
@@ -1193,9 +1193,8 @@ TYPED_TEST(RegionIndexTest, RangeBasedForLoop) {
 /////////////////////////////////////////////////////////
 // Type-parameterised tests for SpecificInd, Ind2D, Ind3D
 
-template <typename T>
-class FieldIndexTest : public ::testing::Test {
- public:
+template <typename T> class FieldIndexTest : public ::testing::Test {
+public:
   typedef std::list<T> List;
   static T shared_;
   T value_;

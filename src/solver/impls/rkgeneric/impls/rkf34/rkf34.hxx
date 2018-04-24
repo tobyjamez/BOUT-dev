@@ -5,14 +5,14 @@ class RKF34Scheme;
 #define __RKF34_SCHEME_H__
 
 #include <bout/rkscheme.hxx>
-#include <utils.hxx>
+#include <bout/utils.hxx>
 
-class RKF34Scheme : public RKScheme{
- public:
+class RKF34Scheme : public RKScheme {
+public:
   RKF34Scheme(Options *options);
   ~RKF34Scheme();
- private:
 
+private:
 };
 
 #endif // __RKF34_SCHEME_H__

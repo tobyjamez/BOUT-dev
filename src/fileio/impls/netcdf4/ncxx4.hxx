@@ -9,13 +9,13 @@
  * Records: In netCDF, the time dimension for each dimension must be
  * the same. Hence when a record is appended to a variable, the size
  * of all variables is increased. To work out which record to write to,
- * a map of variable names to record number is kept. 
- * 
+ * a map of variable names to record number is kept.
+ *
  **************************************************************************
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -45,8 +45,8 @@ class Ncxx4;
 #ifndef __NCFORMAT4_H__
 #define __NCFORMAT4_H__
 
-#include "dataformat.hxx"
-#include "unused.hxx"
+#include "bout/dataformat.hxx"
+#include "bout/unused.hxx"
 
 #include <netcdf>
 
@@ -55,7 +55,7 @@ class Ncxx4;
 #include <vector>
 
 class Ncxx4 : public DataFormat {
- public:
+public:
   Ncxx4();
   Ncxx4(const char *name);
   Ncxx4(const std::string &name) : Ncxx4(name.c_str()) {}
@@ -64,19 +64,19 @@ class Ncxx4 : public DataFormat {
   using DataFormat::openr;
   bool openr(const char *name) override;
   using DataFormat::openw;
-  bool openw(const char *name, bool append=false) override;
-  
+  bool openw(const char *name, bool append = false) override;
+
   bool is_valid() override;
-  
+
   void close() override;
-  
+
   void flush() override;
 
-  const char* filename() { return fname; };
+  const char *filename() { return fname; };
 
   const vector<int> getSize(const char *var) override;
   const vector<int> getSize(const string &var) override;
-  
+
   // Set the origin for all subsequent calls
   bool setGlobalOrigin(int x = 0, int y = 0, int z = 0) override;
   bool setLocalOrigin(int x = 0, int y = 0, int z = 0, int UNUSED(offset_x) = 0,
@@ -88,44 +88,55 @@ class Ncxx4 : public DataFormat {
   // Read / Write simple variables up to 3D
 
   bool read(int *var, const char *name, int lx = 1, int ly = 0, int lz = 0) override;
-  bool read(int *var, const std::string &name, int lx = 1, int ly = 0, int lz = 0) override;
+  bool read(int *var, const std::string &name, int lx = 1, int ly = 0,
+            int lz = 0) override;
   bool read(BoutReal *var, const char *name, int lx = 1, int ly = 0, int lz = 0) override;
-  bool read(BoutReal *var, const std::string &name, int lx = 1, int ly = 0, int lz = 0) override;
+  bool read(BoutReal *var, const std::string &name, int lx = 1, int ly = 0,
+            int lz = 0) override;
 
   bool write(int *var, const char *name, int lx = 0, int ly = 0, int lz = 0) override;
-  bool write(int *var, const std::string &name, int lx = 0, int ly = 0, int lz = 0) override;
-  bool write(BoutReal *var, const char *name, int lx = 0, int ly = 0, int lz = 0) override;
-  bool write(BoutReal *var, const std::string &name, int lx = 0, int ly = 0, int lz = 0) override;
+  bool write(int *var, const std::string &name, int lx = 0, int ly = 0,
+             int lz = 0) override;
+  bool write(BoutReal *var, const char *name, int lx = 0, int ly = 0,
+             int lz = 0) override;
+  bool write(BoutReal *var, const std::string &name, int lx = 0, int ly = 0,
+             int lz = 0) override;
 
   // Read / Write record-based variables
 
   bool read_rec(int *var, const char *name, int lx = 1, int ly = 0, int lz = 0) override;
-  bool read_rec(int *var, const std::string &name, int lx = 1, int ly = 0, int lz = 0) override;
-  bool read_rec(BoutReal *var, const char *name, int lx = 1, int ly = 0, int lz = 0) override;
-  bool read_rec(BoutReal *var, const std::string &name, int lx = 1, int ly = 0, int lz = 0) override;
+  bool read_rec(int *var, const std::string &name, int lx = 1, int ly = 0,
+                int lz = 0) override;
+  bool read_rec(BoutReal *var, const char *name, int lx = 1, int ly = 0,
+                int lz = 0) override;
+  bool read_rec(BoutReal *var, const std::string &name, int lx = 1, int ly = 0,
+                int lz = 0) override;
 
   bool write_rec(int *var, const char *name, int lx = 0, int ly = 0, int lz = 0) override;
-  bool write_rec(int *var, const std::string &name, int lx = 0, int ly = 0, int lz = 0) override;
-  bool write_rec(BoutReal *var, const char *name, int lx = 0, int ly = 0, int lz = 0) override;
-  bool write_rec(BoutReal *var, const std::string &name, int lx = 0, int ly = 0, int lz = 0) override;
-  
+  bool write_rec(int *var, const std::string &name, int lx = 0, int ly = 0,
+                 int lz = 0) override;
+  bool write_rec(BoutReal *var, const char *name, int lx = 0, int ly = 0,
+                 int lz = 0) override;
+  bool write_rec(BoutReal *var, const std::string &name, int lx = 0, int ly = 0,
+                 int lz = 0) override;
+
   void setLowPrecision() override { lowPrecision = true; }
 
   // Attributes
 
-  void setAttribute(const string &varname, const string &attrname, const string &text) override;
+  void setAttribute(const string &varname, const string &attrname,
+                    const string &text) override;
   void setAttribute(const string &varname, const string &attrname, int value) override;
-  
- private:
 
+private:
   char *fname; ///< Current file name
 
   /// Pointer to netCDF file
   netCDF::NcFile *dataFile;
-  
+
   /// Dimensions
   netCDF::NcDim xDim, yDim, zDim, tDim;
-  const netCDF::NcDim **dimList; ///< List of dimensions (x,y,z)
+  const netCDF::NcDim **dimList;    ///< List of dimensions (x,y,z)
   const netCDF::NcDim **recDimList; ///< List of dimensions (t,x,y,z)
 
   bool appending;
@@ -134,8 +145,8 @@ class Ncxx4 : public DataFormat {
   int x0, y0, z0, t0; ///< Data origins
 
   std::map<std::string, int> rec_nr; // Record number for each variable (bit nasty)
-  int default_rec;  // Starting record. Useful when appending to existing file
-  
+  int default_rec; // Starting record. Useful when appending to existing file
+
   std::vector<netCDF::NcDim> getDimVec(int nd);
   std::vector<netCDF::NcDim> getRecDimVec(int nd);
 };

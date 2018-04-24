@@ -24,7 +24,7 @@
  *
  **************************************************************************/
 
-//Adding support for 3.4 based on BOUT++ 3.3 code <DD>
+// Adding support for 3.4 based on BOUT++ 3.3 code <DD>
 
 #ifdef BOUT_HAS_PETSC_3_4
 class PetscSolver;
@@ -34,10 +34,10 @@ class PetscSolver;
 
 #include <petsc.h>
 
-#include <field2d.hxx>
-#include <field3d.hxx>
-#include <vector2d.hxx>
-#include <vector3d.hxx>
+#include <bout/field2d.hxx>
+#include <bout/field3d.hxx>
+#include <bout/vector2d.hxx>
+#include <bout/vector3d.hxx>
 
 #include <bout/solver.hxx>
 
@@ -53,11 +53,13 @@ typedef PetscBool boole;
 using std::vector;
 
 extern BoutReal simtime;
-extern PetscErrorCode PetscMonitor(TS,PetscInt,PetscReal,Vec,void *ctx);
-extern PetscErrorCode PetscSNESMonitor(SNES,PetscInt,PetscReal,void *ctx);
-extern int jstruc(int NVARS, int NXPE, int MXSUB, int NYPE, int MYSUB, int MZ, int MYG, int MXG);
+extern PetscErrorCode PetscMonitor(TS, PetscInt, PetscReal, Vec, void *ctx);
+extern PetscErrorCode PetscSNESMonitor(SNES, PetscInt, PetscReal, void *ctx);
+extern int jstruc(int NVARS, int NXPE, int MXSUB, int NYPE, int MYSUB, int MZ, int MYG,
+                  int MXG);
 
-extern PetscErrorCode solver_ijacobian(TS,PetscReal,Vec,Vec,PetscReal,Mat*,Mat*,MatStructure*,void*);
+extern PetscErrorCode solver_ijacobian(TS, PetscReal, Vec, Vec, PetscReal, Mat *, Mat *,
+                                       MatStructure *, void *);
 
 typedef struct snes_info {
   PetscInt it;
@@ -67,12 +69,12 @@ typedef struct snes_info {
 } snes_info;
 
 class PetscSolver : public Solver {
- public:
+public:
   PetscSolver(Options *opt = NULL);
   ~PetscSolver();
 
   // Can be called from physics initialisation to supply callbacks
-  void setJacobian(Jacobian j) {jacfunc = j; }
+  void setJacobian(Jacobian j) { jacfunc = j; }
 
   int init(int NOUT, BoutReal TIMESTEP) override;
 
@@ -81,36 +83,38 @@ class PetscSolver : public Solver {
 
   // These functions used internally (but need to be public)
 
-  PetscErrorCode rhs(TS ts,PetscReal t,Vec globalin,Vec globalout);
+  PetscErrorCode rhs(TS ts, PetscReal t, Vec globalin, Vec globalout);
   PetscErrorCode pre(PC pc, Vec x, Vec y);
   PetscErrorCode jac(Vec x, Vec y);
-  friend PetscErrorCode PetscMonitor(TS,PetscInt,PetscReal,Vec,void *ctx);
-  friend PetscErrorCode PetscSNESMonitor(SNES,PetscInt,PetscReal,void *ctx);
-  friend PetscErrorCode solver_ijacobian(TS,PetscReal,Vec,Vec,PetscReal,Mat*,Mat*,MatStructure*,void*);
+  friend PetscErrorCode PetscMonitor(TS, PetscInt, PetscReal, Vec, void *ctx);
+  friend PetscErrorCode PetscSNESMonitor(SNES, PetscInt, PetscReal, void *ctx);
+  friend PetscErrorCode solver_ijacobian(TS, PetscReal, Vec, Vec, PetscReal, Mat *, Mat *,
+                                         MatStructure *, void *);
 
   PetscLogEvent solver_event, loop_event, init_event;
- private:
+
+private:
   PetscLib lib; // Handles initialize / finalize
-  
+
   Jacobian jacfunc; // Jacobian - vector function
 
-  BoutReal shift;   // Shift (alpha) parameter from TS
+  BoutReal shift; // Shift (alpha) parameter from TS
   Vec state;
   BoutReal ts_time;
 
-  Vec           u;
-  TS            ts;
-  Mat           J,Jmf;
+  Vec u;
+  TS ts;
+  Mat J, Jmf;
   MatFDColoring matfdcoloring;
 
   Options *options;
 
-  int nout;   // The number of outputs
+  int nout;       // The number of outputs
   BoutReal tstep; // Time between outputs
 
   bool diagnose;
 
-  BoutReal next_output;  // When the monitor should be called next
+  BoutReal next_output; // When the monitor should be called next
 
   PetscBool interpolate; // Whether to interpolate or not
 
@@ -120,7 +124,6 @@ class PetscSolver : public Solver {
   BoutReal bout_snes_time;
   vector<snes_info> snes_list;
 };
-
 
 #endif // __PETSC_SOLVER_H__
 

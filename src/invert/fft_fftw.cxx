@@ -25,11 +25,11 @@
  *
  **************************************************************************/
 
-#include <globals.hxx>
-#include <options.hxx>
-#include <fft.hxx>
 #include <bout/constants.hxx>
+#include <bout/fft.hxx>
+#include <bout/globals.hxx>
 #include <bout/openmpwrap.hxx>
+#include <bout/options.hxx>
 
 #include <fftw3.h>
 #include <math.h>
@@ -41,11 +41,10 @@
 bool fft_options = false;
 bool fft_measure;
 
-void fft_init()
-{
-  if(fft_options)
+void fft_init() {
+  if (fft_options)
     return;
-  //BOUT_OMP(critical)
+  // BOUT_OMP(critical)
   {
     Options *opt = Options::getRoot();
     opt = opt->getSection("fft");
@@ -68,9 +67,9 @@ void rfft(const BoutReal *in, int length, dcomplex *out) {
   static int n = 0;
 
   // If the current length mismatches n
-  if(length != n) {
+  if (length != n) {
     // If n has been used before
-    if(n > 0) {
+    if (n > 0) {
       // Free the previously initialized data
       fftw_destroy_plan(p);
       fftw_free(fin);
@@ -80,16 +79,16 @@ void rfft(const BoutReal *in, int length, dcomplex *out) {
     fft_init();
 
     // Initialize the input for the fourier transformation
-    fin = (double*) fftw_malloc(sizeof(double) * length);
+    fin = (double *)fftw_malloc(sizeof(double) * length);
     // Initialize the output of the fourier transformation
     /* NOTE: Only the non-redundant output is given
      *       I.e the offset and the positive frequencies (so no mirroring
      *       around the Nyquist frequency)
      */
-    fout = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * (length/2 + 1));
+    fout = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * (length / 2 + 1));
 
     unsigned int flags = FFTW_ESTIMATE;
-    if(fft_measure)
+    if (fft_measure)
       flags = FFTW_MEASURE;
 
     /* fftw call
@@ -103,27 +102,27 @@ void rfft(const BoutReal *in, int length, dcomplex *out) {
   }
 
   // Put the input to fin
-  for(int i=0;i<n;i++)
+  for (int i = 0; i < n; i++)
     fin[i] = in[i];
 
   // fftw call executing the fft
   fftw_execute(p);
-  
-  //Normalising factor
-  const BoutReal fac = 1.0/((double) n);
-  const int nmodes = (n/2) + 1;
+
+  // Normalising factor
+  const BoutReal fac = 1.0 / ((double)n);
+  const int nmodes = (n / 2) + 1;
 
   // Store the output in out, and normalize
-  for(int i=0;i<nmodes;i++)
+  for (int i = 0; i < nmodes; i++)
     out[i] = dcomplex(fout[i][0], fout[i][1]) * fac; // Normalise
 }
 
 const Array<dcomplex> rfft(const Array<BoutReal> &in) {
   ASSERT1(!in.empty()); // Check that there is data
-  
+
   int size = in.size();
   Array<dcomplex> out(size); // Allocates data array
-  
+
   rfft(in.begin(), size, out.begin());
   return out;
 }
@@ -136,9 +135,9 @@ void irfft(const dcomplex *in, int length, BoutReal *out) {
   static int n = 0;
 
   // If the current length mismatches n
-  if(length != n) {
+  if (length != n) {
     // If n has been used before
-    if(n > 0) {
+    if (n > 0) {
       // Free the previously initialized data
       fftw_destroy_plan(p);
       fftw_free(fin);
@@ -152,12 +151,12 @@ void irfft(const dcomplex *in, int length, BoutReal *out) {
      *       I.e the offset and the positive frequencies (so no mirroring
      *       around the Nyquist frequency)
      */
-    fin = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * (length/2 + 1));
+    fin = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * (length / 2 + 1));
     // Initialize the output of the fourier transformation
-    fout = (double*) fftw_malloc(sizeof(double) * length);
+    fout = (double *)fftw_malloc(sizeof(double) * length);
 
     unsigned int flags = FFTW_ESTIMATE;
-    if(fft_measure)
+    if (fft_measure)
       flags = FFTW_MEASURE;
 
     /* fftw call
@@ -171,8 +170,8 @@ void irfft(const dcomplex *in, int length, BoutReal *out) {
   }
 
   // Store the real and imaginary parts in the proper way
-  const int nmodes = (n/2) + 1;
-  for(int i=0;i<nmodes;i++) {
+  const int nmodes = (n / 2) + 1;
+  for (int i = 0; i < nmodes; i++) {
     fin[i][0] = in[i].real();
     fin[i][1] = in[i].imag();
   }
@@ -181,7 +180,7 @@ void irfft(const dcomplex *in, int length, BoutReal *out) {
   fftw_execute(p);
 
   // Store the output of the fftw to the out
-  for(int i=0;i<n;i++)
+  for (int i = 0; i < n; i++)
     out[i] = fout[i];
 }
 
@@ -208,9 +207,9 @@ void rfft(const BoutReal *in, int length, dcomplex *out) {
     // if there are 8 threads but only 4 call the fft routine).
     BOUT_OMP(critical(rfft))
     if ((size != length) || (nthreads < n_th)) {
-      if(size > 0) {
+      if (size > 0) {
         // Free all memory
-        for(int i=0;i<nthreads;i++)
+        for (int i = 0; i < nthreads; i++)
           fftw_destroy_plan(p[i]);
         delete[] p;
         fftw_free(finall);
@@ -219,20 +218,21 @@ void rfft(const BoutReal *in, int length, dcomplex *out) {
 
       fft_init();
 
-      finall = (double*) fftw_malloc(sizeof(double) * length * n_th);
-      foutall = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * (length/2 + 1) * n_th);
-      p = new fftw_plan[n_th]; //Never freed
+      finall = (double *)fftw_malloc(sizeof(double) * length * n_th);
+      foutall =
+          (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * (length / 2 + 1) * n_th);
+      p = new fftw_plan[n_th]; // Never freed
 
       unsigned int flags = FFTW_ESTIMATE;
-      if(fft_measure)
+      if (fft_measure)
         flags = FFTW_MEASURE;
 
-      for(int i=0;i<n_th;i++)
+      for (int i = 0; i < n_th; i++)
         // fftw call
         // Plan a real-input/complex-output discrete Fourier transform (DFT)
         // in 1 dimensions. Returns a fftw_plan (containing pointers etc.)
-        p[i] = fftw_plan_dft_r2c_1d(length, finall+i*length,
-                                    foutall+i*(length/2 + 1), flags);
+        p[i] = fftw_plan_dft_r2c_1d(length, finall + i * length,
+                                    foutall + i * (length / 2 + 1), flags);
       size = length;
       nthreads = n_th;
     }
@@ -248,11 +248,11 @@ void rfft(const BoutReal *in, int length, dcomplex *out) {
   // fftw call executing the fft
   fftw_execute(p[th_id]);
 
-  //Normalising factor
+  // Normalising factor
   const BoutReal fac = 1.0 / static_cast<BoutReal>(size);
   const int nmodes = (size / 2) + 1;
 
-  for(int i=0;i<nmodes;i++)
+  for (int i = 0; i < nmodes; i++)
     out[i] = dcomplex(fout[i][0], fout[i][1]) * fac; // Normalise
 }
 
@@ -312,7 +312,7 @@ void irfft(const dcomplex *in, int length, BoutReal *out) {
 
   const int nmodes = (size / 2) + 1;
 
-  for(int i=0;i<nmodes;i++) {
+  for (int i = 0; i < nmodes; i++) {
     fin[i][0] = in[i].real();
     fin[i][1] = in[i].imag();
   }
@@ -335,49 +335,48 @@ void DST(const BoutReal *in, int length, dcomplex *out) {
 
   ASSERT1(length > 0);
 
-  if(length != n) {
-    if(n > 0) {
+  if (length != n) {
+    if (n > 0) {
       fftw_destroy_plan(p);
       fftw_free(fin);
       fftw_free(fout);
-      }
+    }
 
     //  fft_init();
 
     // Could be optimized better
-    fin = (double*) fftw_malloc(sizeof(double) * 2 * length);
-    fout = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * 2 * length);
-
+    fin = (double *)fftw_malloc(sizeof(double) * 2 * length);
+    fout = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * 2 * length);
 
     unsigned int flags = FFTW_ESTIMATE;
-    if(fft_measure)
+    if (fft_measure)
       flags = FFTW_MEASURE;
 
     // fftw call
     // Plan a real-input/complex-output discrete Fourier transform (DFT)
     // in 1 dimensions. Returns a fftw_plan (containing pointers etc.)
-    p = fftw_plan_dft_r2c_1d(2*(length-1), fin, fout, flags);
+    p = fftw_plan_dft_r2c_1d(2 * (length - 1), fin, fout, flags);
 
     n = length;
   }
-  for(int i=0;i<n;i++)
+  for (int i = 0; i < n; i++)
     fin[i] = in[i];
 
   fin[0] = 0.;
-  fin[length-1]=0.;
+  fin[length - 1] = 0.;
 
-  for (int j = 1; j < length-1; j++){
-      fin[j] = in[j];
-      fin[2*(length-1)-j] = - in[j];
+  for (int j = 1; j < length - 1; j++) {
+    fin[j] = in[j];
+    fin[2 * (length - 1) - j] = -in[j];
   }
 
   // fftw call executing the fft
   fftw_execute(p);
 
-  out[0]=0.0;
-  out[length-1]=0.0;
+  out[0] = 0.0;
+  out[length - 1] = 0.0;
 
-  for(int i=1;i<length-1;i++)
+  for (int i = 1; i < length - 1; i++)
     out[i] = -fout[i][1] / (static_cast<BoutReal>(length) - 1); // Normalise
 }
 
@@ -389,46 +388,50 @@ void DST_rev(dcomplex *in, int length, BoutReal *out) {
 
   ASSERT1(length > 0);
 
-  if(length != n) {
-    if(n > 0) {
+  if (length != n) {
+    if (n > 0) {
       fftw_destroy_plan(p);
       fftw_free(fin);
       fftw_free(fout);
     }
 
-    //fft_init();
+    // fft_init();
 
     // Could be optimized better
-    fin = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * 2 * (length-1));
-    fout = (double*) fftw_malloc(sizeof(double)  * 2 * (length-1));
+    fin = (fftw_complex *)fftw_malloc(sizeof(fftw_complex) * 2 * (length - 1));
+    fout = (double *)fftw_malloc(sizeof(double) * 2 * (length - 1));
 
     unsigned int flags = FFTW_ESTIMATE;
-    if(fft_measure)
+    if (fft_measure)
       flags = FFTW_MEASURE;
 
-    p = fftw_plan_dft_c2r_1d(2*(length-1), fin, fout, flags);
+    p = fftw_plan_dft_c2r_1d(2 * (length - 1), fin, fout, flags);
 
     n = length;
   }
 
-  for(int i=0;i<n;i++){
+  for (int i = 0; i < n; i++) {
     fin[i][0] = in[i].real();
     fin[i][1] = in[i].imag();
   }
 
-  fin[0][0] = 0.; fin[0][1] = 0.;
-  fin[length-1][0] = 0.; fin[length-1][1] = 0.;
+  fin[0][0] = 0.;
+  fin[0][1] = 0.;
+  fin[length - 1][0] = 0.;
+  fin[length - 1][1] = 0.;
 
-  for (int j = 1; j < length-1; j++){
-    fin[j][0] = 0.; fin[j][1] = -in[j].real()/2.;
-    fin[2*(length-1)-j][0] = 0.; fin[2*(length-1)-j][1] =  in[j].real()/2.;
+  for (int j = 1; j < length - 1; j++) {
+    fin[j][0] = 0.;
+    fin[j][1] = -in[j].real() / 2.;
+    fin[2 * (length - 1) - j][0] = 0.;
+    fin[2 * (length - 1) - j][1] = in[j].real() / 2.;
   }
 
   // fftw call executing the fft
   fftw_execute(p);
 
-  out[0]=0.0;
-  out[length-1]=0.0;
-  for(int i=1;i<length-1;i++)
+  out[0] = 0.0;
+  out[length - 1] = 0.0;
+  for (int i = 1; i < length - 1; i++)
     out[i] = fout[i];
 }

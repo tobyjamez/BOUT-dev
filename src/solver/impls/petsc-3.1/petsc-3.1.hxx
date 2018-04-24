@@ -6,7 +6,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -32,10 +32,10 @@ class PetscSolver;
 
 #include <petscts.h>
 
-#include <field2d.hxx>
-#include <field3d.hxx>
-#include <vector2d.hxx>
-#include <vector3d.hxx>
+#include <bout/field2d.hxx>
+#include <bout/field3d.hxx>
+#include <bout/vector2d.hxx>
+#include <bout/vector3d.hxx>
 
 #include <bout/solver.hxx>
 
@@ -54,37 +54,37 @@ typedef int (*rhsfunc)(BoutReal);
 
 EXTERN PetscErrorCode PreStep(TS);
 EXTERN PetscErrorCode PostStep(TS);
-EXTERN int jstruc(int NVARS, int NXPE, int MXSUB, int NYPE, int MYSUB, int MZ, int MYG, int MXG);
+EXTERN int jstruc(int NVARS, int NXPE, int MXSUB, int NYPE, int MYSUB, int MZ, int MYG,
+                  int MXG);
 
 class PetscSolver : public Solver {
- public:
+public:
   PetscSolver();
   ~PetscSolver();
-  
+
   int init(int NOUT, BoutReal TIMESTEP) override;
 
   int run() override;
 
   // These functions used internally (but need to be public)
-  PetscErrorCode rhs(TS ts,PetscReal t,Vec globalin,Vec globalout);
+  PetscErrorCode rhs(TS ts, PetscReal t, Vec globalin, Vec globalout);
   friend PetscErrorCode PreStep(TS);
   friend PetscErrorCode PostStep(TS);
 
- private:
+private:
   PetscLib lib; // Handles initialisation and finalisation
-  
-  Vec           u;
-  TS            ts;
-  Mat           J;
+
+  Vec u;
+  TS ts;
+  Mat J;
   MatFDColoring matfdcoloring;
 
-  int nout;   // The number of outputs
+  int nout;       // The number of outputs
   BoutReal tstep; // Time between outputs
 
-  BoutReal next_time;  // When the monitor should be called next
-  bool outputnext; // true if the monitor should be called next time
+  BoutReal next_time; // When the monitor should be called next
+  bool outputnext;    // true if the monitor should be called next time
 };
-
 
 #endif // __PETSC31_SOLVER_H__
 

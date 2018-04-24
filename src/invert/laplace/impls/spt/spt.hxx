@@ -1,16 +1,16 @@
 /**************************************************************************
- * Perpendicular Laplacian inversion. 
+ * Perpendicular Laplacian inversion.
  *                           PARALLEL CODE - SIMPLE ALGORITHM
- * 
+ *
  * I'm just calling this Simple Parallel Tridag. Naive parallelisation of
  * the serial code. For use as a reference case.
- * 
+ *
  * Overlap calculation / communication of poloidal slices to achieve some
  * parallelism.
  *
  * Changelog
  * ---------
- * 
+ *
  * 2014-06  Ben Dudson <benjamin.dudson@york.ac.uk>
  *     * Removed static variables in functions, changing to class members.
  *
@@ -18,7 +18,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -41,21 +41,24 @@ class LaplaceSPT;
 #ifndef __SPT_H__
 #define __SPT_H__
 
-#include <invert_laplace.hxx>
-#include <dcomplex.hxx>
-#include <options.hxx>
-#include <utils.hxx>
+#include <bout/dcomplex.hxx>
+#include <bout/invert_laplace.hxx>
+#include <bout/options.hxx>
+#include <bout/utils.hxx>
 
 /// Simple parallelisation of the Thomas tridiagonal solver algorithm (serial code)
 /*!
  * This is a reference code which performs the same operations as the serial code.
  * To invert a single XZ slice (FieldPerp object), data must pass from the innermost
- * processor (mesh->PE_XIND = 0) to the outermost (mesh->PE_XIND = mesh->NXPE-1) and back again.
+ * processor (mesh->PE_XIND = 0) to the outermost (mesh->PE_XIND = mesh->NXPE-1) and back
+ * again.
  *
  * Some parallelism is achieved by running several inversions simultaneously, so while
  * processor #1 is inverting Y=0, processor #0 is starting on Y=1. This works ok as long
- * as the number of slices to be inverted is greater than the number of X processors (MYSUB > mesh->NXPE).
- * If MYSUB < mesh->NXPE then not all processors can be busy at once, and so efficiency will fall sharply.
+ * as the number of slices to be inverted is greater than the number of X processors
+ * (MYSUB > mesh->NXPE).
+ * If MYSUB < mesh->NXPE then not all processors can be busy at once, and so efficiency
+ * will fall sharply.
  *
  * @param[in]    b      RHS values (Ax = b)
  * @param[in]    flags  Inversion settings (see boundary.h for values)
@@ -68,7 +71,7 @@ class LaplaceSPT : public Laplacian {
 public:
   LaplaceSPT(Options *opt = NULL);
   ~LaplaceSPT();
-  
+
   using Laplacian::setCoefA;
   void setCoefA(const Field2D &val) override { Acoef = val; }
   using Laplacian::setCoefC;
@@ -87,58 +90,56 @@ public:
   using Laplacian::solve;
   const FieldPerp solve(const FieldPerp &b) override;
   const FieldPerp solve(const FieldPerp &b, const FieldPerp &x0) override;
-  
+
   const Field3D solve(const Field3D &b) override;
   const Field3D solve(const Field3D &b, const Field3D &x0) override;
+
 private:
   enum { SPT_DATA = 1123 }; ///< 'magic' number for SPT MPI messages
-  
+
   Field2D Acoef, Ccoef, Dcoef;
 
   /// Data structure for SPT algorithm
   struct SPT_data {
     SPT_data() : comm_tag(SPT_DATA) {}
     void allocate(int mm, int nx); // Allocates memory
-    ~SPT_data(){}; // Free memory
-    
+    ~SPT_data(){};                 // Free memory
+
     int jy; ///< Y index
-    
-    Matrix<dcomplex> bk;  ///< b vector in Fourier space
+
+    Matrix<dcomplex> bk; ///< b vector in Fourier space
     Matrix<dcomplex> xk;
 
     Matrix<dcomplex> gam;
-  
+
     Matrix<dcomplex> avec, bvec, cvec; ///< Diagonal bands of matrix
 
     int proc; // Which processor has this reached?
     int dir;  // Which direction is it going?
-  
+
     comm_handle recv_handle; // Handle for receives
-  
+
     int comm_tag; // Tag for communication
-  
+
     Array<BoutReal> buffer;
   };
-  
+
   int ys, ye;         // Range of Y indices
   SPT_data slicedata; // Used to solve for a single FieldPerp
-  SPT_data* alldata;  // Used to solve a Field3D
+  SPT_data *alldata;  // Used to solve a Field3D
 
   Array<dcomplex> dc1d; ///< 1D in Z for taking FFTs
 
-  void tridagForward(dcomplex *a, dcomplex *b, dcomplex *c,
-                      dcomplex *r, dcomplex *u, int n,
-                      dcomplex *gam,
-                      dcomplex &bet, dcomplex &um, bool start=false);
-  void tridagBack(dcomplex *u, int n,
-                   dcomplex *gam, dcomplex &gp, dcomplex &up);
-  
-  int start(const FieldPerp &b, SPT_data &data);
-  
-  int next(SPT_data &data);
-  
-  void finish(SPT_data &data, FieldPerp &x);
+  void tridagForward(dcomplex *a, dcomplex *b, dcomplex *c, dcomplex *r, dcomplex *u,
+                     int n, dcomplex *gam, dcomplex &bet, dcomplex &um,
+                     bool start = false);
+  void tridagBack(dcomplex *u, int n, dcomplex *gam, dcomplex &gp, dcomplex &up);
 
+  int start(const FieldPerp &b, SPT_data &data);
+
+  int next(SPT_data &data);
+
+  void finish(SPT_data &data, FieldPerp &x);
 };
 
 #endif // __SPT_H__

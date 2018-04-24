@@ -1,14 +1,15 @@
 #include "laplacexz-cyclic.hxx"
 
-#include <utils.hxx>
-#include <fft.hxx>
 #include <bout/constants.hxx>
+#include <bout/fft.hxx>
+#include <bout/msg_stack.hxx>
 #include <bout/sys/timer.hxx>
-#include <msg_stack.hxx>
+#include <bout/utils.hxx>
 
-#include <output.hxx>
+#include <bout/output.hxx>
 
-LaplaceXZcyclic::LaplaceXZcyclic(Mesh *m, Options *options) : LaplaceXZ(m, options), mesh(m) {
+LaplaceXZcyclic::LaplaceXZcyclic(Mesh *m, Options *options)
+    : LaplaceXZ(m, options), mesh(m) {
 
   // Number of Z Fourier modes, including DC
   nmode = (m->LocalNz) / 2 + 1;
@@ -31,9 +32,9 @@ LaplaceXZcyclic::LaplaceXZcyclic(Mesh *m, Options *options) : LaplaceXZ(m, optio
   // including boundaries but not guard cells
   nloc = xend - xstart + 1;
 
-  acoef  = Matrix<dcomplex>(nsys, nloc);
-  bcoef  = Matrix<dcomplex>(nsys, nloc);
-  ccoef  = Matrix<dcomplex>(nsys, nloc);
+  acoef = Matrix<dcomplex>(nsys, nloc);
+  bcoef = Matrix<dcomplex>(nsys, nloc);
+  ccoef = Matrix<dcomplex>(nsys, nloc);
   xcmplx = Matrix<dcomplex>(nsys, nloc);
   rhscmplx = Matrix<dcomplex>(nsys, nloc);
 
@@ -59,29 +60,29 @@ LaplaceXZcyclic::~LaplaceXZcyclic() {
 void LaplaceXZcyclic::setCoefs(const Field2D &A2D, const Field2D &B2D) {
   TRACE("LaplaceXZcyclic::setCoefs");
   Timer timer("invert");
-  
+
   // Set coefficients
 
   Coordinates *coord = mesh->coordinates();
 
   // NOTE: For now the X-Z terms are omitted, so check that they are small
   ASSERT2(max(abs(coord->g13)) < 1e-5);
-  
-  int ind = 0;
-  for(int y=mesh->ystart; y <= mesh->yend; y++) {
-    for(int kz = 0; kz < nmode; kz++) {
-      BoutReal kwave=kz*2.0*PI/(coord->zlength());
 
-      if(mesh->firstX()) {
+  int ind = 0;
+  for (int y = mesh->ystart; y <= mesh->yend; y++) {
+    for (int kz = 0; kz < nmode; kz++) {
+      BoutReal kwave = kz * 2.0 * PI / (coord->zlength());
+
+      if (mesh->firstX()) {
         // Inner X boundary
-        
-        if( ((kz == 0) && (inner_boundary_flags & INVERT_DC_GRAD)) ||
-            ((kz != 0) && (inner_boundary_flags & INVERT_AC_GRAD)) ) {
+
+        if (((kz == 0) && (inner_boundary_flags & INVERT_DC_GRAD)) ||
+            ((kz != 0) && (inner_boundary_flags & INVERT_AC_GRAD))) {
           // Neumann
           acoef(ind, 0) = 0.0;
           bcoef(ind, 0) = 1.0;
           ccoef(ind, 0) = -1.0;
-        }else {
+        } else {
           // Dirichlet
           // This includes cases where the boundary is set to a value
           acoef(ind, 0) = 0.0;
@@ -91,7 +92,7 @@ void LaplaceXZcyclic::setCoefs(const Field2D &A2D, const Field2D &B2D) {
       }
 
       // Bulk of the domain
-      for(int x=mesh->xstart; x <= mesh->xend; x++) {
+      for (int x = mesh->xstart; x <= mesh->xend; x++) {
         acoef(ind, x - xstart) = 0.0; // X-1
         bcoef(ind, x - xstart) = 0.0; // Diagonal
         ccoef(ind, x - xstart) = 0.0; // X+1
@@ -106,23 +107,23 @@ void LaplaceXZcyclic::setCoefs(const Field2D &A2D, const Field2D &B2D) {
         // XX component
 
         // Metrics on x+1/2 boundary
-        BoutReal J = 0.5*(coord->J(x,y) + coord->J(x+1,y));
-        BoutReal g11 = 0.5*(coord->g11(x,y) + coord->g11(x+1,y));
-        BoutReal dx = 0.5*(coord->dx(x,y) + coord->dx(x+1,y));
-        BoutReal A = 0.5*(A2D(x,y) + A2D(x+1,y));
+        BoutReal J = 0.5 * (coord->J(x, y) + coord->J(x + 1, y));
+        BoutReal g11 = 0.5 * (coord->g11(x, y) + coord->g11(x + 1, y));
+        BoutReal dx = 0.5 * (coord->dx(x, y) + coord->dx(x + 1, y));
+        BoutReal A = 0.5 * (A2D(x, y) + A2D(x + 1, y));
 
-        BoutReal val = A * J * g11 / (coord->J(x,y) * dx * coord->dx(x,y));
+        BoutReal val = A * J * g11 / (coord->J(x, y) * dx * coord->dx(x, y));
 
         ccoef(ind, x - xstart) += val;
         bcoef(ind, x - xstart) -= val;
 
         // Metrics on x-1/2 boundary
-        J = 0.5*(coord->J(x,y) + coord->J(x-1,y));
-        g11 = 0.5*(coord->g11(x,y) + coord->g11(x-1,y));
-        dx = 0.5*(coord->dx(x,y) + coord->dx(x-1,y));
-        A = 0.5*(A2D(x,y) + A2D(x-1,y));
+        J = 0.5 * (coord->J(x, y) + coord->J(x - 1, y));
+        g11 = 0.5 * (coord->g11(x, y) + coord->g11(x - 1, y));
+        dx = 0.5 * (coord->dx(x, y) + coord->dx(x - 1, y));
+        A = 0.5 * (A2D(x, y) + A2D(x - 1, y));
 
-        val = A * J * g11 / (coord->J(x,y) * dx * coord->dx(x,y));
+        val = A * J * g11 / (coord->J(x, y) * dx * coord->dx(x, y));
         acoef(ind, x - xstart) += val;
         bcoef(ind, x - xstart) -= val;
 
@@ -131,22 +132,22 @@ void LaplaceXZcyclic::setCoefs(const Field2D &A2D, const Field2D &B2D) {
       }
 
       // Outer X boundary
-      if(mesh->lastX()) {
+      if (mesh->lastX()) {
         // Outer X boundary
-        if( ((kz == 0) && (outer_boundary_flags & INVERT_DC_GRAD)) ||
-            ((kz != 0) && (outer_boundary_flags & INVERT_AC_GRAD)) ) {
+        if (((kz == 0) && (outer_boundary_flags & INVERT_DC_GRAD)) ||
+            ((kz != 0) && (outer_boundary_flags & INVERT_AC_GRAD))) {
           // Neumann
           acoef(ind, nloc - 1) = -1.0;
           bcoef(ind, nloc - 1) = 1.0;
           ccoef(ind, nloc - 1) = 0.0;
-        }else {
+        } else {
           // Dirichlet
           acoef(ind, nloc - 1) = 0.5;
           bcoef(ind, nloc - 1) = 0.5;
           ccoef(ind, nloc - 1) = 0.0;
         }
       }
-      
+
       ind++;
     }
   }
@@ -160,77 +161,77 @@ Field3D LaplaceXZcyclic::solve(const Field3D &rhs, const Field3D &x0) {
   Mesh *mesh = rhs.getMesh();
   // Create the rhs array
   int ind = 0;
-  for(int y=mesh->ystart; y <= mesh->yend; y++) {
+  for (int y = mesh->ystart; y <= mesh->yend; y++) {
 
-    if(mesh->firstX()) {
+    if (mesh->firstX()) {
       // Inner X boundary
-      
-      if(inner_boundary_flags & INVERT_SET) {
+
+      if (inner_boundary_flags & INVERT_SET) {
         // Fourier transform x0 in Z at xstart-1 and xstart
         rfft(&x0(mesh->xstart - 1, y, 0), mesh->LocalNz, std::begin(k1d));
         rfft(&x0(mesh->xstart, y, 0), mesh->LocalNz, std::begin(k1d_2));
-        for(int kz = 0; kz < nmode; kz++) {
+        for (int kz = 0; kz < nmode; kz++) {
           // Use the same coefficients as applied to the solution
           // so can either set gradient or value
           rhscmplx(ind + kz, 0) =
               bcoef(ind + kz, 0) * k1d[kz] + ccoef(ind + kz, 0) * k1d_2[kz];
         }
-      }else if(inner_boundary_flags & INVERT_RHS) {
+      } else if (inner_boundary_flags & INVERT_RHS) {
         // Fourier transform rhs in Z at xstart-1 and xstart
         rfft(&rhs(mesh->xstart - 1, y, 0), mesh->LocalNz, std::begin(k1d));
         rfft(&rhs(mesh->xstart, y, 0), mesh->LocalNz, std::begin(k1d_2));
-        for(int kz = 0; kz < nmode; kz++) {
+        for (int kz = 0; kz < nmode; kz++) {
           // Use the same coefficients as applied to the solution
           // so can either set gradient or value
           rhscmplx(ind + kz, 0) =
               bcoef(ind + kz, 0) * k1d[kz] + ccoef(ind + kz, 0) * k1d_2[kz];
         }
-      }else {
-        for(int kz = 0; kz < nmode; kz++) {
+      } else {
+        for (int kz = 0; kz < nmode; kz++) {
           rhscmplx(ind + kz, 0) = 0.0;
         }
       }
     }
 
     // Bulk of the domain
-    for(int x=mesh->xstart; x <= mesh->xend; x++) {
+    for (int x = mesh->xstart; x <= mesh->xend; x++) {
       // Fourier transform RHS
       rfft(&rhs(x, y, 0), mesh->LocalNz, std::begin(k1d));
-      for(int kz = 0; kz < nmode; kz++) {
+      for (int kz = 0; kz < nmode; kz++) {
         rhscmplx(ind + kz, x - xstart) = k1d[kz];
       }
     }
 
     // Outer X boundary
-    if(mesh->lastX()) {
+    if (mesh->lastX()) {
       // Outer X boundary
-      if(outer_boundary_flags & INVERT_SET) {
+      if (outer_boundary_flags & INVERT_SET) {
         // Fourier transform x0 in Z at xend and xend+1
         rfft(&x0(mesh->xend, y, 0), mesh->LocalNz, std::begin(k1d));
         rfft(&x0(mesh->xend + 1, y, 0), mesh->LocalNz, std::begin(k1d_2));
-        for(int kz = 0; kz < nmode; kz++) {
+        for (int kz = 0; kz < nmode; kz++) {
           // Use the same coefficients as applied to the solution
           // so can either set gradient or value
           rhscmplx(ind + kz, nloc - 1) =
               acoef(ind + kz, nloc - 1) * k1d[kz] + bcoef(ind + kz, nloc - 1) * k1d_2[kz];
         }
-      }else if(outer_boundary_flags & INVERT_RHS) {
+      } else if (outer_boundary_flags & INVERT_RHS) {
         // Fourier transform rhs in Z at xstart-1 and xstart
         rfft(&rhs(mesh->xend, y, 0), mesh->LocalNz, std::begin(k1d));
         rfft(&rhs(mesh->xend + 1, y, 0), mesh->LocalNz, std::begin(k1d_2));
-        for(int kz = 0; kz < nmode; kz++) {
+        for (int kz = 0; kz < nmode; kz++) {
           // Use the same coefficients as applied to the solution
           // so can either set gradient or value
           rhscmplx(ind + kz, nloc - 1) =
               acoef(ind + kz, nloc - 1) * k1d[kz] + bcoef(ind + kz, nloc - 1) * k1d_2[kz];
         }
-      }else {
-        for(int kz = 0; kz < nmode; kz++) {
+      } else {
+        for (int kz = 0; kz < nmode; kz++) {
           rhscmplx(ind + kz, nloc - 1) = 0.0;
         }
       }
-      
-      for(int kz = 0; kz < nmode; kz++) {
+
+      for (int kz = 0; kz < nmode; kz++) {
         rhscmplx(ind + kz, nloc - 1) = 0.0;
       }
     }
@@ -246,9 +247,9 @@ Field3D LaplaceXZcyclic::solve(const Field3D &rhs, const Field3D &x0) {
   result.allocate();
 
   ind = 0;
-  for(int y=mesh->ystart; y <= mesh->yend; y++) {
-    for(int x=xstart;x<=xend;x++) {
-      for(int kz = 0; kz < nmode; kz++) {
+  for (int y = mesh->ystart; y <= mesh->yend; y++) {
+    for (int x = xstart; x <= xend; x++) {
+      for (int kz = 0; kz < nmode; kz++) {
         k1d[kz] = xcmplx(ind + kz, x - xstart);
       }
 
@@ -257,6 +258,6 @@ Field3D LaplaceXZcyclic::solve(const Field3D &rhs, const Field3D &x0) {
     }
     ind += nmode;
   }
-  
+
   return result;
 }

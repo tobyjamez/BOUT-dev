@@ -1,10 +1,9 @@
-#include <bout/physicsmodel.hxx>
-#include <utils.hxx>
 #include <bout/mesh.hxx>
+#include <bout/physicsmodel.hxx>
+#include <bout/utils.hxx>
 
 class FCISlab : public PhysicsModel {
 public:
-
   // We need to initialise the FCI object with the mesh
   FCISlab() {}
 
@@ -38,16 +37,16 @@ private:
 BOUTMAIN(FCISlab);
 
 int FCISlab::rhs(BoutReal time) {
-  mesh->communicate(f,g);
+  mesh->communicate(f, g);
 
   Coordinates *coord = mesh->coordinates();
 
   f.applyParallelBoundary(time);
   g.applyParallelBoundary(time);
 
-  ddt(f) = Grad_par(g) + D*SQ(coord->dy)*Grad2_par2(f);
+  ddt(f) = Grad_par(g) + D * SQ(coord->dy) * Grad2_par2(f);
 
-  ddt(g) = Grad_par(f) + D*SQ(coord->dy)*Grad2_par2(g);
+  ddt(g) = Grad_par(f) + D * SQ(coord->dy) * Grad2_par2(g);
 
   return 0;
 }

@@ -1,15 +1,15 @@
 /*
  * Check stop tests
- * 
+ *
  */
 
 #include <bout.hxx>
-#include <boutmain.hxx>
+#include <bout/boutmain.hxx>
 
 Field3D N;
 
 int physics_init(bool restarting) {
-  solver->add(N,"N");
+  solver->add(N, "N");
   return 0;
 }
 

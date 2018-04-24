@@ -20,12 +20,12 @@
  *************************************************************/
 
 #include <bout.hxx>
-#include <boutmain.hxx>
-#include <initialprofiles.hxx>
+#include <bout/boutmain.hxx>
+#include <bout/initialprofiles.hxx>
 
 int reaction(BoutReal time);
 
-Field3D U;   // Evolving variable
+Field3D U; // Evolving variable
 
 Field3D phi; // Potential used for advection
 
@@ -34,7 +34,7 @@ BoutReal rate; // Reaction rate
 int physics_init(bool restarting) {
   // Give the solver two RHS functions
   solver->setSplitOperator(physics_run, reaction);
-  
+
   // Get options
   Options *options = Options::getRoot();
   options = options->getSection("split");
@@ -44,7 +44,7 @@ int physics_init(bool restarting) {
   phi.setBoundary("phi");
   initial_profile("phi", phi);
   phi.applyBoundary();
-  
+
   // Save phi to file for reference
   SAVE_ONCE(phi);
 
@@ -60,11 +60,11 @@ int physics_run(BoutReal time) {
 
   // Form of advection operator for reduced MHD type models
   ddt(U) = -bracket(phi, U, BRACKET_SIMPLE);
-  
+
   return 0;
 }
 
 int reaction(BoutReal time) {
   // A simple reaction operator. No communication needed
-  ddt(U) = rate * (1.-U);
+  ddt(U) = rate * (1. - U);
 }

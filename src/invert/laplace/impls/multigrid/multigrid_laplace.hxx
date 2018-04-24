@@ -1,5 +1,5 @@
 /**************************************************************************
- * Perpendicular Laplacian inversion. 
+ * Perpendicular Laplacian inversion.
  *                           Using Geometrical Multigrid Solver
  *
  * Equation solved is:
@@ -10,7 +10,7 @@
  * Modified version Aeptember 2015
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -33,148 +33,154 @@
 
 #include <mpi.h>
 
-#include <globals.hxx>
-#include <output.hxx>
-#include <options.hxx>
-#include <invert_laplace.hxx>
-#include <boutexception.hxx>
-#include <utils.hxx>
+#include <bout/boutexception.hxx>
+#include <bout/globals.hxx>
+#include <bout/invert_laplace.hxx>
+#include <bout/options.hxx>
+#include <bout/output.hxx>
+#include <bout/utils.hxx>
 
 #define MAXGM 15
 
 // In multigrid_alg.cxx
 
-class MultigridAlg{
+class MultigridAlg {
 public:
-  MultigridAlg(int ,int ,int ,int ,int ,MPI_Comm ,int);
+  MultigridAlg(int, int, int, int, int, MPI_Comm, int);
   virtual ~MultigridAlg();
 
-  void setMultigridC(int );
-  void getSolution(BoutReal *,BoutReal *,int ); 
+  void setMultigridC(int);
+  void getSolution(BoutReal *, BoutReal *, int);
   void cleanMem();
 
-  int mglevel,mgplag,cftype,mgsm,pcheck,xNP,zNP,rProcI;
-  BoutReal rtol,atol,dtol,omega;
+  int mglevel, mgplag, cftype, mgsm, pcheck, xNP, zNP, rProcI;
+  BoutReal rtol, atol, dtol, omega;
   Array<int> gnx, gnz, lnx, lnz;
   BoutReal **matmg;
 
 protected:
   /******* Start implementation ********/
-  int numP,xProcI,zProcI,xProcP,xProcM,zProcP,zProcM;
+  int numP, xProcI, zProcI, xProcP, xProcM, zProcP, zProcM;
 
   MPI_Comm commMG;
 
-  void communications(BoutReal *, int );
-  void setMatrixC(int );
+  void communications(BoutReal *, int);
+  void setMatrixC(int);
 
-  void cycleMG(int ,BoutReal *, BoutReal *);
-  void smoothings(int , BoutReal *, BoutReal *);
-  void projection(int , BoutReal *, BoutReal *);
-  void prolongation(int ,BoutReal *, BoutReal *);
-  void pGMRES(BoutReal *, BoutReal *, int , int);
-  void solveMG(BoutReal *, BoutReal *, int );
-  void multiAVec(int , BoutReal *, BoutReal *);
-  void residualVec(int , BoutReal *, BoutReal *, BoutReal *);
-  BoutReal vectorProd(int , BoutReal *, BoutReal *); 
+  void cycleMG(int, BoutReal *, BoutReal *);
+  void smoothings(int, BoutReal *, BoutReal *);
+  void projection(int, BoutReal *, BoutReal *);
+  void prolongation(int, BoutReal *, BoutReal *);
+  void pGMRES(BoutReal *, BoutReal *, int, int);
+  void solveMG(BoutReal *, BoutReal *, int);
+  void multiAVec(int, BoutReal *, BoutReal *);
+  void residualVec(int, BoutReal *, BoutReal *, BoutReal *);
+  BoutReal vectorProd(int, BoutReal *, BoutReal *);
 
-  virtual void lowestSolver(BoutReal *, BoutReal *, int );
-  
+  virtual void lowestSolver(BoutReal *, BoutReal *, int);
 };
-
 
 // Define three different type of multigrid solver
 // in multigrid_solver.cxx
 
-class MultigridSerial: public MultigridAlg{
+class MultigridSerial : public MultigridAlg {
 public:
-  MultigridSerial(int ,int ,int ,int ,int ,MPI_Comm ,int );
+  MultigridSerial(int, int, int, int, int, MPI_Comm, int);
   ~MultigridSerial();
 
-  void convertMatrixF(BoutReal *); 
+  void convertMatrixF(BoutReal *);
 
 private:
-  
 };
 
-class Multigrid2DPf1D: public MultigridAlg{
+class Multigrid2DPf1D : public MultigridAlg {
 public:
-  Multigrid2DPf1D(int ,int ,int ,int ,int ,int ,int ,int ,MPI_Comm ,int );
+  Multigrid2DPf1D(int, int, int, int, int, int, int, int, MPI_Comm, int);
   ~Multigrid2DPf1D();
 
-  void setMultigridC(int );
-  void setPcheck(int );
+  void setMultigridC(int);
+  void setPcheck(int);
   void setValueS();
   void cleanS();
   int kflag;
 
 private:
   MultigridSerial *sMG;
-  void convertMatrixFS(int  ); 
-  void lowestSolver(BoutReal *, BoutReal *, int );
-  
+  void convertMatrixFS(int);
+  void lowestSolver(BoutReal *, BoutReal *, int);
 };
 
-class Multigrid1DP: public MultigridAlg{
+class Multigrid1DP : public MultigridAlg {
 public:
-  Multigrid1DP(int ,int ,int ,int ,int ,int, MPI_Comm ,int );
+  Multigrid1DP(int, int, int, int, int, int, MPI_Comm, int);
   ~Multigrid1DP();
-  void setMultigridC(int );
-  void setPcheck(int );
+  void setMultigridC(int);
+  void setPcheck(int);
   void setValueS();
   void cleanS();
 
   int kflag;
-
 
 private:
   MPI_Comm comm2D;
   MultigridSerial *sMG;
   Multigrid2DPf1D *rMG;
-  void convertMatrixF2D(int ); 
-  void convertMatrixFS(int ); 
-  void lowestSolver(BoutReal *, BoutReal *, int );
-  
+  void convertMatrixF2D(int);
+  void convertMatrixFS(int);
+  void lowestSolver(BoutReal *, BoutReal *, int);
 };
-
-
 
 class LaplaceMultigrid : public Laplacian {
 public:
   LaplaceMultigrid(Options *opt = NULL);
   ~LaplaceMultigrid();
-  
+
   void setCoefA(const Field2D &val) override { A = val; }
-  void setCoefC(const Field2D &val) override { C1 = val; C2 = val;  }
+  void setCoefC(const Field2D &val) override {
+    C1 = val;
+    C2 = val;
+  }
   void setCoefC1(const Field2D &val) override { C1 = val; }
   void setCoefC2(const Field2D &val) override { C2 = val; }
   void setCoefD(const Field2D &val) override { D = val; }
-  void setCoefEx(const Field2D &UNUSED(val)) override { throw BoutException("setCoefEx is not implemented in LaplaceMultigrid"); }
-  void setCoefEz(const Field2D &UNUSED(val)) override { throw BoutException("setCoefEz is not implemented in LaplaceMultigrid"); }
-  
+  void setCoefEx(const Field2D &UNUSED(val)) override {
+    throw BoutException("setCoefEx is not implemented in LaplaceMultigrid");
+  }
+  void setCoefEz(const Field2D &UNUSED(val)) override {
+    throw BoutException("setCoefEz is not implemented in LaplaceMultigrid");
+  }
+
   void setCoefA(const Field3D &val) override { A = val; }
-  void setCoefC(const Field3D &val) override { C1 = val; C2 = val; }
+  void setCoefC(const Field3D &val) override {
+    C1 = val;
+    C2 = val;
+  }
   void setCoefC1(const Field3D &val) override { C1 = val; }
   void setCoefC2(const Field3D &val) override { C2 = val; }
   void setCoefD(const Field3D &val) override { D = val; }
-  
-  const FieldPerp solve(const FieldPerp &b) override { FieldPerp zero(b.getMesh()); zero = 0.; return solve(b, zero); }
+
+  const FieldPerp solve(const FieldPerp &b) override {
+    FieldPerp zero(b.getMesh());
+    zero = 0.;
+    return solve(b, zero);
+  }
   const FieldPerp solve(const FieldPerp &b_in, const FieldPerp &x0) override;
-  
+
 private:
-  Field3D A,C1,C2,D; // ODE Coefficients
+  Field3D A, C1, C2, D;                         // ODE Coefficients
   int Nx_local, Nx_global, Nz_local, Nz_global; // Local and global grid sizes
-  int yindex; // y-position of the current solution phase
+  int yindex;        // y-position of the current solution phase
   Array<BoutReal> x; // solution vector
   Array<BoutReal> b; // RHS vector
   Multigrid1DP *kMG;
 
   /******* Start implementation ********/
-  int mglevel,mgplag,cftype,mgsm,pcheck,tcheck;
-  int xNP,xProcI;
-  int mgcount,mgmpi;
+  int mglevel, mgplag, cftype, mgsm, pcheck, tcheck;
+  int xNP, xProcI;
+  int mgcount, mgmpi;
 
   Options *opts;
-  BoutReal rtol,atol,dtol,omega;
+  BoutReal rtol, atol, dtol, omega;
   MPI_Comm commX;
 
   int comms_tagbase;

@@ -1,13 +1,13 @@
 /**************************************************************************
  * Perpendicular Laplacian inversion in serial or parallel
- * 
+ *
  * Uses shooting method from outer boundary
  *
  **************************************************************************
  * Copyright 2014 B.D.Dudson
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -30,16 +30,16 @@ class LaplaceShoot;
 #ifndef __LAP_SHOOT_H__
 #define __LAP_SHOOT_H__
 
-#include <invert_laplace.hxx>
-#include <options.hxx>
-#include <boutexception.hxx>
-#include <utils.hxx>
+#include <bout/boutexception.hxx>
+#include <bout/invert_laplace.hxx>
+#include <bout/options.hxx>
+#include <bout/utils.hxx>
 
 class LaplaceShoot : public Laplacian {
 public:
   LaplaceShoot(Options *opt = NULL);
   ~LaplaceShoot(){};
-  
+
   using Laplacian::setCoefA;
   void setCoefA(const Field2D &val) override { Acoef = val; }
   using Laplacian::setCoefC;
@@ -57,14 +57,17 @@ public:
 
   using Laplacian::solve;
   const FieldPerp solve(const FieldPerp &b) override;
-  const FieldPerp solve(const FieldPerp &b, const FieldPerp &UNUSED(x0)) override {return solve(b);}
+  const FieldPerp solve(const FieldPerp &b, const FieldPerp &UNUSED(x0)) override {
+    return solve(b);
+  }
+
 private:
   Field2D Acoef, Ccoef, Dcoef;
-  
-  int nmode;  // Number of modes being solved
-  
+
+  int nmode; // Number of modes being solved
+
   Array<dcomplex> km, kc, kp, rhsk;
-  
+
   Array<BoutReal> buffer; // For communications
 };
 

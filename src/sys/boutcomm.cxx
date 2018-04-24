@@ -1,16 +1,15 @@
-#include <boutcomm.hxx>
-#include <bout_types.hxx>
+#include <bout/bout_types.hxx>
+#include <bout/boutcomm.hxx>
 
-BoutComm* BoutComm::instance = nullptr;
+BoutComm *BoutComm::instance = nullptr;
 
-BoutComm::BoutComm() : pargc(0), pargv(0), hasBeenSet(false), comm(MPI_COMM_NULL) {
-}
+BoutComm::BoutComm() : pargc(0), pargv(0), hasBeenSet(false), comm(MPI_COMM_NULL) {}
 
 BoutComm::~BoutComm() {
-  if(comm != MPI_COMM_NULL)
+  if (comm != MPI_COMM_NULL)
     MPI_Comm_free(&comm);
-  
-  if(!isSet()) {
+
+  if (!isSet()) {
     // If BoutComm was set, then assume that MPI_Finalize is called elsewhere
     // but might need to revisit if that isn't the case
     MPI_Finalize();
@@ -18,33 +17,29 @@ BoutComm::~BoutComm() {
 }
 
 void BoutComm::setComm(MPI_Comm c) {
-  if(comm != MPI_COMM_NULL)
+  if (comm != MPI_COMM_NULL)
     MPI_Comm_free(&comm);
   MPI_Comm_dup(c, &comm);
   hasBeenSet = true;
 }
 
 MPI_Comm BoutComm::getComm() {
-  if(comm == MPI_COMM_NULL) {
+  if (comm == MPI_COMM_NULL) {
     // No communicator set. Initialise MPI
-    MPI_Init(pargc,pargv);
-    
+    MPI_Init(pargc, pargv);
+
     // Duplicate MPI_COMM_WORLD
     MPI_Comm_dup(MPI_COMM_WORLD, &comm);
   }
   return comm;
 }
 
-bool BoutComm::isSet() {
-  return hasBeenSet;
-}
+bool BoutComm::isSet() { return hasBeenSet; }
 
 // Static functions below. Must use getInstance()
-MPI_Comm BoutComm::get() {
-  return getInstance()->getComm();
-}
+MPI_Comm BoutComm::get() { return getInstance()->getComm(); }
 
-void BoutComm::setArgs(int &c, char**&v) {
+void BoutComm::setArgs(int &c, char **&v) {
   getInstance()->pargc = &c;
   getInstance()->pargv = &v;
 }
@@ -61,8 +56,8 @@ int BoutComm::size() {
   return NPES;
 }
 
-BoutComm* BoutComm::getInstance() {
-  if(instance == nullptr) {
+BoutComm *BoutComm::getInstance() {
+  if (instance == nullptr) {
     // Create the singleton object
     instance = new BoutComm();
   }
@@ -70,6 +65,7 @@ BoutComm* BoutComm::getInstance() {
 }
 
 void BoutComm::cleanup() {
-  if(instance != nullptr) delete instance;
+  if (instance != nullptr)
+    delete instance;
   instance = 0;
 }

@@ -4,12 +4,12 @@
 
 #include "mpi.h"
 
+#include "bout/unused.hxx"
 #include <bout/mesh.hxx>
-#include "unused.hxx"
 
+#include <cmath>
 #include <list>
 #include <vector>
-#include <cmath>
 
 using std::list;
 using std::vector;
@@ -19,7 +19,7 @@ using std::vector;
 /// Topology and communications compatible with BOUT
 /// conventions.
 class BoutMesh : public Mesh {
- public:
+public:
   BoutMesh(GridDataSource *s, Options *options = NULL);
   ~BoutMesh();
 
@@ -55,16 +55,18 @@ class BoutMesh : public Mesh {
   MPI_Request sendToProc(int xproc, int yproc, BoutReal *buffer, int size, int tag);
   comm_handle receiveFromProc(int xproc, int yproc, BoutReal *buffer, int size, int tag);
 
-  int getNXPE(); ///< The number of processors in the X direction
-  int getNYPE(); ///< The number of processors in the Y direction
-  int getXProcIndex();  ///< This processor's index in X direction
-  int getYProcIndex();  ///< This processor's index in Y direction
+  int getNXPE();       ///< The number of processors in the X direction
+  int getNYPE();       ///< The number of processors in the Y direction
+  int getXProcIndex(); ///< This processor's index in X direction
+  int getYProcIndex(); ///< This processor's index in Y direction
 
   /////////////////////////////////////////////
   // X communications
 
-  bool firstX(); ///< Is this processor the first in X? i.e. is there a boundary to the left in X?
-  bool lastX();  ///< Is this processor last in X? i.e. is there a boundary to the right in X?
+  bool firstX(); ///< Is this processor the first in X? i.e. is there a boundary to the
+                 ///left in X?
+  bool
+  lastX(); ///< Is this processor last in X? i.e. is there a boundary to the right in X?
 
   /// Send a buffer of data to processor at X index +1
   ///
@@ -82,19 +84,23 @@ class BoutMesh : public Mesh {
 
   /// Receive a buffer of data from X index +1
   ///
-  /// @param[in] buffer  A buffer to put the data in. Must already be allocated of length \p size
+  /// @param[in] buffer  A buffer to put the data in. Must already be allocated of length
+  /// \p size
   /// @param[in] size    The number of BoutReals to receive and put in \p buffer
   /// @param[in] tag     A label for the communication. Must be the same as sent
   comm_handle irecvXOut(BoutReal *buffer, int size, int tag);
 
   /// Receive a buffer of data from X index -1
   ///
-  /// @param[in] buffer  A buffer to put the data in. Must already be allocated of length \p size
+  /// @param[in] buffer  A buffer to put the data in. Must already be allocated of length
+  /// \p size
   /// @param[in] size    The number of BoutReals to receive and put in \p buffer
   /// @param[in] tag     A label for the communication. Must be the same as sent
   comm_handle irecvXIn(BoutReal *buffer, int size, int tag);
 
-  MPI_Comm getXcomm(int UNUSED(jy)) const {return comm_x; } ///< Return communicator containing all processors in X
+  MPI_Comm getXcomm(int UNUSED(jy)) const {
+    return comm_x;
+  }                                ///< Return communicator containing all processors in X
   MPI_Comm getYcomm(int jx) const; ///< Return communicator containing all processors in Y
 
   /// Is local X index \p jx periodic in Y?
@@ -136,24 +142,23 @@ class BoutMesh : public Mesh {
   const RangeIterator iterateBndryUpperInnerY() const;
   const RangeIterator iterateBndryUpperOuterY() const;
 
-
   // Boundary regions
-  vector<BoundaryRegion*> getBoundaries();
-  vector<BoundaryRegionPar*> getBoundariesPar();
-  void addBoundaryPar(BoundaryRegionPar* bndry);
+  vector<BoundaryRegion *> getBoundaries();
+  vector<BoundaryRegionPar *> getBoundariesPar();
+  void addBoundaryPar(BoundaryRegionPar *bndry);
 
   const Field3D smoothSeparatrix(const Field3D &f);
 
-  int getNx() const {return nx;}
-  int getNy() const {return ny;}
+  int getNx() const { return nx; }
+  int getNy() const { return ny; }
 
   BoutReal GlobalX(int jx) const;
   BoutReal GlobalY(int jy) const;
   BoutReal GlobalX(BoutReal jx) const;
   BoutReal GlobalY(BoutReal jy) const;
 
-  BoutReal getIxseps1() const {return ixseps1;}
-  BoutReal getIxseps2() const {return ixseps2;}
+  BoutReal getIxseps1() const { return ixseps1; }
+  BoutReal getIxseps2() const { return ixseps2; }
 
   void outputVars(Datafile &file);
 
@@ -162,27 +167,27 @@ class BoutMesh : public Mesh {
   int XGLOBAL(BoutReal xloc, BoutReal &xglo) const;
   int YGLOBAL(BoutReal yloc, BoutReal &yglo) const;
 
- private:
+private:
   string gridname;
-  int nx, ny;        ///< Size of the grid in the input file
-  int MX, MY;        ///< size of the grid excluding boundary regions
+  int nx, ny; ///< Size of the grid in the input file
+  int MX, MY; ///< size of the grid excluding boundary regions
 
-  int MYSUB, MXSUB;  ///< Size of the grid on this processor
+  int MYSUB, MXSUB; ///< Size of the grid on this processor
 
   int NPES; ///< Number of processors
   int MYPE; ///< Rank of this processor
 
   int PE_YIND; ///< Y index of this processor
-  int NYPE; // Number of processors in the Y direction
+  int NYPE;    // Number of processors in the Y direction
 
-  int MYPE_IN_CORE;  // 1 if processor in core
+  int MYPE_IN_CORE; // 1 if processor in core
 
   // Topology
   int ixseps1, ixseps2, jyseps1_1, jyseps2_1, jyseps1_2, jyseps2_2;
   int ixseps_inner, ixseps_outer, ixseps_upper, ixseps_lower;
   int ny_inner;
 
-  vector<BoutReal> ShiftAngle;  ///< Angle for twist-shift location
+  vector<BoutReal> ShiftAngle; ///< Angle for twist-shift location
 
   // Processor number, local <-> global translation
   int PROC_NUM(int xind, int yind); // (PE_XIND, PE_YIND) -> MYPE
@@ -202,48 +207,52 @@ class BoutMesh : public Mesh {
   int IDATA_DEST, ODATA_DEST; // X inner and outer destinations
 
   // Settings
-  bool TwistShift;   // Use a twist-shift condition in core?
+  bool TwistShift; // Use a twist-shift condition in core?
 
   bool symmetricGlobalX; ///< Use a symmetric definition in GlobalX() function
   bool symmetricGlobalY;
 
-  int  zperiod;
-  BoutReal ZMIN, ZMAX;   // Range of the Z domain (in fractions of 2pi)
+  int zperiod;
+  BoutReal ZMIN, ZMAX; // Range of the Z domain (in fractions of 2pi)
 
-  int  MXG, MYG;     // Boundary sizes
+  int MXG, MYG; // Boundary sizes
 
   void default_connections();
   void set_connection(int ypos1, int ypos2, int xge, int xlt, bool ts = false);
   void add_target(int ypos, int xge, int xlt);
   void topology();
 
-  vector<BoundaryRegion*> boundary; // Vector of boundary regions
-  vector<BoundaryRegionPar*> par_boundary; // Vector of parallel boundary regions
+  vector<BoundaryRegion *> boundary;        // Vector of boundary regions
+  vector<BoundaryRegionPar *> par_boundary; // Vector of parallel boundary regions
 
   //////////////////////////////////////////////////
   // Communications
 
-  bool async_send;   ///< Switch to asyncronous sends (ISend, not Send)
+  bool async_send; ///< Switch to asyncronous sends (ISend, not Send)
 
   /// Communication handle
   /// Used to keep track of communications between send and receive
   struct CommHandle {
-    /// Array of receive requests. One for each possible neighbour; one each way in X, two each way in Y
+    /// Array of receive requests. One for each possible neighbour; one each way in X, two
+    /// each way in Y
     MPI_Request request[6];
-    /// Array of send requests (for non-blocking send). One for each possible neighbour; one each way in X, two each way in Y
+    /// Array of send requests (for non-blocking send). One for each possible neighbour;
+    /// one each way in X, two each way in Y
     MPI_Request sendreq[6];
-    int xbufflen, ybufflen;  ///< Length of the buffers used to send/receive (in BoutReals)
-    Array<BoutReal> umsg_sendbuff, dmsg_sendbuff, imsg_sendbuff, omsg_sendbuff; ///< Sending buffers
-    Array<BoutReal> umsg_recvbuff, dmsg_recvbuff, imsg_recvbuff, omsg_recvbuff; ///< Receiving buffers
-    bool in_progress; ///< Is the communication still going?
+    int xbufflen, ybufflen; ///< Length of the buffers used to send/receive (in BoutReals)
+    Array<BoutReal> umsg_sendbuff, dmsg_sendbuff, imsg_sendbuff,
+        omsg_sendbuff; ///< Sending buffers
+    Array<BoutReal> umsg_recvbuff, dmsg_recvbuff, imsg_recvbuff,
+        omsg_recvbuff; ///< Receiving buffers
+    bool in_progress;  ///< Is the communication still going?
 
     /// List of fields being communicated
     FieldGroup var_list;
   };
   void free_handle(CommHandle *h);
-  CommHandle* get_handle(int xlen, int ylen);
+  CommHandle *get_handle(int xlen, int ylen);
   void clear_handles();
-  list<CommHandle*> comm_list; // List of allocated communication handles
+  list<CommHandle *> comm_list; // List of allocated communication handles
 
   //////////////////////////////////////////////////
   // X communicator
@@ -253,7 +262,9 @@ class BoutMesh : public Mesh {
   //////////////////////////////////////////////////
   // Surface communications
 
-  MPI_Comm comm_inner, comm_middle, comm_outer; ///< Communicators in Y. Inside both separatrices; between separatrices; and outside both separatrices
+  MPI_Comm comm_inner, comm_middle, comm_outer; ///< Communicators in Y. Inside both
+                                                ///separatrices; between separatrices; and
+                                                ///outside both separatrices
 
   //////////////////////////////////////////////////
   // Communication routines
@@ -262,9 +273,11 @@ class BoutMesh : public Mesh {
   void post_receive(CommHandle &ch);
 
   /// Take data from objects and put into a buffer
-  int pack_data(const vector<FieldData*> &var_list, int xge, int xlt, int yge, int ylt, BoutReal *buffer);
+  int pack_data(const vector<FieldData *> &var_list, int xge, int xlt, int yge, int ylt,
+                BoutReal *buffer);
   /// Copy data from a buffer back into the fields
-  int unpack_data(const vector<FieldData*> &var_list, int xge, int xlt, int yge, int ylt, BoutReal *buffer);
+  int unpack_data(const vector<FieldData *> &var_list, int xge, int xlt, int yge, int ylt,
+                  BoutReal *buffer);
 };
 
 #endif // __BOUTMESH_H__

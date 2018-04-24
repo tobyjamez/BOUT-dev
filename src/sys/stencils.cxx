@@ -5,7 +5,7 @@
  * Copyright 2010 B.D.Dudson, S.Farley, M.V.Umansky, X.Q.Xu
  *
  * Contact: Ben Dudson, bd512@york.ac.uk
- * 
+ *
  * This file is part of BOUT++.
  *
  * BOUT++ is free software: you can redistribute it and/or modify
@@ -27,45 +27,36 @@
 
 typedef double BoutReal;
 
-#include <globals.hxx>
-#include <stencils.hxx>
-#include <output.hxx>
+#include <bout/globals.hxx>
+#include <bout/output.hxx>
+#include <bout/stencils.hxx>
 
 /*******************************************************************************
  * stencil class
  *******************************************************************************/
 
-stencil::stencil()
-{
+stencil::stencil() {
   jx = jy = jz = 0;
   c = p = m = pp = mm = 0.0;
 }
 
-stencil::stencil(const stencil &s)
-{
-  *this = s;
-}
+stencil::stencil(const stencil &s) { *this = s; }
 
-stencil::stencil(BoutReal fc)
-{
-  c = p = m = pp = mm = fc;
-}
+stencil::stencil(BoutReal fc) { c = p = m = pp = mm = fc; }
 
-stencil::stencil(BoutReal fc, BoutReal fm, BoutReal fp, BoutReal fmm, BoutReal fpp)
-{
-  c  = fc;
-  m  = fm;
-  p  = fp;
+stencil::stencil(BoutReal fc, BoutReal fm, BoutReal fp, BoutReal fmm, BoutReal fpp) {
+  c = fc;
+  m = fm;
+  p = fp;
   mm = fmm;
   pp = fpp;
 }
 
-stencil & stencil::operator=(const stencil &s)
-{
+stencil &stencil::operator=(const stencil &s) {
   // Check for self-assignment
-  if(this == &s)
-    return(*this); // skip this assignment
-  
+  if (this == &s)
+    return (*this); // skip this assignment
+
   jx = s.jx;
   jy = s.jy;
   jz = s.jz;
@@ -75,12 +66,11 @@ stencil & stencil::operator=(const stencil &s)
   m = s.m;
   pp = s.pp;
   mm = s.mm;
-  
+
   return *this;
 }
 
-stencil & stencil::operator=(const BoutReal rhs)
-{
+stencil &stencil::operator=(const BoutReal rhs) {
   jx = jy = jz = 0;
 
   c = p = m = pp = mm = rhs;
@@ -88,10 +78,9 @@ stencil & stencil::operator=(const BoutReal rhs)
   return *this;
 }
 
-stencil & stencil::operator+=(const stencil &s)
-{
+stencil &stencil::operator+=(const stencil &s) {
 #if CHECK > 0
-  if((jx != s.jx) || (jy != s.jy) || (jz != s.jz)) {
+  if ((jx != s.jx) || (jy != s.jy) || (jz != s.jz)) {
     throw BoutException("Error: Stencil += not at same location\n");
   }
 #endif
@@ -105,8 +94,7 @@ stencil & stencil::operator+=(const stencil &s)
   return *this;
 }
 
-stencil & stencil::operator+=(BoutReal rhs)
-{
+stencil &stencil::operator+=(BoutReal rhs) {
   c += rhs;
   p += rhs;
   m += rhs;
@@ -116,10 +104,9 @@ stencil & stencil::operator+=(BoutReal rhs)
   return *this;
 }
 
-stencil & stencil::operator-=(const stencil &s)
-{
+stencil &stencil::operator-=(const stencil &s) {
 #if CHECK > 0
-  if((jx != s.jx) || (jy != s.jy) || (jz != s.jz)) {
+  if ((jx != s.jx) || (jy != s.jy) || (jz != s.jz)) {
     throw BoutException("Error: Stencil -= not at same location\n");
   }
 #endif
@@ -133,8 +120,7 @@ stencil & stencil::operator-=(const stencil &s)
   return *this;
 }
 
-stencil & stencil::operator-=(BoutReal rhs)
-{
+stencil &stencil::operator-=(BoutReal rhs) {
   c -= rhs;
   p -= rhs;
   m -= rhs;
@@ -144,10 +130,9 @@ stencil & stencil::operator-=(BoutReal rhs)
   return *this;
 }
 
-stencil & stencil::operator*=(const stencil &s)
-{
+stencil &stencil::operator*=(const stencil &s) {
 #if CHECK > 0
-  if((jx != s.jx) || (jy != s.jy) || (jz != s.jz)) {
+  if ((jx != s.jx) || (jy != s.jy) || (jz != s.jz)) {
     throw BoutException("Error: Stencil *= not at same location\n");
   }
 #endif
@@ -161,8 +146,7 @@ stencil & stencil::operator*=(const stencil &s)
   return *this;
 }
 
-stencil & stencil::operator*=(BoutReal rhs)
-{
+stencil &stencil::operator*=(BoutReal rhs) {
   c *= rhs;
   p *= rhs;
   m *= rhs;
@@ -172,10 +156,9 @@ stencil & stencil::operator*=(BoutReal rhs)
   return *this;
 }
 
-stencil & stencil::operator/=(const stencil &s)
-{
+stencil &stencil::operator/=(const stencil &s) {
 #if CHECK > 0
-  if((jx != s.jx) || (jy != s.jy) || (jz != s.jz)) {
+  if ((jx != s.jx) || (jy != s.jy) || (jz != s.jz)) {
     throw BoutException("Error: Stencil /= not at same location\n");
   }
 #endif
@@ -189,8 +172,7 @@ stencil & stencil::operator/=(const stencil &s)
   return *this;
 }
 
-stencil & stencil::operator/=(BoutReal rhs)
-{
+stencil &stencil::operator/=(BoutReal rhs) {
   c /= rhs;
   p /= rhs;
   m /= rhs;
@@ -200,71 +182,59 @@ stencil & stencil::operator/=(BoutReal rhs)
   return *this;
 }
 
-const stencil stencil::operator+(const stencil &other) const
-{
+const stencil stencil::operator+(const stencil &other) const {
   stencil result = *this;
   result += other;
   return result;
 }
 
-const stencil stencil::operator+(BoutReal other) const
-{
+const stencil stencil::operator+(BoutReal other) const {
   stencil result = *this;
   result += other;
   return result;
 }
 
-const stencil stencil::operator-(const stencil &other) const
-{
+const stencil stencil::operator-(const stencil &other) const {
   stencil result = *this;
   result -= other;
   return result;
 }
 
-const stencil stencil::operator-(BoutReal other) const
-{
+const stencil stencil::operator-(BoutReal other) const {
   stencil result = *this;
   result -= other;
   return result;
 }
 
-const stencil stencil::operator*(const stencil &other) const
-{
+const stencil stencil::operator*(const stencil &other) const {
   stencil result = *this;
   result *= other;
   return result;
 }
 
-const stencil stencil::operator*(BoutReal other) const
-{
+const stencil stencil::operator*(BoutReal other) const {
   stencil result = *this;
   result *= other;
   return result;
 }
 
-const stencil stencil::operator/(const stencil &other) const
-{
+const stencil stencil::operator/(const stencil &other) const {
   stencil result = *this;
   result /= other;
   return result;
 }
 
-const stencil stencil::operator/(BoutReal other) const
-{
+const stencil stencil::operator/(BoutReal other) const {
   stencil result = *this;
   result /= other;
   return result;
 }
 
-const stencil operator+(BoutReal lhs, const stencil &rhs)
-{
-  return rhs + lhs;
-}
+const stencil operator+(BoutReal lhs, const stencil &rhs) { return rhs + lhs; }
 
-const stencil operator-(BoutReal lhs, const stencil &rhs)
-{
+const stencil operator-(BoutReal lhs, const stencil &rhs) {
   stencil result;
-  
+
   result.c = lhs - rhs.c;
   result.p = lhs - rhs.p;
   result.m = lhs - rhs.m;
@@ -274,15 +244,11 @@ const stencil operator-(BoutReal lhs, const stencil &rhs)
   return result;
 }
 
-const stencil operator*(BoutReal lhs, const stencil &rhs)
-{
-  return rhs * lhs;
-}
+const stencil operator*(BoutReal lhs, const stencil &rhs) { return rhs * lhs; }
 
-const stencil operator/(BoutReal lhs, const stencil &rhs)
-{
+const stencil operator/(BoutReal lhs, const stencil &rhs) {
   stencil result;
-  
+
   result.c = lhs / rhs.c;
   result.p = lhs / rhs.p;
   result.m = lhs / rhs.m;
@@ -292,42 +258,39 @@ const stencil operator/(BoutReal lhs, const stencil &rhs)
   return result;
 }
 
-BoutReal stencil::min() const
-{
+BoutReal stencil::min() const {
   BoutReal r;
 
   r = c;
-  if(p < r)
+  if (p < r)
     r = p;
-  if(m < r)
+  if (m < r)
     r = m;
-  if(pp < r)
+  if (pp < r)
     r = pp;
-  if(mm < r)
+  if (mm < r)
     r = mm;
   return r;
 }
 
-BoutReal stencil::max() const
-{
+BoutReal stencil::max() const {
   BoutReal r;
 
   r = c;
-  if(p > r)
+  if (p > r)
     r = p;
-  if(m > r)
+  if (m > r)
     r = m;
-  if(pp > r)
+  if (pp > r)
     r = pp;
-  if(mm > r)
+  if (mm > r)
     r = mm;
   return r;
 }
 
-const stencil stencil::abs() const
-{
+const stencil stencil::abs() const {
   stencil result;
-  
+
   result.c = fabs(c);
   result.p = fabs(p);
   result.m = fabs(m);
@@ -337,17 +300,8 @@ const stencil stencil::abs() const
   return result;
 }
 
-BoutReal min(const stencil &s)
-{
-  return s.min();
-}
+BoutReal min(const stencil &s) { return s.min(); }
 
-BoutReal max(const stencil &s)
-{
-  return s.max();
-}
+BoutReal max(const stencil &s) { return s.max(); }
 
-const stencil abs(const stencil &s)
-{
-  return s.abs();
-}
+const stencil abs(const stencil &s) { return s.abs(); }

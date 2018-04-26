@@ -45,7 +45,7 @@ if args.set_bool is not None:
     for setbool in args.set_bool:
         k,v=setbool.split("=")
         v=lookup[v.lower()]
-	requirements.add(k,v,override=True)
+        requirements.add(k,v,override=True)
 
 try:
     requirements.add('make',args.make)

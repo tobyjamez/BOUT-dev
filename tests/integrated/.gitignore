@@ -2,8 +2,8 @@ BOUT.settings
 *.dmp.*
 *.log.*
 *.restart.*
+BOUT.settings
 /test-attribs/test-attribs
-/test-ballooning/test_ballooning
 /test-command-args/command-args
 /test-command-args/test/BOUT.inp
 /test-cyclic/test_cyclic

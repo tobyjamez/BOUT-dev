@@ -24,9 +24,8 @@
  **************************************************************************/
 
 #include <bout.hxx>
-#include <boutmain.hxx>
+#include <bout/testwrapper.hxx>
 #include <bout/constants.hxx>
-// #include <bout/sys/timer.hxx>
 #include <boutexception.hxx>
 #include <options.hxx>
 #include <invert_laplace.hxx>
@@ -34,7 +33,7 @@
 
 BoutReal max_error_at_ystart(const Field3D &error);
 
-int physics_init(bool restarting) {
+void test() {
   
   Options *options = Options::getRoot()->getSection("petsc2nd");
   class Laplacian* invert = Laplacian::create(options);
@@ -665,17 +664,10 @@ int physics_init(bool restarting) {
   dump.write();
   dump.close();
   
-  output << "\nFinished running test. Triggering error to quit\n\n";
+  output << "\nFinished running test.\n";
   
   MPI_Barrier(BoutComm::get()); // Wait for all processors to write data
-  
-  return 1;
-  
-}
 
-int physics_run(BoutReal t) {
-  // Doesn't do anything;
-  return 1;
 }
 
 BoutReal max_error_at_ystart(const Field3D &error) {
@@ -692,3 +684,5 @@ BoutReal max_error_at_ystart(const Field3D &error) {
   
   return max_error;
 }
+
+BOUTTEST(test);

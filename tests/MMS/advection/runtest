@@ -172,7 +172,7 @@ try:
     plt.ylabel(r'$l^\infty$ error norm')
     plt.savefig("advection_norm_linf.pdf")
     plt.close()
-except ImportError:
+except:
     pass
 
 if success:

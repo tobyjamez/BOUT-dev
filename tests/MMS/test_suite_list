@@ -2,7 +2,7 @@
 diffusion
 wave-1d
 wave-1d-y
-!interpolation
+interpolation
 derivatives
 derivatives2
-!derivatives_flux
+derivatives_flux

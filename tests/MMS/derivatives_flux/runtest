@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 
-try:
-    import boutcore
-except:
-    print("BoutCore not available - skipping test")
-    exit(42)
-
+import boutcore
 import numpy as np
 import itertools
+
+#requires boutcore
+#requires not make
 
 errorlist=""
 

@@ -24,8 +24,8 @@
  **************************************************************************/
 
 #include <bout.hxx>
-#include <bout/testwrapper.hxx>
 #include <bout/constants.hxx>
+// #include <bout/sys/timer.hxx>
 #include <boutexception.hxx>
 #include <options.hxx>
 #include <invert_laplace.hxx>
@@ -33,7 +33,9 @@
 
 BoutReal max_error_at_ystart(const Field3D &error);
 
-void test() {
+int main(int argc, char** argv) {
+
+  BoutInitialise(argc, argv);
   
   Options *options = Options::getRoot()->getSection("petsc2nd");
   class Laplacian* invert = Laplacian::create(options);
@@ -49,7 +51,7 @@ void test() {
   // Only Neumann x-boundary conditions are implemented so far, so test functions should be Neumann in x and periodic in z.
   // Use Field3D's, but solver only works on FieldPerp slices, so only use 1 y-point
   BoutReal nx = mesh->GlobalNx-2*mesh->xstart - 1;
-  BoutReal nz = mesh->GlobalNz-1;
+  BoutReal nz = mesh->GlobalNz;
   
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Test 1: Gaussian x-profiles, 2nd order Krylov
@@ -172,6 +174,8 @@ void test() {
 	}
   
   mesh->communicate(f1,a1,c1,d1);
+
+  f1.setBoundary("neumann");
   
   b1 = d1*Delp2(f1) + Grad_perp(c1)*Grad_perp(f1)/c1 + a1*f1;
   if (mesh->firstX())
@@ -667,7 +671,9 @@ void test() {
   output << "\nFinished running test.\n";
   
   MPI_Barrier(BoutComm::get()); // Wait for all processors to write data
-
+  
+  BoutFinalise();
+  return 0;
 }
 
 BoutReal max_error_at_ystart(const Field3D &error) {
@@ -684,5 +690,3 @@ BoutReal max_error_at_ystart(const Field3D &error) {
   
   return max_error;
 }
-
-BOUTTEST(test);

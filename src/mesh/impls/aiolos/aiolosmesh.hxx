@@ -61,7 +61,7 @@ public:
 
   //virtual const Field3D interp_to(const Field3D &var, CELL_LOC loc) const;
   
-  virtual const Field3D interp_to(const Field3D &f , CELL_LOC loc) override {
+  virtual const Field3D interp_to(const Field3D &f , CELL_LOC loc, REGION region) override {
     return ((const AiolosMesh*)this)->interp_to(f,loc);
   }
   virtual const Field3D interp_to(const Field3D &f , CELL_LOC loc) const {
@@ -72,7 +72,7 @@ public:
       return interp_to_do(f, loc);
     }
   }
-  virtual const Field2D interp_to(const Field2D &f , CELL_LOC loc) override {
+  virtual const Field2D interp_to(const Field2D &f , CELL_LOC loc, REGION region) override {
     return ((const AiolosMesh*)this)->interp_to(f,loc);
   }
   virtual const Field2D interp_to(const Field2D &f , CELL_LOC loc) const {

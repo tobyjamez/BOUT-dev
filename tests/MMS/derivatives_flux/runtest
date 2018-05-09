@@ -27,9 +27,9 @@ def runtest(nzs,guards,diff_func,diff,order,direction,fac,fs,vs,anas,locs,msg):
     errors=[]
     for nz in nzs:
         boutcore.setOption("meshD:nD".replace("D",direction)
-                           ,"%d"% (nz+ (2*guards if direction == "x" else 0)))
+                           ,"%d"% (nz+ (2*guards if direction == "x" else 0)),force=True)
         boutcore.setOption("meshD:dD".replace("D",direction)
-                           ,"2*pi/(%d)"%(nz))
+                           ,"2*pi/(%d)"%(nz),force=True)
         dirnfac=direction+"*"+fac
         mesh=boutcore.Mesh(OptionSection="mesh"+direction)
         v=boutcore.create3D(vs.replace("%s",dirnfac),mesh

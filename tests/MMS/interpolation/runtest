@@ -38,14 +38,14 @@ prec = 0.6
 nproc = 2
 
 def genMesh(nx,ny,nz):
-    bc.setOption("mesh:mxg",str(2 if nx > 1 else 0))
-    bc.setOption("mesh:myg",str(2 if ny > 1 else 0))
-    bc.setOption("mesh:nx",str(nx + 4 if nx > 1 else nx))
-    bc.setOption("mesh:ny",str(ny))
-    bc.setOption("mz",str(nz))
-    bc.setOption("mesh:dx","2*pi/(%d)"%(nx))
-    bc.setOption("mesh:dy","1/(%d)"%(ny))
-    bc.setOption("mesh:dz","1/(%d)"%(nz))
+    bc.setOption("mesh:mxg",str(2 if nx > 1 else 0),force=True)
+    bc.setOption("mesh:myg",str(2 if ny > 1 else 0),force=True)
+    bc.setOption("mesh:nx",str(nx + 4 if nx > 1 else nx),force=True)
+    bc.setOption("mesh:ny",str(ny),force=True)
+    bc.setOption("mz",str(nz),force=True)
+    bc.setOption("mesh:dx","2*pi/(%d)"%(nx),force=True)
+    bc.setOption("mesh:dy","1/(%d)"%(ny),force=True)
+    bc.setOption("mesh:dz","1/(%d)"%(nz),force=True)
     return bc.Mesh(OptionSection="mesh")
 
 order=4

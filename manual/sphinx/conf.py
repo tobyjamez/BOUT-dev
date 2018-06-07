@@ -195,7 +195,7 @@ html_static_path = ['_static']
 # browsers use this as the icon for tabs, windows and bookmarks. It
 # should be a Windows-style icon file (.ico), which is 16x16 or 32x32
 # pixels large. Default: None.
-html_favicon = ['favicon.ico']
+html_favicon = 'favicon.ico'
 
 # -- Options for HTMLHelp output ------------------------------------------
 

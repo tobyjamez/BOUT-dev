@@ -197,6 +197,13 @@ html_static_path = ['_static']
 # pixels large. Default: None.
 html_favicon = 'favicon.ico'
 
+# If this is not None, a \u2018Last updated on:\u2019 timestamp is
+# inserted at every page bottom, using the given strftime()
+# format. The empty string is equivalent to '%b %d, %Y' (or a
+# locale-dependent equivalent).
+html_last_updated_fmt = ''
+
+
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.

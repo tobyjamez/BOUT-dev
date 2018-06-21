@@ -89,6 +89,8 @@ private:
     bool isSet;
     Stencil() : isSet(false) {};
     Stencil(T c1, T c2, T c3, T c4) : c1(c1), c2(c2), c3(c3), c4(c4), isSet(true) {};
+    template<typename ... Args>
+    Stencil(Args && ... args) : c1(args ...), c2(args ...), c3(args ...), c4(args ...), isSet(false) {};
   };
 
   Stencil<BoutReal> calc_interp_to_stencil(BoutReal a, BoutReal b, BoutReal c,
@@ -105,7 +107,11 @@ private:
     auto s2 = bma * cmb * bmd;
     auto s3 = cma * cmb * dmc;
     auto s4 = dma * bmd * dmc;
-    return {cd * b / s1, a * cd / s2, ab * d / s3, ab * c / s4};
+    auto e = cd * b / s1;
+    auto f = a * cd / s2;
+    auto g = ab * d / s3;
+    auto h = ab * c / s4;
+    return {e,f,g,h};
   }
 
   Stencil<Field2D> stencil_x_CtoL, stencil_x_LtoC, stencil_y_CtoL, stencil_y_LtoC;

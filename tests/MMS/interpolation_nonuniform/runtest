@@ -13,6 +13,7 @@ import boutcore as bc
 #Requires: boutcore
 
 bc.init("-q -q -q")
+#bc.init()
 
 
 funcs = [
@@ -27,7 +28,7 @@ facs={'X':'2*pi',
       'Z':'1'    }
 
 # List of NX values to use
-nlist = [8, 16, 32, 64]#, 128 , 256]#, 512]
+nlist = [4, 8, 16]#, 32, 64, 128 , 256]#, 512]
 
 prec = 0.6
 
@@ -62,10 +63,10 @@ for inloc in locs:
             dirnfac=dir+"*"+facs[dir]
             for func in funcs:
                 if dir == 'Y':
-                    func_=func.replace("x",'realy()').replace("fac",facs[dir])
+                    func_=func.replace("x",'realy').replace("fac",facs[dir])
                 else:
                     func_=func.replace("x",dir).replace("fac",facs[dir])
-                print(func_)
+                #print(func_)
                 errors=[]
                 for n in nlist[-2:]:
                     mesh=genMesh(n if 'X' in dirs else 1,
@@ -73,11 +74,15 @@ for inloc in locs:
                                  n if 'Z' in dirs else 1)
                     inf=bc.create3D(func_,mesh,outloc=inloc)
                     inf=bc.interp_to(inf,outloc)
+                    #print(inloc,inf.get())
                     outf=bc.create3D(func_,mesh,outloc=outloc)
                     err=(inf-outf)
-                    slize=[slice(2,-2) if 'X' in dirs else 0,
-                           slice(2,-2) if 'Y' in dirs else 0,
-                           slice(2,-2) if 'Z' in dirs else 0]
+                    slize=[slice(None) if 'X' == dir else 0,
+                           slice(None) if 'Y' == dir else 0,
+                           slice(None) if 'Z' == dir else 0]
+                    #slize=[slice(2,-2) if 'X' in dirs else 0,
+                    #       slice(2,-2) if 'Y' in dirs else 0,
+                    #       slice(2,-2) if 'Z' in dirs else 0]
                     #err=np.max(np.abs(err))
                     err=err[slize]
                     err=np.sqrt(np.mean(err**2))
@@ -85,26 +90,28 @@ for inloc in locs:
                 errc=np.log(errors[-2]/errors[-1])
                 difc=np.log(nlist[-1]/nlist[-2])
                 conv=errc/difc
-                print(inloc,outloc,errors)
+                print(inloc,outloc,errors,conv)
                 if order-prec < conv < order+prec:
                     pass
                 else:
+                #if True:
                     err="%s -- %s -> %s failed (conv: %f)\n"%(func_,inloc,outloc,conv)
                     errlist+=err
                     try:
-                        #if True:
-                        #if 'Y' in dirs:
                         if True:
+                        #if 'Y' in dirs:
+                        #if False:
                             print(err)
                             import matplotlib.pyplot as plt
-                            slize=[slice(2,-2) if 'X' == dir else 0,
-                                   slice(2,-2) if 'Y' == dir else 0,
-                                   slice(2,-2) if 'Z' == dir else 0]
+                            slize=[slice(None) if 'X' == dir else 0,
+                                   slice(None) if 'Y' == dir else 0,
+                                   slice(None) if 'Z' == dir else 0]
                             ind=inf.get()[slize]
                             out=outf.get()[slize]
-                            plt.plot(ind-out)
-                            plt.plot(ind)
-                            plt.plot(out)
+                            plt.plot(ind-out,label='diff')
+                            plt.plot(ind,label='in')
+                            plt.plot(out,label='out')
+                            plt.legend()
                             plt.show()
                     except:
                         pass

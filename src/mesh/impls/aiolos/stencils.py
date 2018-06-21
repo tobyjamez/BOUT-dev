@@ -689,6 +689,8 @@ def print_interp_to_do():
             print("break;")
         print("    default:")
         print('      throw BoutException("AiolosMesh::interp_to: Cannot interpolate to %s!",strLocation(loc));')
+    print('      // gcc thinks we might end up here. So be save and throw.')
+    print('      throw BoutException("AiolosMesh::interp_to - failed to return result!");')
     print("}")
 
 def print_interp_to_do_code_nonuniform(header=False):
@@ -720,6 +722,7 @@ def print_interp_to_do_code_nonuniform(header=False):
                 'direction' : direction,
                 'onoff' : onoff,
                 'field' : field,
+                'direction_upper' : direction.upper(),
             }
             sig=Template("{{field}} {{class}}interp_to_do_non_uniform_{{direction}}_{{onoff}}(const {{field}} & in) const")
             
@@ -739,19 +742,25 @@ def print_interp_to_do_code_nonuniform(header=False):
                 if end > 0:
                     end = str(end)
                 else:
-                    start = "LocalN%s %+d"%(direction,end)
+                    end = "LocalN%s %+d"%(direction,end)
                 if z:
                     nz = 'LocalNz - 1'
                 else:
                     nz = '0'
-                if direction == 'x':
-                    return "{%s, 0, 0, %s - 1, LocalNy - 1, %s}"%(start,end,nz)
-                else:
-                    return "{0, %s, 0, LocalNx - 1, %s - 1, %s}"%(start,end,nz)
 
-            kwargs['d0']=dataiterator(direction, 0, 1)
-            kwargs['d1']=dataiterator(direction, boundary_low, -boundary_high)
-            kwargs['df']=dataiterator(direction, boundary_low, -boundary_high, field != 'Field2D')
+                if direction == 'x':
+                    return "{%s, %s - 1, 0,  LocalNy - 1, 0, %s}"%(start,end,nz)
+                else:
+                    return "{0, LocalNx - 1, %s,  %s - 1, 0, %s}"%(start,end,nz)
+
+            kwargs['d02']=dataiterator(direction, 0, 1)
+            kwargs['d12']=dataiterator(direction, 1, 2)
+            kwargs['dm12']=dataiterator(direction, -1, -0)
+            kwargs['dm22']=dataiterator(direction, -2, -1)
+            kwargs['dn2']=dataiterator(direction, boundary_low, -boundary_high)
+            kwargs['dn3']=dataiterator(direction, boundary_low, -boundary_high, field != 'Field2D')
+            kwargs['d03']=dataiterator(direction,  0,  2, field != 'Field2D')
+            kwargs['dm3']=dataiterator(direction, -2, -0, field != 'Field2D')
             print(env.from_string("""
     {{sig}} {
             {{field}} result(const_cast<AiolosMesh*>(this));
@@ -759,19 +768,74 @@ def print_interp_to_do_code_nonuniform(header=False):
 
     if (! stencil_{{direction}}_{{onoff}}.isSet) {
             Field2D & dy = coords->d{{direction}};
+       const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}} = Stencil<Field2D>(const_cast<AiolosMesh*>(this));
+{% for i in ["c1", "c2", "c3", "c4"] %}
+          const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}.allocate();
+{% endfor %}
 {% if onoff == 'CtoL' %}
-    // DataIterator di = {{d0}};
-            /*for (;! di.done() ; di ++) {
-        i.{{direction}} = 1;
-        auto a = -0.5 * dy[i.{{direction}}m()];
-        auto b = 0.5 * dy[i];
-        auto c = dy[i] + 0.5 * dy[i.{{direction}}p()];
-        auto c = dy[i] + dy[i.{{direction}}p()] + 0.5 * dy[i.{{direction}}pp()];;
-    
-    }*/
+    for (DataIterator di {{d02}};! di.done() ; di ++) {
+        auto a = 0.5 * dy[di];
+        auto b = dy[di] + 0.5 * dy[di.{{direction}}p()];
+        auto c = dy[di] + dy[di.{{direction}}p()] + 0.5 * dy[di.{{direction}}pp()];
+        auto d = dy[di] + dy[di.{{direction}}p()] + dy[di.{{direction}}p(2)] + 0.5 * dy[di.{{direction}}p(3)] ;
+        auto sten = calc_interp_to_stencil(a,b,c,d);
+{% for i in ["c1", "c2", "c3", "c4"] %}
+        const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}[di]=sten.{{i}};
+{% endfor %}
+    }
+    for (DataIterator di {{d12}};! di.done() ; di ++) {
+        auto a = -0.5 * dy[di.{{direction}}m()];
+        auto b = 0.5 * dy[di];
+        auto c = dy[di] + 0.5 * dy[di.{{direction}}p()];
+        auto d = dy[di] + dy[di.{{direction}}p()] + 0.5 * dy[di.{{direction}}pp()];;
+        auto sten = calc_interp_to_stencil(a,b,c,d);
+{% for i in ["c1", "c2", "c3", "c4"] %}
+        const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}[di]=sten.{{i}};
+{% endfor %}
+    }
+    for (DataIterator di {{dm12}};! di.done() ; di ++) {
+        auto a = -0.5 * dy[di.{{direction}}m(3)] - dy[di.{{direction}}m(2)] - dy[di.{{direction}}m()];
+        auto b = -0.5 * dy[di.{{direction}}mm()] - dy[di.{{direction}}m()];
+        auto c = -0.5 * dy[di.{{direction}}m()];
+        auto d = 0.5 * dy[di];
+        auto sten = calc_interp_to_stencil(a,b,c,d);
+{% for i in ["c1", "c2", "c3", "c4"] %}
+        const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}[di]=sten.{{i}};
+{% endfor %}
+    }
+{% else %} //////////////////////// L -> C
+    for (DataIterator di {{d02}};! di.done() ; di ++) {
+        auto b = 0.5 * dy[di];
+        auto a = -b;
+        auto c = b + dy[di.{{direction}}p()];
+        auto d = c + dy[di.{{direction}}p(2)];
+        auto sten = calc_interp_to_stencil(a,b,c,d);
+{% for i in ["c1", "c2", "c3", "c4"] %}
+          const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}[di]=sten.{{i}};
+{% endfor %}
+    }
+    for (DataIterator di {{dm22}};! di.done() ; di ++) {
+        auto d = 0.5 * dy[di];
+        auto c = -d;
+        auto b = c - dy[di.{{direction}}m()];
+        auto a = b - dy[di.{{direction}}m(2)];
+        auto sten = calc_interp_to_stencil(a,b,c,d);
+{% for i in ["c1", "c2", "c3", "c4"] %}
+        const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}[di]=sten.{{i}};
+{% endfor %}
+    }
+    for (DataIterator di {{dm12}};! di.done() ; di ++) {
+        auto d = -0.5 * dy[di];
+        auto c = d - dy[di.{{direction}}m()];
+        auto b = c - dy[di.{{direction}}m(2)];
+        auto a = b - dy[di.{{direction}}m(3)];
+        auto sten = calc_interp_to_stencil(a,b,c,d);
+{% for i in ["c1", "c2", "c3", "c4"] %}
+        const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}[di]=sten.{{i}};
+{% endfor %}
+    }
 {% endif %}
-    DataIterator di {{d1}};
-            for (; ! di.done(); ++di) {
+    for (DataIterator di {{dn2}} ; ! di.done(); ++di) {
 {% if onoff == 'CtoL' %}
         auto a = -0.5 * dy[di.{{direction}}mm()] - dy[di.{{direction}}m()];
         auto b = -0.5 * dy[di.{{direction}}m()];
@@ -789,15 +853,42 @@ def print_interp_to_do_code_nonuniform(header=False):
 {% endfor %}
       }
     }
-            DataIterator di={{df}};
-            for (;!di.done();++di) {
+    for (DataIterator di{{d03}} ;!di.done();++di) {
+        Indices c1,c2,c3,c4 {di.x,di.y,di.z};
+        c1=c2=c3=c4;
+        c1.{{direction}} = 0;
+        c2.{{direction}} = 1;
+        c3.{{direction}} = 2;
+        c4.{{direction}} = 3;
+        result[di] = 
+{% for c,i in [["c1",i1], ["c2",i2], ["c3",i3], ["c4",i4]] %}
+            + stencil_{{direction}}_{{onoff}}.{{c}}[di] * in[{{c}}]
+{% endfor %}
+    ;  }
+    for (DataIterator di{{dn3}};!di.done();++di) {
       result[di] = 
 {% for c,i in [["c1",i1], ["c2",i2], ["c3",i3], ["c4",i4]] %}
             + stencil_{{direction}}_{{onoff}}.{{c}}[di] * in[di{{i}}]
 {% endfor %}
     ;
     }
-
+    for (DataIterator di{{dm3}} ;!di.done();++di) {
+        Indices c1,c2,c3,c4 {di.x,di.y,di.z};
+        c1=c2=c3=c4;
+        c1.{{direction}} = LocalN{{direction}} - 4;
+        c2.{{direction}} = LocalN{{direction}} - 3;
+        c3.{{direction}} = LocalN{{direction}} - 2;
+        c4.{{direction}} = LocalN{{direction}} - 1;
+        result[di] = 
+{% for c,i in [["c1",i1], ["c2",i2], ["c3",i3], ["c4",i4]] %}
+            + stencil_{{direction}}_{{onoff}}.{{c}}[di] * in[{{c}}]
+{% endfor %}
+    ;  }
+{% if onoff == 'LtoC' %}
+    result.setLocation(CELL_CENTRE);
+{% else %}
+    result.setLocation(CELL_{{direction_upper}}LOW);
+{% endif %}
     return result;
 }
     """).render(**kwargs))

@@ -78,7 +78,37 @@ public:
   bool isAiolos = true;
 #endif
 private:
+  int is_x_uniform;
+  int is_y_uniform;
+  int is_z_uniform;
   const Field3D interp_to_do(const Field3D &f, CELL_LOC loc, REGION region) const;
+
+  template <typename T>
+  struct Stencil {
+    T c1, c2, c3, c4;
+    bool isSet;
+    Stencil() : isSet(false) {};
+    Stencil(T c1, T c2, T c3, T c4) : c1(c1), c2(c2), c3(c3), c4(c4), isSet(true) {};
+  };
+
+  Stencil<BoutReal> calc_interp_to_stencil(BoutReal a, BoutReal b, BoutReal c,
+                                       BoutReal d) const {
+    auto ab = a * b;
+    auto cd = c * d;
+    auto bma = b - a;
+    auto cma = c - a;
+    auto cmb = c - b;
+    auto dma = d - a;
+    auto bmd = b - d;
+    auto dmc = d - c;
+    auto s1 = bma * cma * dma;
+    auto s2 = bma * cmb * bmd;
+    auto s3 = cma * cmb * dmc;
+    auto s4 = dma * bmd * dmc;
+    return {cd * b / s1, a * cd / s2, ab * d / s3, ab * c / s4};
+  }
+
+  Stencil<Field2D> stencil_x_CtoL, stencil_x_LtoC, stencil_y_CtoL, stencil_y_LtoC;
 
 #include "aiolos_derivs.hxx"
 

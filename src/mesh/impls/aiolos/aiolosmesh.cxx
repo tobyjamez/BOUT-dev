@@ -34,7 +34,7 @@
 
 #include <output.hxx>
 
-AiolosMesh::AiolosMesh(GridDataSource *s, Options *options) : BoutMesh(s, options) {
+AiolosMesh::AiolosMesh(GridDataSource *s, Options *options) : BoutMesh(s, options),  is_x_uniform(2),  is_y_uniform(2),  is_z_uniform(1) {
   output_info.write("  Using Aiolos Mesh!\n");
   derivs_init(options);
 }

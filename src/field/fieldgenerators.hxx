@@ -351,13 +351,10 @@ private:
 class FieldRealY : public FieldGenerator {
 public:
   FieldRealY() {
-    printf("realy ctor\n");
   }
   FieldRealY(const list<std::shared_ptr<FieldGenerator> > args) {
-    printf("realy ctor args\n");
   }
   std::shared_ptr<FieldGenerator> clone(const list<std::shared_ptr<FieldGenerator> > args){ 
-    printf("realy clone\n");
     if(args.size() != 0) {
       throw ParseException("Real y function must not have any input");
     }

@@ -71,12 +71,6 @@ public:
     }
   }
 
-  virtual const Field2D interp_to(const Field2D &f , CELL_LOC loc, REGION region) override {
-    return ((const AiolosMesh*)this)->interp_to(f, loc, region);
-  }
-  virtual const Field2D interp_to(const Field2D &f , CELL_LOC loc, REGION region) const {
-    return f;
-  }
 
   virtual void derivs_init(Options *option) override;
 

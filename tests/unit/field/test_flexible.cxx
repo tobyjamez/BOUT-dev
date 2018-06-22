@@ -533,7 +533,7 @@ public:
 private:
 };
 
-FakeField interp_to(const FakeField &f, CELL_LOC loc, REGION UNUSED(region)) {
+FakeField static_interp_to(const FakeField &f, CELL_LOC loc, REGION UNUSED(region)) {
   FakeField tmp(f);
   tmp.location = loc;
   return tmp;

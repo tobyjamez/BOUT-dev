@@ -46,8 +46,8 @@ template <typename F> class Flexible;
 #include <field_data.hxx>
 
 const char *strLocation(CELL_LOC);
-const Field2D interp_to(const Field2D &, CELL_LOC, REGION);
-const Field3D interp_to(const Field3D &, CELL_LOC, REGION);
+const Field2D static_interp_to(const Field2D &, CELL_LOC, REGION);
+const Field3D static_interp_to(const Field3D &, CELL_LOC, REGION);
 
 /// Template for having one field at different locations. If a Field
 /// is not yet known for that location, it will be created and
@@ -90,17 +90,17 @@ public:
     if (!is_valid[loc]) {
       // fields[0] is the field at CELL_CENTRE
       if (fields[0] == nullptr) {
-        fields[0] = new F(interp_to(*fields[mainid], CELL_CENTRE, RGN_NOBNDRY));
+        fields[0] = new F(static_interp_to(*fields[mainid], CELL_CENTRE, RGN_NOBNDRY));
         is_valid[0] = true;
       } else if (!is_valid[0]) {
-        *fields[0] = interp_to(*fields[mainid], CELL_CENTRE, RGN_NOBNDRY);
+        *fields[0] = static_interp_to(*fields[mainid], CELL_CENTRE, RGN_NOBNDRY);
         is_valid[0] = true;
       }
       if (loc != mainid) {
         if (fields[loc] == nullptr) {
-          fields[loc] = new F(interp_to(*fields[mainid], loc_, RGN_NOBNDRY));
+          fields[loc] = new F(static_interp_to(*fields[mainid], loc_, RGN_NOBNDRY));
         } else {
-          *fields[loc] = interp_to(*fields[mainid], loc_, RGN_NOBNDRY);
+          *fields[loc] = static_interp_to(*fields[mainid], loc_, RGN_NOBNDRY);
         }
         is_valid[loc] = true;
       }

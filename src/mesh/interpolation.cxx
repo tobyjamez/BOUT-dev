@@ -38,6 +38,14 @@
 */
 BoutReal interp(const stencil &s) { return (9. * (s.m + s.p) - s.mm - s.pp) / 16.; }
 
+const Field3D static_interp_to(const Field3D &var, CELL_LOC loc, REGION region){
+  return interp_to(var, loc, region);
+}
+
+const Field2D static_interp_to(const Field2D &var, CELL_LOC loc, REGION region){
+  return interp_to(var, loc, region);
+}
+
 /*!
   Interpolate between different cell locations
 

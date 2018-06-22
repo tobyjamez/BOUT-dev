@@ -442,8 +442,8 @@ class Field3D : public Field, public FieldData {
   Field3D & operator+=(const Field3D &rhs);
   Field3D & operator+=(const Field2D &rhs);
   template <typename F>
-  Field3D & operator+=(Flexible<F> &rhs) {
-    return *this /= rhs.get(location);
+  Field3D & operator+=(const Flexible<F> &rhs) {
+    return *this += rhs.get(location);
   };
   Field3D & operator+=(BoutReal rhs);
   ///@}
@@ -453,8 +453,8 @@ class Field3D : public Field, public FieldData {
   Field3D & operator-=(const Field3D &rhs);
   Field3D & operator-=(const Field2D &rhs);
   template <typename F>
-  Field3D & operator-=(Flexible<F> &rhs) {
-    return *this /= rhs.get(location);
+  Field3D & operator-=(const Flexible<F> &rhs) {
+    return *this -= rhs.get(location);
   };
   Field3D & operator-=(BoutReal rhs);
   ///@}
@@ -464,8 +464,8 @@ class Field3D : public Field, public FieldData {
   Field3D & operator*=(const Field3D &rhs);
   Field3D & operator*=(const Field2D &rhs);
   template <typename F>
-  Field3D & operator*=(Flexible<F> &rhs) {
-    return *this /= rhs.get(location);
+  Field3D & operator*=(const Flexible<F> &rhs) {
+    return *this *= rhs.get(location);
   };
   Field3D & operator*=(BoutReal rhs);
   ///@}
@@ -475,7 +475,7 @@ class Field3D : public Field, public FieldData {
   Field3D & operator/=(const Field3D &rhs);
   Field3D & operator/=(const Field2D &rhs);
   template <typename F>
-  Field3D & operator/=(Flexible<F> &rhs) {
+  Field3D & operator/=(const Flexible<F> &rhs) {
     return *this /= rhs.get(location);
   };
   Field3D & operator/=(BoutReal rhs);

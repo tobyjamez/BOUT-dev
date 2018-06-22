@@ -75,7 +75,7 @@ public:
     }
   }
   /// Get a reference to the Field at location F
-  const F &get(CELL_LOC loc_) {
+  const F &get(CELL_LOC loc_) const {
     // staggered->staggered interpolation is not correct due to corner guard
     // cells not being set properly, so do not allow here: either mainid is the
     // field at CELL_CENTRE, or the only other field we can ask for is at
@@ -226,10 +226,10 @@ public:
     if (mainid == getId(rhs.getLocation())) {
       fields[mainid]->operator*=(rhs);
     } else {
-      throw BoutException("Trying to update a Flexible<F>, but themain location of "
-                          "Flexible<F> is different to the location of the "
-                          "rhs.\nFlexible<F> is at %s, but rhs is at %s",
-                          strLocation(mainLocation()), strLocation(rhs.getLocation()));
+      throw BoutException(
+          "Trying to update a Flexible<F>, but themain location of Flexible<F> is "
+          "different to the location of the rhs.\nFlexible<F> is at %s, but rhs is at %s",
+          strLocation(mainLocation()), strLocation(rhs.getLocation()));
     }
     reset(false);
     return *this;
@@ -238,10 +238,10 @@ public:
     if (mainid == getId(rhs.getLocation())) {
       fields[mainid]->operator*=(rhs);
     } else {
-      throw BoutException("Trying to update a Flexible<F>, but themain location of "
-                          "Flexible<F> is different to the location of the "
-                          "rhs.\nFlexible<F> is at %s, but rhs is at %s",
-                          strLocation(mainLocation()), strLocation(rhs.getLocation()));
+      throw BoutException(
+          "Trying to update a Flexible<F>, but themain location of Flexible<F> is "
+          "different to the location of the rhs.\nFlexible<F> is at %s, but rhs is at %s",
+          strLocation(mainLocation()), strLocation(rhs.getLocation()));
     }
     reset(false);
     return *this;
@@ -255,10 +255,10 @@ public:
     if (mainid == getId(rhs.getLocation())) {
       fields[mainid]->operator/=(rhs);
     } else {
-      throw BoutException("Trying to update a Flexible<F>, but themain location of "
-                          "Flexible<F> is different to the location of the "
-                          "rhs.\nFlexible<F> is at %s, but rhs is at %s",
-                          strLocation(mainLocation()), strLocation(rhs.getLocation()));
+      throw BoutException(
+          "Trying to update a Flexible<F>, but themain location of Flexible<F> is "
+          "different to the location of the rhs.\nFlexible<F> is at %s, but rhs is at %s",
+          strLocation(mainLocation()), strLocation(rhs.getLocation()));
     }
     reset(false);
     return *this;
@@ -267,10 +267,10 @@ public:
     if (mainid == getId(rhs.getLocation())) {
       fields[mainid]->operator/=(rhs);
     } else {
-      throw BoutException("Trying to update a Flexible<F>, but themain location of "
-                          "Flexible<F> is different to the location of the "
-                          "rhs.\nFlexible<F> is at %s, but rhs is at %s",
-                          strLocation(mainLocation()), strLocation(rhs.getLocation()));
+      throw BoutException(
+          "Trying to update a Flexible<F>, but themain location of Flexible<F> is "
+          "different to the location of the rhs.\nFlexible<F> is at %s, but rhs is at %s",
+          strLocation(mainLocation()), strLocation(rhs.getLocation()));
     }
     reset(false);
     return *this;
@@ -284,10 +284,10 @@ public:
     if (mainid == getId(rhs.getLocation())) {
       fields[mainid]->operator+=(rhs);
     } else {
-      throw BoutException("Trying to update a Flexible<F>, but themain location of "
-                          "Flexible<F> is different to the location of the "
-                          "rhs.\nFlexible<F> is at %s, but rhs is at %s",
-                          strLocation(mainLocation()), strLocation(rhs.getLocation()));
+      throw BoutException(
+          "Trying to update a Flexible<F>, but themain location of Flexible<F> is "
+          "different to the location of the rhs.\nFlexible<F> is at %s, but rhs is at %s",
+          strLocation(mainLocation()), strLocation(rhs.getLocation()));
     }
     reset(false);
     return *this;
@@ -296,10 +296,10 @@ public:
     if (mainid == getId(rhs.getLocation())) {
       fields[mainid]->operator+=(rhs);
     } else {
-      throw BoutException("Trying to update a Flexible<F>, but themain location of "
-                          "Flexible<F> is different to the location of the "
-                          "rhs.\nFlexible<F> is at %s, but rhs is at %s",
-                          strLocation(mainLocation()), strLocation(rhs.getLocation()));
+      throw BoutException(
+          "Trying to update a Flexible<F>, but themain location of Flexible<F> is "
+          "different to the location of the rhs.\nFlexible<F> is at %s, but rhs is at %s",
+          strLocation(mainLocation()), strLocation(rhs.getLocation()));
     }
     reset(false);
     return *this;
@@ -313,10 +313,10 @@ public:
     if (mainid == getId(rhs.getLocation())) {
       fields[mainid]->operator-=(rhs);
     } else {
-      throw BoutException("Trying to update a Flexible<F>, but themain location of "
-                          "Flexible<F> is different to the location of the "
-                          "rhs.\nFlexible<F> is at %s, but rhs is at %s",
-                          strLocation(mainLocation()), strLocation(rhs.getLocation()));
+      throw BoutException(
+          "Trying to update a Flexible<F>, but themain location of Flexible<F> is "
+          "different to the location of the rhs.\nFlexible<F> is at %s, but rhs is at %s",
+          strLocation(mainLocation()), strLocation(rhs.getLocation()));
     }
     reset(false);
     return *this;
@@ -325,10 +325,10 @@ public:
     if (mainid == getId(rhs.getLocation())) {
       fields[mainid]->operator-=(rhs);
     } else {
-      throw BoutException("Trying to update a Flexible<F>, but themain location of "
-                          "Flexible<F> is different to the location of the "
-                          "rhs.\nFlexible<F> is at %s, but rhs is at %s",
-                          strLocation(mainLocation()), strLocation(rhs.getLocation()));
+      throw BoutException(
+          "Trying to update a Flexible<F>, but themain location of Flexible<F> is "
+          "different to the location of the rhs.\nFlexible<F> is at %s, but rhs is at %s",
+          strLocation(mainLocation()), strLocation(rhs.getLocation()));
     }
     reset(false);
     return *this;
@@ -394,9 +394,9 @@ private:
   // Number of field locations we support
   static const uint num_fields = 4;
   // The pointers to the fields. Some may be null
-  F *fields[num_fields];
+  mutable F *fields[num_fields];
   // Has the field been set?
-  bool is_valid[num_fields];
+  mutable bool is_valid[num_fields];
   // The id of the mainlocation
   uint mainid;
 };

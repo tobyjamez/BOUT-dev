@@ -101,7 +101,7 @@ public:
     }
   }
   /// Get a reference to the Field at location F
-  const F & get(CELL_LOC loc_) {
+  const F & get(CELL_LOC loc_) const {
     // staggered->staggered interpolation is not correct due to corner guard
     // cells not being set properly, so do not allow here: either mainid is the
     // field at CELL_CENTRE, or the only other field we can ask for is at
@@ -348,9 +348,9 @@ private:
   // Number of field locations we support
   static const uint num_fields=4;
   // The pointers to the fields. Some may be null
-  F * fields[num_fields];
+  mutable F * fields[num_fields];
   // Has the field been set?
-  bool is_valid[num_fields];
+  mutable bool is_valid[num_fields];
   // The id of the mainlocation
   uint mainid;
 };
@@ -361,7 +361,7 @@ private:
 # Code-Template in the case the the flexible field is on the rhs of the operation.
 # The case of a BoutReal needs to be handled separately.
 # Note the case to update a lhs inplace is not supported yet - this
-# needs to be declared int the specific fields.
+# needs to be declared in the specific fields.
 template_rhs = jinja2.Template("""\
 {% if lhs == 'BoutReal' %}\
 

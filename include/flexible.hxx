@@ -45,6 +45,10 @@ template <typename F> class Flexible;
 #include <field3d.hxx>
 #include <field_data.hxx>
 
+#if CHECK > 2
+#include <cmath>
+#endif
+
 const char *strLocation(CELL_LOC);
 const Field2D static_interp_to(const Field2D &, CELL_LOC, REGION);
 const Field3D static_interp_to(const Field3D &, CELL_LOC, REGION);
@@ -381,7 +385,7 @@ private:
         if (fields[i] != nullptr && fields[i]->isAllocated()) {
           fields[i]->allocate(); // make sure reference to data is unique
           for (auto j : *fields[i]) {
-            (*fields[i])[j] = nan("");
+            (*fields[i])[j] = std::nan("");
           }
         }
 #endif

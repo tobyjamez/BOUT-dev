@@ -165,7 +165,8 @@ Coordinates::Coordinates(Mesh *mesh)
   // Read correction for non-uniform meshes
   if (mesh->get(d2x, "d2x")) {
     output_warn.write("\tWARNING: differencing quantity 'd2x' not found. Calculating from dx\n");
-    d1_dx = mesh->indexDDX(1. / dx); // d/di(1/dx)
+    Field2D tmp = mesh->indexDDX(1. / dx.get(CELL_DEFAULT)); // d/di(1/dx)
+    d1_dx = tmp;
   } else {
     d1_dx = -d2x / (dx * dx);
   }

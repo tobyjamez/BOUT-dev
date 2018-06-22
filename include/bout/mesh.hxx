@@ -668,18 +668,18 @@ class Mesh {
   }
   Region<Ind3D> &getRegion3D(const std::string &region_name);
   Region<Ind2D> &getRegion2D(const std::string &region_name);
-  
+
   /// Add a new region to the region_map for the data iterator
   ///
   /// Outputs an error message if region_name already exists
-  void addRegion(const std::string &region_name, Region<> region){
+  void addRegion(const std::string &region_name, const Region<> &region) {
     return addRegion3D(region_name, region);
   }
-  void addRegion(const std::string &region_name, Region<Ind2D> region){
+  void addRegion(const std::string &region_name, const Region<Ind2D> &region) {
     return addRegion2D(region_name, region);
   }
-  void addRegion3D(const std::string &region_name, Region<Ind3D> region);
-  void addRegion2D(const std::string &region_name, Region<Ind2D> region);
+  void addRegion3D(const std::string &region_name, const Region<Ind3D> &region);
+  void addRegion2D(const std::string &region_name, const Region<Ind2D> &region);
 
   /// Converts an Ind2D to an Ind3D using calculation
   Ind3D ind2Dto3D(const Ind2D &ind2D, int jz = 0){
@@ -700,7 +700,12 @@ class Mesh {
   ///
   /// Creates RGN_{ALL,NOBNDRY,NOX,NOY}
   void createDefaultRegions();
-
+  
+  /*!
+   * Return the parallel transform, setting it if need be
+   */
+  ParallelTransform& getParallelTransform();
+  
  protected:
   
   GridDataSource *source; ///< Source for grid data
@@ -709,10 +714,6 @@ class Mesh {
 
   Options *options; ///< Mesh options section
   
-  /*!
-   * Return the parallel transform, setting it if need be
-   */
-  ParallelTransform& getParallelTransform();
 
   PTptr transform; ///< Handles calculation of yup and ydown
 

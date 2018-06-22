@@ -30,12 +30,18 @@ matrix:
   - env: &default_env
       - CONFIGURE_OPTIONS=''
       - SCRIPT_FLAGS='-uim'
-      - PIP_PACKAGES='netcdf4'
-  - env:
-      - *default_env
+      - PIP_PACKAGES='netcdf4 jinja2'
+  - addons:
+      apt:
+        packages: &mpich
+         - libmpich-dev
+         - mpich
+         - *non-mpi
+         - libhdf5-serial-dev
+    env:
       - CONFIGURE_OPTIONS='--enable-shared'
       - SCRIPT_FLAGS='-uimt python'
-      - PIP_PACKAGES='netcdf4 cython'
+      - PIP_PACKAGES='netcdf4 cython jinja2'
 
   - env:
       - *default_env
@@ -100,6 +106,7 @@ matrix:
   - env:
       - CONFIGURE_OPTIONS='--enable-code-coverage --disable-debug --disable-checks'
       - SCRIPT_FLAGS='-cu'
+      - PIP_PACKAGES='jinja2'
 
 before_install:
   ##################################################

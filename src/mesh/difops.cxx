@@ -977,7 +977,7 @@ const Field3D bracket(const Field3D &f, const Field3D &g, BRACKET_METHOD method,
 
   CELL_LOC result_loc = bracket_location(f.getLocation(), g.getLocation(), outloc);
 
-  if (mesh->GlobalNx == 1 || mesh->GlobalNy == 1) {
+  if (mesh->GlobalNx == 1 || mesh->GlobalNz == 1) {
     result=0;
     result.setLocation(result_loc);
     return result;

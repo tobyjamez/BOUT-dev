@@ -431,7 +431,7 @@ Field3D AiolosMesh::interp_to_do_non_uniform_x_CtoL(const Field3D &in) const {
   result.allocate();
 
   if (!stencil_x_CtoL.isSet) {
-    Field2D &dy = coords->dx;
+    const Field2D &dy = coords->dx;
     const_cast<AiolosMesh *>(this)->stencil_x_CtoL =
         Stencil<Field2D>(const_cast<AiolosMesh *>(this));
     const_cast<AiolosMesh *>(this)->stencil_x_CtoL.c1.allocate();
@@ -521,7 +521,7 @@ Field3D AiolosMesh::interp_to_do_non_uniform_x_LtoC(const Field3D &in) const {
   result.allocate();
 
   if (!stencil_x_LtoC.isSet) {
-    Field2D &dy = coords->dx;
+    const Field2D &dy = coords->dx;
     const_cast<AiolosMesh *>(this)->stencil_x_LtoC =
         Stencil<Field2D>(const_cast<AiolosMesh *>(this));
     const_cast<AiolosMesh *>(this)->stencil_x_LtoC.c1.allocate();
@@ -612,7 +612,7 @@ Field3D AiolosMesh::interp_to_do_non_uniform_y_CtoL(const Field3D &in) const {
   result.allocate();
 
   if (!stencil_y_CtoL.isSet) {
-    Field2D &dy = coords->dy;
+    const Field2D &dy = coords->dy;
     const_cast<AiolosMesh *>(this)->stencil_y_CtoL =
         Stencil<Field2D>(const_cast<AiolosMesh *>(this));
     const_cast<AiolosMesh *>(this)->stencil_y_CtoL.c1.allocate();
@@ -702,7 +702,7 @@ Field3D AiolosMesh::interp_to_do_non_uniform_y_LtoC(const Field3D &in) const {
   result.allocate();
 
   if (!stencil_y_LtoC.isSet) {
-    Field2D &dy = coords->dy;
+    const Field2D &dy = coords->dy;
     const_cast<AiolosMesh *>(this)->stencil_y_LtoC =
         Stencil<Field2D>(const_cast<AiolosMesh *>(this));
     const_cast<AiolosMesh *>(this)->stencil_y_LtoC.c1.allocate();

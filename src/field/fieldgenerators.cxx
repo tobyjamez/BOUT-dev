@@ -286,7 +286,7 @@ BoutReal FieldRealY::generate(double x, double y, double z, double t,
   int gny = localmesh->GlobalNy - mesh->ystart * 2;
   int iy = y / 2 / PI * gny * 2 + 10.5;
   BoutReal res;
-  Field2D &dy = localmesh->coordinates()->dy;
+  const Field2D &dy = localmesh->coordinates()->dy;
   res = offset[i.x];
   for (int y = 0; y < i.y; ++y) {
     res += dy(i.x, y);
@@ -362,7 +362,7 @@ BoutReal FieldRealX::generate(double x, double y, double z, double t,
   int gnx = localmesh->GlobalNx - mesh->xstart * 2;
   int ix = x / 2 / PI * gnx * 2 + 10.5;
   BoutReal res;
-  Field2D &dx = localmesh->coordinates()->dx;
+  const Field2D &dx = localmesh->coordinates()->dx;
   res = offset[i.y];
   for (int x = 0; x < i.x; ++x) {
     res += dx(x, i.y);

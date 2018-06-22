@@ -15,7 +15,7 @@ done
 
 ny=9
 #if ! ./test mesh:ny=$ny all:function=x^4+y^4+z diff_x:function=4*x^3 diff_y:function=4*y^3 ddx:first=C4 ddy:first=C4 MXG=2 MYG=2 > run.log.$ny
-if ! ./test mesh:ny=$ny all:function=x^4 diff_x:function=4*x^3 diff_y:function=0 mesh:ddx:first=C4 ddy:first=C4 MXG=2 MYG=2 mesh:nx=8 mesh:nz=1 order=4> run.log.$ny
+if ! ./test all:function=x^4 diff_x:function=4*x^3 diff_y:function=0 mesh:ddx:first=C4 ddy:first=C4 MXG=2 MYG=2 mesh:nx=8 mesh:ny=$ny mesh:nz=1 order=4> run.log.$ny
 then
     cat run.log.$ny
     exit 1

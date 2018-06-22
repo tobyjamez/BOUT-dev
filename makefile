@@ -35,8 +35,6 @@ check-mms-tests: libfast
 
 check-integrated-tests: libfast
 	@cd tests/integrated; export LD_LIBRARY_PATH=${PWD}/lib:${LD_LIBRARY_PATH} ; \
-		PYTHONPATH=${PWD}/tools/pylib/:${PYTHONPATH} ./test_suite_make
-	@cd tests/integrated; export LD_LIBRARY_PATH=${PWD}/lib:${LD_LIBRARY_PATH} ; \
 		PYTHONPATH=${PWD}/tools/pylib/:${PYTHONPATH} ./test_suite
 
 

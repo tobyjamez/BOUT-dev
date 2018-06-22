@@ -723,10 +723,10 @@ class Mesh {
   /// Calculates the size of a message for a given x and y range
   int msg_len(const vector<FieldData*> &var_list, int xge, int xlt, int yge, int ylt);
   
-  // Initialise derivatives
+  /// Initialise derivatives
   virtual void derivs_init(Options* options);
   
-  // Loop over mesh, applying a stencil in the X direction
+  /// Loop over mesh, applying a stencil in the X direction
   virtual const Field2D applyXdiff(const Field2D &var, deriv_func func,
                            CELL_LOC loc = CELL_DEFAULT,
                            REGION region = RGN_NOBNDRY);

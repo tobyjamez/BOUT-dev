@@ -292,11 +292,11 @@ BoutReal FieldRealY::generate(double x, double y, double z, double t,
     res += dy(i.x, y);
   }
   if (iy % 2) { // centered
-    res -= dy[i] * .5;
+    res += dy[i] * .5;
   } else {
     // res+=dy[i];
   }
-  // printf("%g %8g %4d %4d %6g\n",offset[i.x],y/2/PI*gny*2,i.y,iy,res);
+  //printf("%g %8g %8g %4d %4d %6g\n",offset[i.x],y/2/PI*gny*2,y,i.y,iy,res);
   return res;
 }
 
@@ -370,7 +370,7 @@ BoutReal FieldRealX::generate(double x, double y, double z, double t,
   if (ix % 2) { // centered
     res -= dx[i] * .5;
   }
-  printf("%g %8g %4d %4d %6g\n",offset[i.x],x/2/PI*gnx*2,i.x,ix,res);
+  //printf("%g %8g %4d %4d %6g\n",offset[i.x],x/2/PI*gnx*2,i.x,ix,res);
   return res;
 }
 

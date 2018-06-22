@@ -241,7 +241,7 @@ const Field3D Mesh::interp_to(const Field3D &var, CELL_LOC loc, REGION region)
       // For now, shift to centre then to final location loc
       // We probably should not rely on this, but it might work if one of the
       // shifts is in the z-direction where guard cells aren't needed.
-      result = interp_to(interp_to(var, CELL_CENTRE), loc, region);
+      result = interp_to(interp_to(var, CELL_CENTRE,RGN_ALL), loc, region);
     }
     result.setLocation(loc);
 

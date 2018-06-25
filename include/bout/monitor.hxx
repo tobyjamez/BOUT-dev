@@ -14,7 +14,7 @@ class Solver;
 inline bool isMultiple(BoutReal a, BoutReal b) {
   ASSERT2(a > 0);
   ASSERT2(b > 0);
-  return (std::fmod(a, b) == 0) || (std::fmod(b, a) == 0);
+  return BOUTMAX(std::abs(std::fmod(a, b)), std::abs(std::fmod(b, a))) < 1e-8;
 }
 
 /// Monitor baseclass for the Solver

@@ -66,14 +66,14 @@ class DiffFuncTableEntry(object):
         self.isUpwind = False
         self.isFlux = False
         self.func_name = None
-        if normal != 'NULL':
+        if normal != 'nullptr':
             self.isNormal = True
             self.func_name = normal
-        if upwind != 'NULL':
+        if upwind != 'nullptr':
             self.isUpwind = True
             ASSERT(self.func_name == None)
             self.func_name = upwind
-        if flux != 'NULL':
+        if flux != 'nullptr':
             self.isFlux = True
             ASSERT(self.func_name == None)
             self.func_name = flux
@@ -142,9 +142,9 @@ class DiffFuncTable(object):
                     debug("Skipping %s - %s" %
                           (current_entry_name, to_skip[current_entry_name]))
                     continue
-                if current_entry_cleaned[1:4] == ['NULL'] * 3:
+                if current_entry_cleaned[1:4] == ['nullptr'] * 3:
                     continue
-                # debug(name,current_entry_name)
+                debug(name,current_entry_cleaned)
                 self.entries.append(DiffFuncTableEntry(*current_entry_cleaned))
         for entry in self.entries:
             entry.parent = self.name

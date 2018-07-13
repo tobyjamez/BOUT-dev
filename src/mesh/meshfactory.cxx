@@ -10,14 +10,14 @@
 #include "impls/bout/boutmesh.hxx"
 #include "impls/aiolos/aiolosmesh.hxx"
 
-MeshFactory *MeshFactory::instance = NULL;
+MeshFactory *MeshFactory::instance = nullptr;
 
 /// Name of BoutMesh for Options
 #define MESH_BOUT  "bout"
 #define MESH_AIOLOS "aiolos"
 
 MeshFactory* MeshFactory::getInstance() {
-  if(instance == NULL) {
+  if (instance == nullptr) {
     // Create the singleton object
     instance = new MeshFactory();
   }
@@ -25,10 +25,10 @@ MeshFactory* MeshFactory::getInstance() {
 }
 
 Mesh* MeshFactory::createMesh(GridDataSource *source, Options *options) {
-  if(options == NULL)
+  if (options == nullptr)
     options = Options::getRoot()->getSection("mesh");
-  
-  if(source == NULL) {
+
+  if (source == nullptr) {
     string grid_name;
     if(options->isSet("file")) {
       // Specified mesh file

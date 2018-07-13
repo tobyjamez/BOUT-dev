@@ -72,7 +72,6 @@ const char DEFAULT_LOG[] = "BOUT.log";
 #include <string>
 #include <list>
 using std::string;
-using std::list;
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -266,8 +265,8 @@ int BoutInitialise(int &argc, char **&argv) {
     // Run bout-log-color through the shell. This should share stdout with BOUT++,
     // and read stdin from the pipe
     FILE *outpipe = popen("bout-log-color", "w");
-    
-    if (outpipe != NULL) {
+
+    if (outpipe != nullptr) {
       // Valid pipe
       // Get the integer file descriptor
       int fno = fileno(outpipe);

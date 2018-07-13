@@ -31,7 +31,7 @@ def runtest(nzs,guards,diff_func,diff,order,direction,fac,fs,vs,anas,locs,msg):
         boutcore.setOption("meshD:dD".replace("D",direction)
                            ,"2*pi/(%d)"%(nz),force=True)
         dirnfac=direction+"*"+fac
-        mesh=boutcore.Mesh(OptionSection="mesh"+direction)
+        mesh=boutcore.Mesh(section="mesh"+direction)
         v=boutcore.create3D(vs.replace("%s",dirnfac),mesh
                             ,outloc=locs[0])
         f=boutcore.create3D(fs.replace("%s",dirnfac)

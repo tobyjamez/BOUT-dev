@@ -250,9 +250,15 @@ public:
     reset(false);
     return *this;
   };
+  // BoutReal does not has a location, so we can aplly the operation
+  // to all fields. Should be faster than re-interpolating the
+  // fields. Further this conserves any fields that have been set.
   Flexible<F> &operator*=(BoutReal rhs) {
-    fields[mainid]->operator*=(rhs);
-    reset(false);
+    for (uint i = 0; i < num_fields; ++i) {
+      if (is_valid[i]) {
+        fields[i]->operator*=(rhs);
+      }
+    }
     return *this;
   };
   Flexible<F> &operator/=(const Field3D &rhs) {
@@ -279,9 +285,15 @@ public:
     reset(false);
     return *this;
   };
+  // BoutReal does not has a location, so we can aplly the operation
+  // to all fields. Should be faster than re-interpolating the
+  // fields. Further this conserves any fields that have been set.
   Flexible<F> &operator/=(BoutReal rhs) {
-    fields[mainid]->operator/=(rhs);
-    reset(false);
+    for (uint i = 0; i < num_fields; ++i) {
+      if (is_valid[i]) {
+        fields[i]->operator/=(rhs);
+      }
+    }
     return *this;
   };
   Flexible<F> &operator+=(const Field3D &rhs) {
@@ -308,9 +320,15 @@ public:
     reset(false);
     return *this;
   };
+  // BoutReal does not has a location, so we can aplly the operation
+  // to all fields. Should be faster than re-interpolating the
+  // fields. Further this conserves any fields that have been set.
   Flexible<F> &operator+=(BoutReal rhs) {
-    fields[mainid]->operator+=(rhs);
-    reset(false);
+    for (uint i = 0; i < num_fields; ++i) {
+      if (is_valid[i]) {
+        fields[i]->operator+=(rhs);
+      }
+    }
     return *this;
   };
   Flexible<F> &operator-=(const Field3D &rhs) {
@@ -337,9 +355,15 @@ public:
     reset(false);
     return *this;
   };
+  // BoutReal does not has a location, so we can aplly the operation
+  // to all fields. Should be faster than re-interpolating the
+  // fields. Further this conserves any fields that have been set.
   Flexible<F> &operator-=(BoutReal rhs) {
-    fields[mainid]->operator-=(rhs);
-    reset(false);
+    for (uint i = 0; i < num_fields; ++i) {
+      if (is_valid[i]) {
+        fields[i]->operator-=(rhs);
+      }
+    }
     return *this;
   };
 

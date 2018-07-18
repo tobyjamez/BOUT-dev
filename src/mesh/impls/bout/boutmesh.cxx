@@ -794,15 +794,15 @@ int BoutMesh::load() {
       if (((yg > jyseps1_1) && (yg <= jyseps2_1)) ||
           ((yg > jyseps1_2) && (yg <= jyseps2_2))) {
         // Core
-        boundary.push_back(new BoundaryRegionXIn("core", ystart, yend));
+        boundary.push_back(new BoundaryRegionXIn("core", ystart, yend, this));
       } else {
         // PF region
-        boundary.push_back(new BoundaryRegionXIn("pf", ystart, yend));
+        boundary.push_back(new BoundaryRegionXIn("pf", ystart, yend, this));
       }
     }
     if (PE_XIND == (NXPE - 1)) {
       // Outer SOL
-      boundary.push_back(new BoundaryRegionXOut("sol", ystart, yend));
+      boundary.push_back(new BoundaryRegionXOut("sol", ystart, yend, this));
     }
   }
 
@@ -810,15 +810,15 @@ int BoutMesh::load() {
     // Need boundaries in Y
 
     if ((UDATA_INDEST < 0) && (UDATA_XSPLIT > xstart))
-      boundary.push_back(new BoundaryRegionYUp("upper_target", xstart, UDATA_XSPLIT - 1));
+      boundary.push_back(new BoundaryRegionYUp("upper_target", xstart, UDATA_XSPLIT - 1, this));
     if ((UDATA_OUTDEST < 0) && (UDATA_XSPLIT <= xend))
-      boundary.push_back(new BoundaryRegionYUp("upper_target", UDATA_XSPLIT, xend));
+      boundary.push_back(new BoundaryRegionYUp("upper_target", UDATA_XSPLIT, xend, this));
 
     if ((DDATA_INDEST < 0) && (DDATA_XSPLIT > xstart))
       boundary.push_back(
-          new BoundaryRegionYDown("lower_target", xstart, DDATA_XSPLIT - 1));
+			 new BoundaryRegionYDown("lower_target", xstart, DDATA_XSPLIT - 1, this));
     if ((DDATA_OUTDEST < 0) && (DDATA_XSPLIT <= xend))
-      boundary.push_back(new BoundaryRegionYDown("lower_target", DDATA_XSPLIT, xend));
+      boundary.push_back(new BoundaryRegionYDown("lower_target", DDATA_XSPLIT, xend, this));
   }
 
   if (!boundary.empty()) {
@@ -1021,7 +1021,7 @@ comm_handle BoutMesh::send(FieldGroup &g) {
 int BoutMesh::wait(comm_handle handle) {
   TRACE("BoutMesh::wait(comm_handle)");
 
-  if (handle == NULL)
+  if (handle == nullptr)
     return 1;
 
   CommHandle *ch = static_cast<CommHandle *>(handle);
@@ -1223,7 +1223,7 @@ int BoutMesh::sendXIn(BoutReal *buffer, int size, int tag) {
 
 comm_handle BoutMesh::irecvXOut(BoutReal *buffer, int size, int tag) {
   if (PE_XIND == NXPE - 1)
-    return NULL;
+    return nullptr;
 
   Timer timer("comms");
 
@@ -1240,7 +1240,7 @@ comm_handle BoutMesh::irecvXOut(BoutReal *buffer, int size, int tag) {
 
 comm_handle BoutMesh::irecvXIn(BoutReal *buffer, int size, int tag) {
   if (PE_XIND == 0)
-    return NULL;
+    return nullptr;
 
   Timer timer("comms");
 
@@ -1358,7 +1358,7 @@ int BoutMesh::sendYInOutdest(BoutReal *buffer, int size, int tag) {
 
 comm_handle BoutMesh::irecvYOutIndest(BoutReal *buffer, int size, int tag) {
   if (PE_YIND == NYPE - 1)
-    return NULL;
+    return nullptr;
 
   Timer timer("comms");
 
@@ -1378,7 +1378,7 @@ comm_handle BoutMesh::irecvYOutIndest(BoutReal *buffer, int size, int tag) {
 
 comm_handle BoutMesh::irecvYOutOutdest(BoutReal *buffer, int size, int tag) {
   if (PE_YIND == NYPE - 1)
-    return NULL;
+    return nullptr;
 
   Timer timer("comms");
 
@@ -1398,7 +1398,7 @@ comm_handle BoutMesh::irecvYOutOutdest(BoutReal *buffer, int size, int tag) {
 
 comm_handle BoutMesh::irecvYInIndest(BoutReal *buffer, int size, int tag) {
   if (PE_YIND == 0)
-    return NULL;
+    return nullptr;
 
   Timer timer("comms");
 
@@ -1418,7 +1418,7 @@ comm_handle BoutMesh::irecvYInIndest(BoutReal *buffer, int size, int tag) {
 
 comm_handle BoutMesh::irecvYInOutdest(BoutReal *buffer, int size, int tag) {
   if (PE_YIND == 0)
-    return NULL;
+    return nullptr;
 
   Timer timer("comms");
 

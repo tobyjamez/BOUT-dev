@@ -43,7 +43,7 @@ def genMesh(nx,ny,nz):
     bc.setOption("mesh:dx","2*pi/(%d)"%(nx),force=True)
     bc.setOption("mesh:dy","2*pi/(%d)*((y-pi)/2/pi*.5+1)"%(ny),force=True)
     bc.setOption("mesh:dz","1/(%d)"%(nz),force=True)
-    return bc.Mesh(OptionSection="mesh")
+    return bc.Mesh(section="mesh")
 
 order=4
 errlist=""

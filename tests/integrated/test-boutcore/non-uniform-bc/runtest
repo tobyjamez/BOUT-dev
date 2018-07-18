@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+import boutcore as bc
+import numpy as np
+
+#requires boutcore
+#requires not make
+
+bc.init("-d data -q -q -q")
+
+import matplotlib.pyplot as plt
+
+def mget(f):
+    return f[3,:,0].flatten()
+errs=[]
+dy=[]
+mmax=10
+start=2
+
+def plot(*args):
+    def close_event():
+        plt.close()
+    fig=plt.figure()
+    for f in args:
+        if "log" in f:
+            f.remove("log")
+            plt.loglog(*f)
+        else:
+            plt.plot(*f)
+        #plt.plot(mget(y),mget(f),'-o')
+        #plt.plot(mget(y),fo,'x-')
+    timer = fig.canvas.new_timer(interval = 4000)
+    timer.add_callback(close_event)
+    timer.start()
+    plt.show()
+
+for ny in np.logspace(start,mmax,num=mmax-start+1,base=2):
+    bc.setOption("mesh:ny","%d"%ny,force=True)
+    bc.setOption("mesh:dy","(1+0.008*sin(y))/%d*2*pi"%ny,force=True)
+    mesh=bc.Mesh(section="mesh")
+    f=bc.create3D("sin(realy())",mesh,outloc='YLOW')
+    y=mget(bc.create3D("realy",mesh))
+    fo=mget(f)
+    opt=bc.Options("")
+
+    myg=int(opt.get("mesh:myg",0))
+
+    for i in range(myg):
+        f[0, i  ,0]=-1
+        f[0,-1-i,0]=-1
+
+    f.applyBoundary("dirichlet_nu_o4")
+    f=mget(f)
+    #plot([y,f],[y,fo])
+    #plot([y,f-fo])
+    er=np.max(np.abs(f-fo))
+    errs.append(er)
+    dy.append(1./ny)
+
+#print(np.max(er))
+
+errc=np.log(errs[-2]/errs[-1])
+difc=np.log(dy[-2]/dy[-1])
+print(dy)
+print(errs)
+conv=errc/difc
+print(conv)
+
+plot([dy,errs,"log"])

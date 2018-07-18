@@ -15,8 +15,14 @@ def mget(f):
 mmax=10
 start=2
 
+doPlot=False
+if "-p" in sys.argv:
+    doPlot = True
+
 def plot(*args):
-    return None
+    global doPlot
+    if not doPlot:
+        return
     def close_event():
         plt.close()
     fig=plt.figure()
@@ -62,8 +68,8 @@ def test(bdry, func, loc):
 
         f.applyBoundary(bdry)
         f=mget(f)
-        plot([y,f],[y,fo])
-        #plot([y,f-fo])
+        #plot([y,f],[y,fo])
+        plot([y,f-fo])
         er=np.max(np.abs(f-fo))
         errs.append(er)
         dy.append(1./ny)
@@ -96,8 +102,12 @@ testdata=[
     ["free_nu_o4", bc.cos,4],
     ["free_nu_o2", bc.sin,3],
     ["free_nu_o3", bc.sin,3],
-    ["free_nu_o4", bc.sin,5]
+    ["free_nu_o4", bc.sin,5],
+    ["free_nu_o2", lambda x: bc.sin(x+.5), 2],
+    ["free_nu_o3", lambda x: bc.sin(x+.5), 3],
+    ["free_nu_o4", lambda x: bc.sin(x+.5), 4],
 ]
+
 code=0
 for bdry, func, order in testdata:
     for loc in ["CENTRE", "XLOW", "YLOW", "ZLOW"]:

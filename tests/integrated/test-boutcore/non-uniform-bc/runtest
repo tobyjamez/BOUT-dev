@@ -8,7 +8,6 @@ import sys
 
 bc.init("-d data -q -q -q")
 
-import matplotlib.pyplot as plt
 
 def mget(f):
     return f[3,:,0].flatten()
@@ -23,6 +22,7 @@ def plot(*args):
     global doPlot
     if not doPlot:
         return
+    import matplotlib.pyplot as plt
     def close_event():
         plt.close()
     fig=plt.figure()

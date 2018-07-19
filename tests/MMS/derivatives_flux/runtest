@@ -3,6 +3,7 @@
 import boutcore
 import numpy as np
 import itertools
+import sys
 
 #requires boutcore
 #requires not make
@@ -60,17 +61,21 @@ def runtest(nzs,guards,diff_func,diff,order,direction,fac,fs,vs,anas,locs,msg):
     if doPlot and fail:
         from matplotlib import pyplot as plt
         #plt.plot(1/np.array(nzs),errors,'-o')
+        x=boutcore.create3D(dirnfac,mesh,outloc=locs[1]).get().flatten()
         #plt.show()
-        plt.plot((ana).getAll().flatten())
-        plt.plot((sim).getAll().flatten())
+        plt.plot(x,(ana).getAll().flatten(),'-o')
+        plt.plot(x,(sim).getAll().flatten(),'-x')
         plt.show()
     return error
 
 
 mmax=7
 start=6
-doPlot=False
 nzs=np.logspace(start,mmax,num=mmax-start+1,base=2)
+
+doPlot=False
+if "-p" in sys.argv:
+    doPlot=True
 
 functions=[
     ["1","sin(%s)","cos(%s)"] ,

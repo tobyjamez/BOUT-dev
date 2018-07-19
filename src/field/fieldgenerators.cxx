@@ -282,7 +282,7 @@ BoutReal FieldTanhHat::generate(double x, double y, double z, double t, const Da
 BoutReal FieldRealY::generate(double x, double y, double z, double t,
                               const DataIterator &i, Mesh *localmesh) {
   BoutReal *offset = doCache(localmesh);
-  int gny = localmesh->GlobalNy - mesh->ystart * 2;
+  int gny = localmesh->GlobalNy - localmesh->ystart * 2;
   int iy = y / 2 / PI * gny * 2 + 10.5;
   BoutReal res;
   const Field2D &dy = localmesh->coordinates()->dy;
@@ -358,7 +358,7 @@ BoutReal *FieldRealY::doCache(Mesh *localmesh) {
 BoutReal FieldRealX::generate(double x, double y, double z, double t,
                               const DataIterator &i, Mesh *localmesh) {
   BoutReal *offset = doCache(localmesh);
-  int gnx = localmesh->GlobalNx - mesh->xstart * 2;
+  int gnx = localmesh->GlobalNx - localmesh->xstart * 2;
   int ix = x / 2 / PI * gnx * 2 + 10.5;
   BoutReal res;
   const Field2D &dx = localmesh->coordinates()->dx;

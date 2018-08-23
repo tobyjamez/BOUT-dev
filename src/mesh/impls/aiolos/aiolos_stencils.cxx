@@ -6812,28 +6812,24 @@ void AiolosMesh::VDDX_U2_stag_x_Field3D_CtoL(
   for (int x = 2; x < LocalNx - 2; ++x) {
     for (int y = 0; y < LocalNy; ++y) {
       for (int z = 0; z < LocalNz; ++z) {
-        BoutReal result_;
-        if (v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] > 0 &&
-            v_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z] > 0) {
-          result_ = (1.5 * v_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z] -
-                     .5 * v_in_ptr[((x - 2) * LocalNy + y) * LocalNz + z]) *
-                    (.5 * f_in_ptr[((x - 2) * LocalNy + y) * LocalNz + z] -
-                     2. * f_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z] +
-                     1.5 * f_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z]);
-        } else if (v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] < 0 &&
-                   v_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z] < 0) {
-          result_ = (1.5 * v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] -
-                     .5 * v_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z]) *
-                    (-1.5 * f_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] +
-                     2. * f_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] -
-                     .5 * f_in_ptr[((x + 2) * LocalNy + y) * LocalNz + z]);
-        } else {
-          result_ = .25 *
-                    (v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] +
-                     v_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z]) *
-                    (f_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] -
-                     f_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z]);
-        }
+        BoutReal result_ =
+            (v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] >= 0.)
+                ? v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] *
+                      (1.5 * f_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] -
+                       0.5 * f_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z])
+                : v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] *
+                      (1.5 * f_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] -
+                       0.5 * f_in_ptr[((x + 2) * LocalNy + y) * LocalNz + z]);
+        result_ -= (v_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z] >= 0.)
+                       ? v_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z] *
+                             (1.5 * f_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z] -
+                              0.5 * f_in_ptr[((x - 2) * LocalNy + y) * LocalNz + z])
+                       : v_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z] *
+                             (1.5 * f_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] -
+                              0.5 * f_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z]);
+        result_ -= f_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] *
+                   (v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] -
+                    v_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z]);
 
         result_ptr[((x + 0) * LocalNy + y) * LocalNz + z] = result_;
       }
@@ -6877,28 +6873,24 @@ void AiolosMesh::VDDX_U2_stag_y_Field3D_CtoL(
   for (int x = 0; x < LocalNx; ++x) {
     for (int y = 2; y < LocalNy - 2; ++y) {
       for (int z = 0; z < LocalNz; ++z) {
-        BoutReal result_;
-        if (v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] > 0 &&
-            v_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z] > 0) {
-          result_ = (1.5 * v_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z] -
-                     .5 * v_in_ptr[((x)*LocalNy + y - 2) * LocalNz + z]) *
-                    (.5 * f_in_ptr[((x)*LocalNy + y - 2) * LocalNz + z] -
-                     2. * f_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z] +
-                     1.5 * f_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z]);
-        } else if (v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] < 0 &&
-                   v_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z] < 0) {
-          result_ = (1.5 * v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] -
-                     .5 * v_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z]) *
-                    (-1.5 * f_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] +
-                     2. * f_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] -
-                     .5 * f_in_ptr[((x)*LocalNy + y + 2) * LocalNz + z]);
-        } else {
-          result_ = .25 *
-                    (v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] +
-                     v_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z]) *
-                    (f_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] -
-                     f_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z]);
-        }
+        BoutReal result_ =
+            (v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] >= 0.)
+                ? v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] *
+                      (1.5 * f_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] -
+                       0.5 * f_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z])
+                : v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] *
+                      (1.5 * f_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] -
+                       0.5 * f_in_ptr[((x)*LocalNy + y + 2) * LocalNz + z]);
+        result_ -= (v_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z] >= 0.)
+                       ? v_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z] *
+                             (1.5 * f_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z] -
+                              0.5 * f_in_ptr[((x)*LocalNy + y - 2) * LocalNz + z])
+                       : v_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z] *
+                             (1.5 * f_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] -
+                              0.5 * f_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z]);
+        result_ -= f_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] *
+                   (v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] -
+                    v_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z]);
 
         result_ptr[((x)*LocalNy + y + 0) * LocalNz + z] = result_;
       }
@@ -6938,135 +6930,118 @@ void AiolosMesh::VDDX_U2_stag_z_Field3D_CtoL(
       for (int y = 0; y < LocalNy; ++y) {
         {
           int z = 0;
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz] > 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2 + LocalNz]) *
-                      (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2 + LocalNz] -
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz] +
-                       1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz] < 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]) *
-                      (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
+          result_ -=
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2 + LocalNz])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
         {
           int z = 1;
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] > 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2 + LocalNz]) *
-                      (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2 + LocalNz] -
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] +
-                       1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] < 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]) *
-                      (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
+          result_ -=
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2 + LocalNz])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
         for (int z = 2; z < LocalNz - 2; ++z) {
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] > 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2]) *
-                      (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2] -
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] +
-                       1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] < 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]) *
-                      (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
+          result_ -= (v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] >= 0.)
+                         ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2])
+                         : v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
         {
           int z = LocalNz - 2;
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] > 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2]) *
-                      (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2] -
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] +
-                       1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] < 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]) *
-                      (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2 - LocalNz]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2 - LocalNz]);
+          result_ -= (v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] >= 0.)
+                         ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2])
+                         : v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
         {
           int z = LocalNz - 1;
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] > 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2]) *
-                      (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2] -
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] +
-                       1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] < 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz]) *
-                      (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] -
-                       .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2 - LocalNz]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2 - LocalNz]);
+          result_ -=
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
@@ -7076,38 +7051,36 @@ void AiolosMesh::VDDX_U2_stag_z_Field3D_CtoL(
     for (int x = 0; x < LocalNx; ++x) {
       for (int y = 0; y < LocalNy; ++y) {
         for (int z = 0; z < LocalNz; ++z) {
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z - 1 + 1 * LocalNz) % LocalNz)] >
-                  0) {
-            result_ =
-                (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz +
-                                +((z - 1 + 1 * LocalNz) % LocalNz)] -
-                 .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz +
-                               +((z - 2 + 2 * LocalNz) % LocalNz)]) *
-                (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
-                               +((z - 2 + 2 * LocalNz) % LocalNz)] -
-                 2. * f_in_ptr[((x)*LocalNy + y) * LocalNz +
-                               +((z - 1 + 1 * LocalNz) % LocalNz)] +
-                 1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz +
-                              +((z - 1 + 1 * LocalNz) % LocalNz)] < 0) {
-            result_ =
-                (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] -
-                 .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)]) *
-                (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] +
-                 2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] -
-                 .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 2) % LocalNz)]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz +
-                                +((z - 1 + 1 * LocalNz) % LocalNz)]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz +
-                                +((z - 1 + 1 * LocalNz) % LocalNz)]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                        +((z + 0) % LocalNz)] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                        +((z - 1 + 1 * LocalNz) % LocalNz)])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                        +((z + 1) % LocalNz)] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                        +((z + 2) % LocalNz)]);
+          result_ -= (v_in_ptr[((x)*LocalNy + y) * LocalNz +
+                               +((z - 1 + 1 * LocalNz) % LocalNz)] >= 0.)
+                         ? v_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                    +((z - 1 + 1 * LocalNz) % LocalNz)] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                               +((z - 1 + 1 * LocalNz) % LocalNz)] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                               +((z - 2 + 2 * LocalNz) % LocalNz)])
+                         : v_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                    +((z - 1 + 1 * LocalNz) % LocalNz)] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                               +((z + 0) % LocalNz)] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                               +((z + 1) % LocalNz)]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz +
+                               +((z - 1 + 1 * LocalNz) % LocalNz)]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
@@ -7151,25 +7124,20 @@ void AiolosMesh::VDDX_U2_stag_x_Field2D_CtoL(
 #endif
   for (int x = 2; x < LocalNx - 2; ++x) {
     for (int y = 0; y < LocalNy; ++y) {
-      BoutReal result_;
-      if (v_in_ptr[(x + 0) * LocalNy + y] > 0 && v_in_ptr[(x - 1) * LocalNy + y] > 0) {
-        result_ =
-            (1.5 * v_in_ptr[(x - 1) * LocalNy + y] -
-             .5 * v_in_ptr[(x - 2) * LocalNy + y]) *
-            (.5 * f_in_ptr[(x - 2) * LocalNy + y] - 2. * f_in_ptr[(x - 1) * LocalNy + y] +
-             1.5 * f_in_ptr[(x + 0) * LocalNy + y]);
-      } else if (v_in_ptr[(x + 0) * LocalNy + y] < 0 &&
-                 v_in_ptr[(x - 1) * LocalNy + y] < 0) {
-        result_ =
-            (1.5 * v_in_ptr[(x + 0) * LocalNy + y] -
-             .5 * v_in_ptr[(x + 1) * LocalNy + y]) *
-            (-1.5 * f_in_ptr[(x + 0) * LocalNy + y] +
-             2. * f_in_ptr[(x + 1) * LocalNy + y] - .5 * f_in_ptr[(x + 2) * LocalNy + y]);
-      } else {
-        result_ = .25 *
-                  (v_in_ptr[(x + 0) * LocalNy + y] + v_in_ptr[(x - 1) * LocalNy + y]) *
-                  (f_in_ptr[(x + 1) * LocalNy + y] - f_in_ptr[(x - 1) * LocalNy + y]);
-      }
+      BoutReal result_ =
+          (v_in_ptr[(x + 0) * LocalNy + y] >= 0.)
+              ? v_in_ptr[(x + 0) * LocalNy + y] * (1.5 * f_in_ptr[(x + 0) * LocalNy + y] -
+                                                   0.5 * f_in_ptr[(x - 1) * LocalNy + y])
+              : v_in_ptr[(x + 0) * LocalNy + y] * (1.5 * f_in_ptr[(x + 1) * LocalNy + y] -
+                                                   0.5 * f_in_ptr[(x + 2) * LocalNy + y]);
+      result_ -=
+          (v_in_ptr[(x - 1) * LocalNy + y] >= 0.)
+              ? v_in_ptr[(x - 1) * LocalNy + y] * (1.5 * f_in_ptr[(x - 1) * LocalNy + y] -
+                                                   0.5 * f_in_ptr[(x - 2) * LocalNy + y])
+              : v_in_ptr[(x - 1) * LocalNy + y] * (1.5 * f_in_ptr[(x + 0) * LocalNy + y] -
+                                                   0.5 * f_in_ptr[(x + 1) * LocalNy + y]);
+      result_ -= f_in_ptr[(x + 0) * LocalNy + y] *
+                 (v_in_ptr[(x + 0) * LocalNy + y] - v_in_ptr[(x - 1) * LocalNy + y]);
 
       result_ptr[(x + 0) * LocalNy + y] = result_;
     }
@@ -7211,21 +7179,20 @@ void AiolosMesh::VDDX_U2_stag_y_Field2D_CtoL(
 #endif
   for (int x = 0; x < LocalNx; ++x) {
     for (int y = 2; y < LocalNy - 2; ++y) {
-      BoutReal result_;
-      if (v_in_ptr[(x)*LocalNy + y + 0] > 0 && v_in_ptr[(x)*LocalNy + y - 1] > 0) {
-        result_ =
-            (1.5 * v_in_ptr[(x)*LocalNy + y - 1] - .5 * v_in_ptr[(x)*LocalNy + y - 2]) *
-            (.5 * f_in_ptr[(x)*LocalNy + y - 2] - 2. * f_in_ptr[(x)*LocalNy + y - 1] +
-             1.5 * f_in_ptr[(x)*LocalNy + y + 0]);
-      } else if (v_in_ptr[(x)*LocalNy + y + 0] < 0 && v_in_ptr[(x)*LocalNy + y - 1] < 0) {
-        result_ =
-            (1.5 * v_in_ptr[(x)*LocalNy + y + 0] - .5 * v_in_ptr[(x)*LocalNy + y + 1]) *
-            (-1.5 * f_in_ptr[(x)*LocalNy + y + 0] + 2. * f_in_ptr[(x)*LocalNy + y + 1] -
-             .5 * f_in_ptr[(x)*LocalNy + y + 2]);
-      } else {
-        result_ = .25 * (v_in_ptr[(x)*LocalNy + y + 0] + v_in_ptr[(x)*LocalNy + y - 1]) *
-                  (f_in_ptr[(x)*LocalNy + y + 1] - f_in_ptr[(x)*LocalNy + y - 1]);
-      }
+      BoutReal result_ =
+          (v_in_ptr[(x)*LocalNy + y + 0] >= 0.)
+              ? v_in_ptr[(x)*LocalNy + y + 0] * (1.5 * f_in_ptr[(x)*LocalNy + y + 0] -
+                                                 0.5 * f_in_ptr[(x)*LocalNy + y - 1])
+              : v_in_ptr[(x)*LocalNy + y + 0] * (1.5 * f_in_ptr[(x)*LocalNy + y + 1] -
+                                                 0.5 * f_in_ptr[(x)*LocalNy + y + 2]);
+      result_ -=
+          (v_in_ptr[(x)*LocalNy + y - 1] >= 0.)
+              ? v_in_ptr[(x)*LocalNy + y - 1] * (1.5 * f_in_ptr[(x)*LocalNy + y - 1] -
+                                                 0.5 * f_in_ptr[(x)*LocalNy + y - 2])
+              : v_in_ptr[(x)*LocalNy + y - 1] * (1.5 * f_in_ptr[(x)*LocalNy + y + 0] -
+                                                 0.5 * f_in_ptr[(x)*LocalNy + y + 1]);
+      result_ -= f_in_ptr[(x)*LocalNy + y + 0] *
+                 (v_in_ptr[(x)*LocalNy + y + 0] - v_in_ptr[(x)*LocalNy + y - 1]);
 
       result_ptr[(x)*LocalNy + y + 0] = result_;
     }
@@ -7268,28 +7235,24 @@ void AiolosMesh::VDDX_U2_stag_x_Field3D_LtoC(
   for (int x = 2; x < LocalNx - 2; ++x) {
     for (int y = 0; y < LocalNy; ++y) {
       for (int z = 0; z < LocalNz; ++z) {
-        BoutReal result_;
-        if (v_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] > 0 &&
-            v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] > 0) {
-          result_ = (1.5 * v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] -
-                     .5 * v_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z]) *
-                    (.5 * f_in_ptr[((x - 2) * LocalNy + y) * LocalNz + z] -
-                     2. * f_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z] +
-                     1.5 * f_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z]);
-        } else if (v_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] < 0 &&
-                   v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] < 0) {
-          result_ = (1.5 * v_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] -
-                     .5 * v_in_ptr[((x + 2) * LocalNy + y) * LocalNz + z]) *
-                    (-1.5 * f_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] +
-                     2. * f_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] -
-                     .5 * f_in_ptr[((x + 2) * LocalNy + y) * LocalNz + z]);
-        } else {
-          result_ = .25 *
-                    (v_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] +
-                     v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z]) *
-                    (f_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] -
-                     f_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z]);
-        }
+        BoutReal result_ =
+            (v_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] >= 0.)
+                ? v_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] *
+                      (1.5 * f_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] -
+                       0.5 * f_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z])
+                : v_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] *
+                      (1.5 * f_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] -
+                       0.5 * f_in_ptr[((x + 2) * LocalNy + y) * LocalNz + z]);
+        result_ -= (v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] >= 0.)
+                       ? v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] *
+                             (1.5 * f_in_ptr[((x - 1) * LocalNy + y) * LocalNz + z] -
+                              0.5 * f_in_ptr[((x - 2) * LocalNy + y) * LocalNz + z])
+                       : v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] *
+                             (1.5 * f_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] -
+                              0.5 * f_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z]);
+        result_ -= f_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z] *
+                   (v_in_ptr[((x + 1) * LocalNy + y) * LocalNz + z] -
+                    v_in_ptr[((x + 0) * LocalNy + y) * LocalNz + z]);
 
         result_ptr[((x + 0) * LocalNy + y) * LocalNz + z] = result_;
       }
@@ -7333,28 +7296,24 @@ void AiolosMesh::VDDX_U2_stag_y_Field3D_LtoC(
   for (int x = 0; x < LocalNx; ++x) {
     for (int y = 2; y < LocalNy - 2; ++y) {
       for (int z = 0; z < LocalNz; ++z) {
-        BoutReal result_;
-        if (v_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] > 0 &&
-            v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] > 0) {
-          result_ = (1.5 * v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] -
-                     .5 * v_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z]) *
-                    (.5 * f_in_ptr[((x)*LocalNy + y - 2) * LocalNz + z] -
-                     2. * f_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z] +
-                     1.5 * f_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z]);
-        } else if (v_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] < 0 &&
-                   v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] < 0) {
-          result_ = (1.5 * v_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] -
-                     .5 * v_in_ptr[((x)*LocalNy + y + 2) * LocalNz + z]) *
-                    (-1.5 * f_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] +
-                     2. * f_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] -
-                     .5 * f_in_ptr[((x)*LocalNy + y + 2) * LocalNz + z]);
-        } else {
-          result_ = .25 *
-                    (v_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] +
-                     v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z]) *
-                    (f_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] -
-                     f_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z]);
-        }
+        BoutReal result_ =
+            (v_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] >= 0.)
+                ? v_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] *
+                      (1.5 * f_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] -
+                       0.5 * f_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z])
+                : v_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] *
+                      (1.5 * f_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] -
+                       0.5 * f_in_ptr[((x)*LocalNy + y + 2) * LocalNz + z]);
+        result_ -= (v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] >= 0.)
+                       ? v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] *
+                             (1.5 * f_in_ptr[((x)*LocalNy + y - 1) * LocalNz + z] -
+                              0.5 * f_in_ptr[((x)*LocalNy + y - 2) * LocalNz + z])
+                       : v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] *
+                             (1.5 * f_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] -
+                              0.5 * f_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z]);
+        result_ -= f_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z] *
+                   (v_in_ptr[((x)*LocalNy + y + 1) * LocalNz + z] -
+                    v_in_ptr[((x)*LocalNy + y + 0) * LocalNz + z]);
 
         result_ptr[((x)*LocalNy + y + 0) * LocalNz + z] = result_;
       }
@@ -7394,135 +7353,118 @@ void AiolosMesh::VDDX_U2_stag_z_Field3D_LtoC(
       for (int y = 0; y < LocalNy; ++y) {
         {
           int z = 0;
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] > 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz]) *
-                      (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2 + LocalNz] -
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz] +
-                       1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] < 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]) *
-                      (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
+          result_ -=
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1 + LocalNz] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2 + LocalNz])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
         {
           int z = 1;
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] > 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]) *
-                      (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2 + LocalNz] -
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] +
-                       1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] < 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]) *
-                      (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
+          result_ -=
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2 + LocalNz])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
         for (int z = 2; z < LocalNz - 2; ++z) {
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] > 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]) *
-                      (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2] -
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] +
-                       1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] < 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]) *
-                      (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2]);
+          result_ -= (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] >= 0.)
+                         ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2])
+                         : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
         {
           int z = LocalNz - 2;
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] > 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]) *
-                      (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2] -
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] +
-                       1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] < 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2 - LocalNz]) *
-                      (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2 - LocalNz]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2 - LocalNz]);
+          result_ -= (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] >= 0.)
+                         ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2])
+                         : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
         {
           int z = LocalNz - 1;
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] > 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]) *
-                      (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2] -
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] +
-                       1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] < 0) {
-            result_ = (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] -
-                       .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2 - LocalNz]) *
-                      (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] +
-                       2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] -
-                       .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2 - LocalNz]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 2 - LocalNz]);
+          result_ -=
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 1] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z - 2])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 1 - LocalNz] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz + z + 0]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
@@ -7532,34 +7474,32 @@ void AiolosMesh::VDDX_U2_stag_z_Field3D_LtoC(
     for (int x = 0; x < LocalNx; ++x) {
       for (int y = 0; y < LocalNy; ++y) {
         for (int z = 0; z < LocalNz; ++z) {
-          BoutReal result_;
-          if (v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] > 0 &&
-              v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] > 0) {
-            result_ =
-                (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] -
-                 .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz +
-                               +((z - 1 + 1 * LocalNz) % LocalNz)]) *
-                (.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
-                               +((z - 2 + 2 * LocalNz) % LocalNz)] -
-                 2. * f_in_ptr[((x)*LocalNy + y) * LocalNz +
-                               +((z - 1 + 1 * LocalNz) % LocalNz)] +
-                 1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)]);
-          } else if (v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] < 0 &&
-                     v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] < 0) {
-            result_ =
-                (1.5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] -
-                 .5 * v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 2) % LocalNz)]) *
-                (-1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] +
-                 2. * f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] -
-                 .5 * f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 2) % LocalNz)]);
-          } else {
-            result_ = .25 *
-                      (v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] +
-                       v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)]) *
-                      (f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] -
-                       f_in_ptr[((x)*LocalNy + y) * LocalNz +
-                                +((z - 1 + 1 * LocalNz) % LocalNz)]);
-          }
+          BoutReal result_ =
+              (v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] >= 0.)
+                  ? v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                        +((z + 0) % LocalNz)] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                        +((z - 1 + 1 * LocalNz) % LocalNz)])
+                  : v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] *
+                        (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                        +((z + 1) % LocalNz)] -
+                         0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                        +((z + 2) % LocalNz)]);
+          result_ -= (v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] >= 0.)
+                         ? v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                               +((z - 1 + 1 * LocalNz) % LocalNz)] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                               +((z - 2 + 2 * LocalNz) % LocalNz)])
+                         : v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] *
+                               (1.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                               +((z + 0) % LocalNz)] -
+                                0.5 * f_in_ptr[((x)*LocalNy + y) * LocalNz +
+                                               +((z + 1) % LocalNz)]);
+          result_ -= f_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)] *
+                     (v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 1) % LocalNz)] -
+                      v_in_ptr[((x)*LocalNy + y) * LocalNz + +((z + 0) % LocalNz)]);
 
           result_ptr[((x)*LocalNy + y) * LocalNz + z + 0] = result_;
         }
@@ -7603,25 +7543,20 @@ void AiolosMesh::VDDX_U2_stag_x_Field2D_LtoC(
 #endif
   for (int x = 2; x < LocalNx - 2; ++x) {
     for (int y = 0; y < LocalNy; ++y) {
-      BoutReal result_;
-      if (v_in_ptr[(x + 1) * LocalNy + y] > 0 && v_in_ptr[(x + 0) * LocalNy + y] > 0) {
-        result_ =
-            (1.5 * v_in_ptr[(x + 0) * LocalNy + y] -
-             .5 * v_in_ptr[(x - 1) * LocalNy + y]) *
-            (.5 * f_in_ptr[(x - 2) * LocalNy + y] - 2. * f_in_ptr[(x - 1) * LocalNy + y] +
-             1.5 * f_in_ptr[(x + 0) * LocalNy + y]);
-      } else if (v_in_ptr[(x + 1) * LocalNy + y] < 0 &&
-                 v_in_ptr[(x + 0) * LocalNy + y] < 0) {
-        result_ =
-            (1.5 * v_in_ptr[(x + 1) * LocalNy + y] -
-             .5 * v_in_ptr[(x + 2) * LocalNy + y]) *
-            (-1.5 * f_in_ptr[(x + 0) * LocalNy + y] +
-             2. * f_in_ptr[(x + 1) * LocalNy + y] - .5 * f_in_ptr[(x + 2) * LocalNy + y]);
-      } else {
-        result_ = .25 *
-                  (v_in_ptr[(x + 1) * LocalNy + y] + v_in_ptr[(x + 0) * LocalNy + y]) *
-                  (f_in_ptr[(x + 1) * LocalNy + y] - f_in_ptr[(x - 1) * LocalNy + y]);
-      }
+      BoutReal result_ =
+          (v_in_ptr[(x + 1) * LocalNy + y] >= 0.)
+              ? v_in_ptr[(x + 1) * LocalNy + y] * (1.5 * f_in_ptr[(x + 0) * LocalNy + y] -
+                                                   0.5 * f_in_ptr[(x - 1) * LocalNy + y])
+              : v_in_ptr[(x + 1) * LocalNy + y] * (1.5 * f_in_ptr[(x + 1) * LocalNy + y] -
+                                                   0.5 * f_in_ptr[(x + 2) * LocalNy + y]);
+      result_ -=
+          (v_in_ptr[(x + 0) * LocalNy + y] >= 0.)
+              ? v_in_ptr[(x + 0) * LocalNy + y] * (1.5 * f_in_ptr[(x - 1) * LocalNy + y] -
+                                                   0.5 * f_in_ptr[(x - 2) * LocalNy + y])
+              : v_in_ptr[(x + 0) * LocalNy + y] * (1.5 * f_in_ptr[(x + 0) * LocalNy + y] -
+                                                   0.5 * f_in_ptr[(x + 1) * LocalNy + y]);
+      result_ -= f_in_ptr[(x + 0) * LocalNy + y] *
+                 (v_in_ptr[(x + 1) * LocalNy + y] - v_in_ptr[(x + 0) * LocalNy + y]);
 
       result_ptr[(x + 0) * LocalNy + y] = result_;
     }
@@ -7663,21 +7598,20 @@ void AiolosMesh::VDDX_U2_stag_y_Field2D_LtoC(
 #endif
   for (int x = 0; x < LocalNx; ++x) {
     for (int y = 2; y < LocalNy - 2; ++y) {
-      BoutReal result_;
-      if (v_in_ptr[(x)*LocalNy + y + 1] > 0 && v_in_ptr[(x)*LocalNy + y + 0] > 0) {
-        result_ =
-            (1.5 * v_in_ptr[(x)*LocalNy + y + 0] - .5 * v_in_ptr[(x)*LocalNy + y - 1]) *
-            (.5 * f_in_ptr[(x)*LocalNy + y - 2] - 2. * f_in_ptr[(x)*LocalNy + y - 1] +
-             1.5 * f_in_ptr[(x)*LocalNy + y + 0]);
-      } else if (v_in_ptr[(x)*LocalNy + y + 1] < 0 && v_in_ptr[(x)*LocalNy + y + 0] < 0) {
-        result_ =
-            (1.5 * v_in_ptr[(x)*LocalNy + y + 1] - .5 * v_in_ptr[(x)*LocalNy + y + 2]) *
-            (-1.5 * f_in_ptr[(x)*LocalNy + y + 0] + 2. * f_in_ptr[(x)*LocalNy + y + 1] -
-             .5 * f_in_ptr[(x)*LocalNy + y + 2]);
-      } else {
-        result_ = .25 * (v_in_ptr[(x)*LocalNy + y + 1] + v_in_ptr[(x)*LocalNy + y + 0]) *
-                  (f_in_ptr[(x)*LocalNy + y + 1] - f_in_ptr[(x)*LocalNy + y - 1]);
-      }
+      BoutReal result_ =
+          (v_in_ptr[(x)*LocalNy + y + 1] >= 0.)
+              ? v_in_ptr[(x)*LocalNy + y + 1] * (1.5 * f_in_ptr[(x)*LocalNy + y + 0] -
+                                                 0.5 * f_in_ptr[(x)*LocalNy + y - 1])
+              : v_in_ptr[(x)*LocalNy + y + 1] * (1.5 * f_in_ptr[(x)*LocalNy + y + 1] -
+                                                 0.5 * f_in_ptr[(x)*LocalNy + y + 2]);
+      result_ -=
+          (v_in_ptr[(x)*LocalNy + y + 0] >= 0.)
+              ? v_in_ptr[(x)*LocalNy + y + 0] * (1.5 * f_in_ptr[(x)*LocalNy + y - 1] -
+                                                 0.5 * f_in_ptr[(x)*LocalNy + y - 2])
+              : v_in_ptr[(x)*LocalNy + y + 0] * (1.5 * f_in_ptr[(x)*LocalNy + y + 0] -
+                                                 0.5 * f_in_ptr[(x)*LocalNy + y + 1]);
+      result_ -= f_in_ptr[(x)*LocalNy + y + 0] *
+                 (v_in_ptr[(x)*LocalNy + y + 1] - v_in_ptr[(x)*LocalNy + y + 0]);
 
       result_ptr[(x)*LocalNy + y + 0] = result_;
     }

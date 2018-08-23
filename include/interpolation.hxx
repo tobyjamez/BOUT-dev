@@ -126,15 +126,17 @@ public:
     return new HermiteSpline(mesh);
   }
 
-  void calcWeights(const Field3D &delta_x, const Field3D &delta_z);
-  void calcWeights(const Field3D &delta_x, const Field3D &delta_z, const BoutMask &mask);
+  void calcWeights(const Field3D &delta_x, const Field3D &delta_z) override;
+  void calcWeights(const Field3D &delta_x, const Field3D &delta_z,
+                   const BoutMask &mask) override;
 
   // Use precalculated weights
-  Field3D interpolate(const Field3D &f) const;
+  Field3D interpolate(const Field3D &f) const override;
   // Calculate weights and interpolate
-  Field3D interpolate(const Field3D &f, const Field3D &delta_x, const Field3D &delta_z);
+  Field3D interpolate(const Field3D &f, const Field3D &delta_x,
+                      const Field3D &delta_z) override;
   Field3D interpolate(const Field3D &f, const Field3D &delta_x, const Field3D &delta_z,
-                      const BoutMask &mask);
+                      const BoutMask &mask) override;
 };
 
 
@@ -162,7 +164,7 @@ public:
   /// Interpolate using precalculated weights.
   /// This function is called by the other interpolate functions
   /// in the base class HermiteSpline.
-  Field3D interpolate(const Field3D &f) const;
+  Field3D interpolate(const Field3D &f) const override;
 };
 
 class Lagrange4pt : public Interpolation {
@@ -182,15 +184,17 @@ public:
   /// Callback function for InterpolationFactory
   static Interpolation *CreateLagrange4pt(Mesh *mesh) { return new Lagrange4pt(mesh); }
 
-  void calcWeights(const Field3D &delta_x, const Field3D &delta_z);
-  void calcWeights(const Field3D &delta_x, const Field3D &delta_z, const BoutMask &mask);
+  void calcWeights(const Field3D &delta_x, const Field3D &delta_z) override;
+  void calcWeights(const Field3D &delta_x, const Field3D &delta_z,
+                   const BoutMask &mask) override;
 
   // Use precalculated weights
-  Field3D interpolate(const Field3D &f) const;
+  Field3D interpolate(const Field3D &f) const override;
   // Calculate weights and interpolate
-  Field3D interpolate(const Field3D &f, const Field3D &delta_x, const Field3D &delta_z);
+  Field3D interpolate(const Field3D &f, const Field3D &delta_x,
+                      const Field3D &delta_z) override;
   Field3D interpolate(const Field3D &f, const Field3D &delta_x, const Field3D &delta_z,
-                      const BoutMask &mask);
+                      const BoutMask &mask) override;
   BoutReal lagrange_4pt(BoutReal v2m, BoutReal vm, BoutReal vp, BoutReal v2p,
                         BoutReal offset) const;
   BoutReal lagrange_4pt(const BoutReal v[], BoutReal offset) const;
@@ -213,15 +217,17 @@ public:
   /// Callback function for InterpolationFactory
   static Interpolation *CreateBilinear(Mesh *mesh) { return new Bilinear(mesh); }
 
-  void calcWeights(const Field3D &delta_x, const Field3D &delta_z);
-  void calcWeights(const Field3D &delta_x, const Field3D &delta_z, const BoutMask &mask);
+  void calcWeights(const Field3D &delta_x, const Field3D &delta_z) override;
+  void calcWeights(const Field3D &delta_x, const Field3D &delta_z,
+                   const BoutMask &mask) override;
 
   // Use precalculated weights
-  Field3D interpolate(const Field3D &f) const;
+  Field3D interpolate(const Field3D &f) const override;
   // Calculate weights and interpolate
-  Field3D interpolate(const Field3D &f, const Field3D &delta_x, const Field3D &delta_z);
+  Field3D interpolate(const Field3D &f, const Field3D &delta_x,
+                      const Field3D &delta_z) override;
   Field3D interpolate(const Field3D &f, const Field3D &delta_x, const Field3D &delta_z,
-                      const BoutMask &mask);
+                      const BoutMask &mask) override;
 };
 
 #endif // __INTERP_H__

@@ -181,10 +181,12 @@ if __name__ == "__main__":
     region_name = '"RGN_ALL"'
 
     if args.noOpenMP:
-        region_loop = 'BLOCK_REGION_LOOP_SERIAL'
+        region_loop = 'BOUT_FOR_SERIAL'
     else:
-        region_loop = 'BLOCK_REGION_LOOP'
-
+        region_loop = 'BOUT_FOR'
+        
+    # Declare what fields we currently support:
+    # Field perp is currently missing
     field3D = Field('Field3D', ['x', 'y', 'z'], index_var=index_var,
                     jz_var = jz_var, mixed_base_ind_var = mixed_base_ind_var)
     field2D = Field('Field2D', ['x', 'y'], index_var=index_var,

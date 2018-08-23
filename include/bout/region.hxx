@@ -30,7 +30,7 @@
 /// contiguous indices may be used instead, which allows OpenMP
 /// parallelisation.
 ///
-/// The BLOCK_REGION_LOOP helper macro is provided as a replacement
+/// The BOUT_FOR helper macro is provided as a replacement
 /// for for-loops.
 ///
 /// Separate index classes are available for Field2Ds (Ind2D) and
@@ -65,12 +65,32 @@
 /// Helper macros for iterating over a Region making use of the
 /// contiguous blocks of indices
 ///
-/// @param[in] region An already existing Region
 /// @param[in] index  The name of the index variable to use in the loop
-/// The rest of the arguments form the loop body.
+/// @param[in] region An already existing Region
 ///
-/// The following loops vectorise well when index is type int, needs testing
-/// with current approach where index is Ind2D or ind3D
+/// These macros all have the same basic form: an outer loop over
+/// blocks of contiguous indices, and an inner loop over the indices
+/// themselves. This allows the outer loop to be parallelised with
+/// OpenMP while the inner loop can be vectorised with the CPU's
+/// native SIMD instructions.
+///
+/// Alternative forms are also provided for loops that must be done
+/// serially, as well as for more control over the OpenMP directives
+/// used.
+///
+/// The different macros:
+///
+/// - BOUT_FOR: OpenMP-aware version that allows speedup with both
+///   OpenMP and native SIMD vectorisation. This should be the
+///   preferred form for most loops
+/// - BOUT_FOR_SERIAL: for use with inherently serial loops. If BOUT++
+///   was not compiled with OpenMP, BOUT_FOR falls back to using this
+///   form
+/// - BOUT_FOR_INNER: for use on loops inside OpenMP parallel regions,
+///   e.g. in order to declare thread private variables outside of the
+///   loop
+/// - BOUT_FOR_OMP: the most generic form, that takes arbitrary OpenMP
+///   directives as an extra argument
 ///
 /// Example
 /// -------
@@ -82,153 +102,137 @@
 ///
 /// can be converted to a block region loop like so:
 ///
-///     BLOCK_REGION_LOOP(region, index,
+///     BOUT_FOR(index, region) {
 ///        A[index] = B[index] + C[index];
-///     )
-#define BLOCK_REGION_LOOP_SERIAL(region, index, ...)                                     \
-  {                                                                                      \
-    const auto blocks = region.getBlocks();                                              \
-    for (auto block = blocks.begin(); block < blocks.end(); ++block) {                   \
-      for (auto index = block->first; index < block->second; ++index) {                  \
-        __VA_ARGS__                                                                      \
-      }                                                                                  \
-    }                                                                                    \
-  }
+///     }
+#define BOUT_FOR_SERIAL(index, region)                                                   \
+  for (auto block = region.getBlocks().cbegin(), end = region.getBlocks().cend();        \
+       block < end; ++block)                                                             \
+    for (auto index = block->first; index < block->second; ++index)
 
-#define BLOCK_REGION_LOOP(region, index, ...)                                            \
-  {                                                                                      \
-    const auto blocks = region.getBlocks();                                              \
-  BOUT_OMP(parallel for)                                                                 \
-    for (auto block = blocks.begin(); block < blocks.end(); ++block) {                   \
-      for (auto index = block->first; index < block->second; ++index) {                  \
-        __VA_ARGS__                                                                      \
-      }                                                                                  \
-    }                                                                                    \
-  }
+#ifdef _OPENMP
+#define BOUT_FOR_OMP(index, region, omp_pragmas)                                         \
+  BOUT_OMP(omp_pragmas)                                                                  \
+  for (auto block = region.getBlocks().cbegin(); block < region.getBlocks().cend();      \
+       ++block)                                                                          \
+    for (auto index = block->first; index < block->second; ++index)
+#else
+// No OpenMP, so fall back to slightly more efficient serial form
+#define BOUT_FOR_OMP(index, region, omp_pragmas) BOUT_FOR_SERIAL(index, region)
+#endif
+
+#define BOUT_FOR(index, region)                                                          \
+  BOUT_FOR_OMP(index, region, parallel for schedule(guided))
+
+#define BOUT_FOR_INNER(index, region)                                                    \
+  BOUT_FOR_OMP(index, region, for schedule(guided) nowait)
+
+
+enum class IND_TYPE { IND_3D = 0, IND_2D = 1};
 
 /// Indices base class for Fields -- Regions are dereferenced into these
+template<IND_TYPE N>
 class SpecificInd {
 public:
   int ind; //< 1D index into Field
-  SpecificInd() : ind(-1){};
-  SpecificInd(int i) : ind(i){};
+  SpecificInd<N>() : ind(-1){};
+  SpecificInd<N>(int i) : ind(i){};
 
   /// Pre-increment operator
-  SpecificInd &operator++() {
+  SpecificInd<N> &operator++() {
     ++ind;
     return *this;
   }
 
   /// Post-increment operator
-  SpecificInd operator++(int) {
-    SpecificInd original(*this);
+  SpecificInd<N> operator++(int) {
+    SpecificInd<N> original(*this);
     ++ind;
     return original;
   }
 
   /// Pre-decrement operator
-  SpecificInd &operator--() {
+  SpecificInd<N> &operator--() {
     --ind;
     return *this;
   }
 
   /// Post-decrement operator
-  SpecificInd operator--(int) {
-    SpecificInd original(*this);
+  SpecificInd<N> operator--(int) {
+    SpecificInd<N> original(*this);
     --ind;
     return original;
   }
 
   /// In-place addition
-  SpecificInd &operator+=(SpecificInd n) {
+  SpecificInd<N> &operator+=(SpecificInd<N> n) {
     ind += n.ind;
     return *this;
   }
 
   /// In-place subtraction
-  SpecificInd &operator-=(SpecificInd n) {
+  SpecificInd<N> &operator-=(SpecificInd<N> n) {
     ind -= n.ind;
     return *this;
   }
 
   /// Modulus operator
-  SpecificInd operator%(int n) {
-    SpecificInd new_ind(ind % n);
+  SpecificInd<N> operator%(int n) {
+    SpecificInd<N> new_ind(ind % n);
     return new_ind;
   }
 };
 
 /// Relational operators
-inline bool operator==(const SpecificInd &lhs, const SpecificInd &rhs) {
+template<IND_TYPE N>
+inline bool operator==(const SpecificInd<N> &lhs, const SpecificInd<N> &rhs) {
   return lhs.ind == rhs.ind;
 }
-inline bool operator!=(const SpecificInd &lhs, const SpecificInd &rhs) {
+
+template<IND_TYPE N>
+inline bool operator!=(const SpecificInd<N> &lhs, const SpecificInd<N> &rhs) {
   return !operator==(lhs, rhs);
 }
-inline bool operator<(const SpecificInd &lhs, const SpecificInd &rhs) {
+
+template<IND_TYPE N>
+inline bool operator<(const SpecificInd<N> &lhs, const SpecificInd<N> &rhs) {
   return lhs.ind < rhs.ind;
 }
-inline bool operator>(const SpecificInd &lhs, const SpecificInd &rhs) {
+
+template<IND_TYPE N>
+inline bool operator>(const SpecificInd<N> &lhs, const SpecificInd<N> &rhs) {
   return operator<(rhs, lhs);
 }
-inline bool operator>=(const SpecificInd &lhs, const SpecificInd &rhs) {
+
+template<IND_TYPE N>
+inline bool operator>=(const SpecificInd<N> &lhs, const SpecificInd<N> &rhs) {
   return !operator<(lhs, rhs);
 }
-inline bool operator<=(const SpecificInd &lhs, const SpecificInd &rhs) {
+
+template<IND_TYPE N>
+inline bool operator<=(const SpecificInd<N> &lhs, const SpecificInd<N> &rhs) {
   return !operator>(lhs, rhs);
 }
 
-/// Index-type for `Field3D`s
-class Ind3D : public SpecificInd {
-public:
-  Ind3D() : SpecificInd(){};
-  Ind3D(int i) : SpecificInd(i){};
-  Ind3D(SpecificInd baseIn) : SpecificInd(baseIn){};
-
-  // Note operator= from base class is always hidden
-  // by implicit method so have to be explicit
-  Ind3D &operator=(int i) {
-    ind = i;
-    return *this;
-  }
-
-  Ind3D &operator=(SpecificInd i) {
-    ind = i.ind;
-    return *this;
-  }
-};
-
 /// Arithmetic operators with integers
-inline Ind3D operator+(Ind3D lhs, const Ind3D &rhs) { return lhs += rhs; }
-inline Ind3D operator+(Ind3D lhs, int n) { return lhs += n; }
-inline Ind3D operator+(int n, Ind3D rhs) { return rhs += n; }
-inline Ind3D operator-(Ind3D lhs, int n) { return lhs -= n; }
-inline Ind3D operator-(Ind3D lhs, const Ind3D &rhs) { return lhs -= rhs; }
+template<IND_TYPE N>
+inline SpecificInd<N> operator+(SpecificInd<N> lhs, const SpecificInd<N> &rhs) { return lhs += rhs; }
 
-/// Index-type for `Field2D`s
-class Ind2D : public SpecificInd {
-public:
-  Ind2D() : SpecificInd(){};
-  Ind2D(int i) : SpecificInd(i){};
-  Ind2D(SpecificInd baseIn) : SpecificInd(baseIn){};
+template<IND_TYPE N>
+inline SpecificInd<N> operator+(SpecificInd<N> lhs, int n) { return lhs += n; }
 
-  Ind2D &operator=(int i) {
-    ind = i;
-    return *this;
-  }
+template<IND_TYPE N>
+inline SpecificInd<N> operator+(int n, SpecificInd<N> rhs) { return rhs += n; }
 
-  Ind2D &operator=(SpecificInd i) {
-    ind = i.ind;
-    return *this;
-  }
-};
+template<IND_TYPE N>
+inline SpecificInd<N> operator-(SpecificInd<N> lhs, int n) { return lhs -= n; }
 
-/// Arithmetic operators with integers
-inline Ind2D operator+(Ind2D lhs, const Ind2D &rhs) { return lhs += rhs; }
-inline Ind2D operator+(Ind2D lhs, int n) { return lhs += n; }
-inline Ind2D operator+(int n, Ind2D rhs) { return rhs += n; }
-inline Ind2D operator-(Ind2D lhs, int n) { return lhs -= n; }
-inline Ind2D operator-(Ind2D lhs, const Ind2D &rhs) { return lhs -= rhs; }
+template<IND_TYPE N>
+inline SpecificInd<N> operator-(SpecificInd<N> lhs, const SpecificInd<N> &rhs) { return lhs -= rhs; }
+
+/// Define aliases for global indices in 3D and 2D 
+using Ind3D = SpecificInd<IND_TYPE::IND_3D>;
+using Ind2D = SpecificInd<IND_TYPE::IND_2D>;
 
 /// Structure to hold various derived "statistics" from a particular region
 struct RegionStats {
@@ -268,7 +272,7 @@ inline std::ostream &operator<<(std::ostream &out, const RegionStats &stats){
 /// blocks of at most MAXREGIONBLOCKSIZE indices. This allows loops to
 /// be parallelised with OpenMP. Iterating using a "block region" may
 /// be more efficient, although it requires a bit more set up. The
-/// helper macro BLOCK_REGION_LOOP is provided to simplify things.
+/// helper macro BOUT_FOR is provided to simplify things.
 ///
 /// Example
 /// -------
@@ -294,14 +298,14 @@ inline std::ostream &operator<<(std::ostream &out, const RegionStats &stats){
 ///
 /// or the more convenient region for loop:
 ///
-///     for (auto &i : r) {
+///     for (const auto &i : r) {
 ///       f[i] = a[i] + b[i];
 ///     }
 ///
-/// For performance the BLOCK_REGION_LOOP macro should
+/// For performance the BOUT_FOR macro should
 /// allow OpenMP parallelisation and hardware vectorisation.
 ///
-///     BLOCK_REGION_LOOP(region, i,
+///     BOUT_FOR(i, region) {
 ///       f[i] = a[i] + b[i];
 ///     );
 ///
@@ -309,7 +313,7 @@ inline std::ostream &operator<<(std::ostream &out, const RegionStats &stats){
 /// there is a serial verion of the macro:
 ///
 ///     BoutReal max=0.;
-///     BLOCK_REGION_LOOP_SERIAL(region, i,
+///     BOUT_FOR_SERIAL(i, region) {
 ///       max = f[i] > max ? f[i] : max;
 ///     );
 template <typename T = Ind3D> class Region {
@@ -368,8 +372,8 @@ public:
   typename RegionIndices::iterator end() { return std::end(indices); };
   typename RegionIndices::const_iterator cend() const { return indices.cend(); };
 
-  ContiguousBlocks getBlocks() const { return blocks; };
-  RegionIndices getIndices() const { return indices; };
+  const ContiguousBlocks &getBlocks() const { return blocks; };
+  const RegionIndices &getIndices() const { return indices; };
 
   /// Set the indices and ensure blocks updated
   void setIndices (RegionIndices &indicesIn, int maxregionblocksize = MAXREGIONBLOCKSIZE) {
@@ -659,7 +663,9 @@ private:
     RegionIndices result;
     // This has to be serial unless we can make result large enough in advance
     // otherwise there will be a race between threads to extend the vector
-    BLOCK_REGION_LOOP_SERIAL((*this), curInd, result.push_back(curInd););
+    BOUT_FOR_SERIAL(curInd, (*this)) {
+      result.push_back(curInd);
+    }
     return result;
   }
 };

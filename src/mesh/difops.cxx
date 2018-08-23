@@ -297,7 +297,7 @@ const Field2D Grad_par_CtoL(const Field2D &var) {
   
   Coordinates *metric = mesh->coordinates();
 
-  for(auto &i : result.region(RGN_NOBNDRY)) {
+  for(const auto &i : result.region(RGN_NOBNDRY)) {
     result[i] = (var[i] - var[i.ym()]) / (metric->dy[i] * sqrt(metric->g_22[i]));
   }
   
@@ -461,7 +461,7 @@ const Field2D Grad_par_LtoC(const Field2D &var) {
   
   Coordinates *metric = mesh->coordinates();
 
-  for(auto &i : result.region(RGN_NOBNDRY)) {
+  for(const auto &i : result.region(RGN_NOBNDRY)) {
     result[i] = (var[i.yp()] - var[i]) / (metric->dy[i] * sqrt(metric->g_22[i]));
   }
   

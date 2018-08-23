@@ -131,13 +131,13 @@ template <typename F> class Flexible;
 
       Field3D f(0.0); // Allocate, set to zero
 
-      for( auto i : f ) {  // Loop over all points, with index i
+      for( const auto &i : f ) {  // Loop over all points, with index i
         f[i] = 1.0;
       }
 
   There is also more explicit looping over regions:
 
-      for( auto i : f.region(RGN_ALL) ) {  // Loop over all points, with index i
+      for( const auto &i : f.region(RGN_ALL) ) {  // Loop over all points, with index i
         f[i] = 1.0;
       }
 
@@ -188,7 +188,7 @@ class Field3D : public Field, public FieldData {
   /// Constructor from value
   Field3D(BoutReal val, Mesh *localmesh = nullptr);
   /// Destructor
-  ~Field3D();
+  ~Field3D() override;
 
   /// Data type stored in this field
   using value_type = BoutReal;
@@ -291,7 +291,7 @@ class Field3D : public Field, public FieldData {
    *
    * Field3D objects f and g can be modified by 
    * 
-   * for(auto i : f) {
+   * for(const auto &i : f) {
    *   f[i] = 2.*f[i] + g[i];
    * }
    * 
@@ -311,7 +311,7 @@ class Field3D : public Field, public FieldData {
    * between the point one index up in x (i.xp()) and one index down
    * in x (i.xm()), putting the result into a different field 'g'
    * 
-   * for(auto i : f.region(RGN_NOBNDRY)) {
+   * for(const auto &i : f.region(RGN_NOBNDRY)) {
    *   g[i] = f[i.xp()] - f[i.xm()];
    * }
    * 

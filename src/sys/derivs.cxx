@@ -337,7 +337,7 @@ const Field3D D2DYDZ(const Field3D &f, CELL_LOC outloc, DIFF_METHOD method, REGI
       }
   // TODO: use region aware implementation
   /*
-    for (auto i : f.region(region)){
+    for (const auto &i : f.region(region)){
     result[i] = 0.25*( +(f[i.offset(0,1, 1)] - f[i.offset(0,-1, 1)])
                                  / thisdy[i.yp()]
                        -(f[i.offset(0,1,-1)] - f[i.offset(0,-1,-1)])

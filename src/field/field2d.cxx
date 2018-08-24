@@ -202,12 +202,13 @@ CELL_LOC Field2D::getLocation() const {
   return location;
 }
 
+// Not in header because we need to access fieldmesh
 BoutReal& Field2D::operator[](const Ind3D &d) {
-  return data[fieldmesh->map3Dto2D(d)];
+  return operator[](fieldmesh->map3Dto2D(d));
 }
 
 const BoutReal& Field2D::operator[](const Ind3D &d) const {
-  return data[fieldmesh->map3Dto2D(d)];
+  return operator[](fieldmesh->map3Dto2D(d));
 }
 
 ///////////// OPERATORS ////////////////

@@ -140,14 +140,14 @@ public:
 class ConditionalOutput : public Output {
 public:
   /// @param[in] base    The Output object which will be written to if enabled
-  ConditionalOutput(Output *base) : base(base), enabled(true), base_is_cond(false) {};
+  ConditionalOutput(Output *base) : base(base), basecond(nullptr), enabled(true) {};
 
   /// Constuctor taking ConditionalOutput. This allows several layers of conditions
   /// 
   /// @param[in] base    A ConditionalOutput which will be written to if enabled
   /// 
   ConditionalOutput(ConditionalOutput *base)
-      : base(base), enabled(base->enabled), base_is_cond(true) {};
+    : base(base), basecond(base), enabled(base->enabled) {};
 
   /// If enabled, writes a string using C printf formatting
   /// by calling base->vwrite
@@ -170,8 +170,8 @@ public:
   
   /// Get the lowest-level Output object which is the base of this ConditionalOutput
   Output *getBase() {
-    if (base_is_cond) {
-      return dynamic_cast<ConditionalOutput *>(base)->getBase();
+    if (basecond) {
+      return basecond->getBase();
     } else {
       return base;
     }
@@ -191,14 +191,14 @@ public:
   /// Check if output is enabled
   bool isEnabled() {
     return enabled &&
-           (!base_is_cond || (dynamic_cast<ConditionalOutput *>(base))->isEnabled());
+           (!basecond || basecond->isEnabled());
   };
 
-  Output *base;
-
 private:
+  Output *base;
+  ConditionalOutput * basecond;
+
   bool enabled;
-  bool base_is_cond;
 };
 
 /// Catch stream outputs to DummyOutput objects. This is so that

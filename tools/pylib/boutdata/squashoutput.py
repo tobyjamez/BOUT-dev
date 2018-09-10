@@ -1,20 +1,5 @@
 #!/usr/bin/env python3
 
-"""
-Collect all data from BOUT.dmp.* files and create a single output file.
-
-Output file named BOUT.dmp.nc by default
-
-Useful because this discards ghost cell data (that is only useful for debugging)
-and because single files are quicker to download.
-
-When run as script:
-    - first command line argument specifies data directory (default is the
-      current directory where the script is run)
-    - optional argument "--outputname <name>" can be given to change the name
-      of the output file
-"""
-
 from boutdata.data import BoutOutputs
 from boututils.datafile import DataFile
 from boututils.boutarray import BoutArray
@@ -27,6 +12,11 @@ def squashoutput(datadir=".", outputname="BOUT.dmp.nc", format="NETCDF4", tind=N
                  delete=False):
     """
     Collect all data from BOUT.dmp.* files and create a single output file.
+
+    Output file named BOUT.dmp.nc by default
+
+    Useful because this discards ghost cell data (that is only useful for debugging)
+    and because single files are quicker to download.
 
     Parameters
     ----------

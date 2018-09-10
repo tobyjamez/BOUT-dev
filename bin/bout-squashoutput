@@ -1,56 +1,88 @@
 #!/usr/bin/env python3
 # PYTHON_ARGCOMPLETE_OK
 
-# Call the squashoutput function using arguments from
-# command line when this file is called as an executable
-
 import argparse
-from sys import exit
 try:
     import argcomplete
 except ImportError:
     argcomplete=None
-import boutdata.squashoutput as squash
 
-# Parse command line arguments
-parser = argparse.ArgumentParser(squash.__doc__+"\n\n"+squash.squashoutput.__doc__)
 
-def str_to_bool(string):
-    return string.lower()=="true" or string.lower()=="t"
 
-def int_or_none(string):
-    try:
-        return int(string)
-    except ValueError:
-        if string.lower()=='none' or string.lower()=='n':
-            return None
-        else:
-            raise
+def str_to_slice(sstr):
+    args=[]
+    for s in sstr.split(','):
+        args.append(int(s))
+    print(args)
+    return slice(*args)
 
-parser.add_argument("datadir", nargs='?', default=".")
-parser.add_argument("--outputname",default="BOUT.dmp.nc")
-parser.add_argument("--tind", type=int_or_none, nargs='*', default=[None])
-parser.add_argument("--xind", type=int_or_none, nargs='*', default=[None])
-parser.add_argument("--yind", type=int_or_none, nargs='*', default=[None])
-parser.add_argument("--zind", type=int_or_none, nargs='*', default=[None])
-parser.add_argument("-s","--singleprecision", action="store_true", default=False)
-parser.add_argument("-c","--compress", action="store_true", default=False)
-parser.add_argument("-l","--complevel", type=int_or_none, default=None)
-parser.add_argument("-i","--least-significant-digit", type=int_or_none, default=None)
-parser.add_argument("-q","--quiet", action="store_true", default=False)
-parser.add_argument("-a","--append", action="store_true", default=False)
-parser.add_argument("-d","--delete", action="store_true", default=False)
+
+def str_to_bool(sstr):
+    low=sstr.lower()
+    # no or false
+    if low.startswith("n") or low.startswith("f"):
+        return False
+    # yes or true
+    elif low.startswith("y") or low.startswith("t"):
+        return True
+    else:
+        raise ArgumentTypeError("Cannot parse %s to bool type"%sstr)
+
+parser = argparse.ArgumentParser("Collect all data from BOUT.dmp.* files and create a single output file.")
+parser.add_argument("datadir", type=str, nargs="?", default="."
+    ,help= "Directory where dump files are and where output file will be created."
+     ' default "."')
+parser.add_argument("--outputname", type=str, default="BOUT.dmp.nc"
+    ,help= "Name of the output file. File suffix specifies whether to use NetCDF or"
+     " HDF5 (see boututils.datafile.DataFile for suffixes)."
+     ' default "BOUT.dmp.nc"')
+parser.add_argument("--format", type=str, default="NETCDF4"
+    ,help= "format argument passed to DataFile"
+     ' default "NETCDF4"')
+parser.add_argument("--tind", type=str_to_slice, default=None
+    ,help= "tind argument passed to collect"
+     " default None"
+     "Pass slice object as comma separated list without spaces.")
+parser.add_argument("--xind", type=str_to_slice, default=None
+    ,help= "xind argument passed to collect"
+     " default None"
+     "Pass slice object as comma separated list without spaces.")
+parser.add_argument("--yind", type=str_to_slice, default=None
+    ,help= "yind argument passed to collect"
+     " default None"
+     "Pass slice object as comma separated list without spaces.")
+parser.add_argument("--zind", type=str_to_slice, default=None
+    ,help= "zind argument passed to collect"
+     " default None"
+     "Pass slice object as comma separated list without spaces.")
+parser.add_argument("-s","--singleprecision", action="store_true", default=False
+    ,help= "If true convert data to single-precision floats"
+     " default False")
+parser.add_argument("-c","--compress", action="store_true", default=False
+    ,help= "If true enable compression in the output file")
+parser.add_argument("-i","--least_significant_digit", type=int, default=None
+    ,help= "How many digits should be retained? Enables lossy"
+     " compression. Default is lossless compression. Needs"
+     " compression to be enabled.")
+parser.add_argument("-q","--quiet", action="store_true", default=False
+    ,help= "Be less verbose. default False")
+parser.add_argument("-l","--complevel", type=int, default=None
+    ,help= "Compression level, 1 should be fastest, and 9 should yield"
+     " highest compression.")
+parser.add_argument("-a","--append", action="store_true", default=False
+    ,help= "Append to existing squashed file")
+parser.add_argument("-d","--delete", action="store_true", default=False
+    ,help= "Delete the original files after squashing.")
 
 if argcomplete:
     argcomplete.autocomplete(parser)
 
 args = parser.parse_args()
 
-# Late imports to not slow down bash completion
+# late import for faster auto-complete
+from boutdata.squashoutput import squashoutput
 
-for ind in "txyz":
-    args.__dict__[ind+"ind"]=slice(*args.__dict__[ind+"ind"])
-# Call the function, using command line arguments
-squash.squashoutput(**args.__dict__)
+# Call the function squashoutput, using command line arguments
+squashoutput(**args.__dict__)
 
-exit(0)
+

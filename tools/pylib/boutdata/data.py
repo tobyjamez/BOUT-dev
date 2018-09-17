@@ -402,8 +402,12 @@ class BoutOptionsFile(BoutOptions):
             self.y = 2.*numpy.pi*numpy.linspace((0.5 - myg)/self.ny,
                                                 1.-(0.5 - myg)/self.ny,
                                                 self.ny + 2*myg)[numpy.newaxis, :, numpy.newaxis]
-            self.z = 2.*numpy.pi*numpy.linspace(0.5/self.nz,
-                                                1.-0.5/self.nz,
+            #'symmetric' version, not the current setting in BOUT++
+            #self.z = 2.*numpy.pi*numpy.linspace(0.5/self.nz,
+            #                                    1.-0.5/self.nz,
+            #                                    self.nz)[numpy.newaxis, numpy.newaxis, :]
+            self.z = 2.*numpy.pi*numpy.linspace(0.,
+                                                1.-1./self.nz,
                                                 self.nz)[numpy.newaxis, numpy.newaxis, :]
         except Exception as e:
             alwayswarn("While building x, y, z coordinate arrays, an "

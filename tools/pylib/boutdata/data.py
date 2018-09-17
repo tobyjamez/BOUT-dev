@@ -268,6 +268,10 @@ class BoutOptionsFile(BoutOptions):
 
     def __init__(self, filename="BOUT.inp", name="root", gridfilename=None, nx=None, ny=None, nz=None):
         BoutOptions.__init__(self, name)
+        self.gridfilename = gridfilename
+        self.init_nx = nx
+        self.init_ny = ny
+        self.init_nz = nz
         # Open the file
         with open(filename, "r") as f:
             # Go through each line in the file
@@ -321,16 +325,23 @@ class BoutOptionsFile(BoutOptions):
 
                         section[line[:eqpos].strip()] = value
 
+        # define arrays of x, y, z to be used for substitutions
+        self.calc_xyz()
+
+    def calc_xyz(self):
         try:
             # define arrays of x, y, z to be used for substitutions
             gridfile = None
             nzfromfile = None
-            if gridfilename:
+            nx = self.init_nx
+            ny = self.init_ny
+            nz = self.init_nz
+            if self.gridfilename:
                 if nx is not None or ny is not None:
                     raise ValueError("nx or ny given as inputs even though "
                                      "gridfilename was given explicitly, "
                                      "don't know which parameters to choose")
-                with DataFile(gridfilename) as gridfile:
+                with DataFile(self.gridfilename) as gridfile:
                     self.nx = float(gridfile["nx"])
                     self.ny = float(gridfile["ny"])
                     try:
@@ -359,10 +370,10 @@ class BoutOptionsFile(BoutOptions):
                             nzfromfile = f["MZ"]
                     except (IOError, KeyError):
                         try:
-                            gridfilename = self["mesh"]["file"]
+                            self.gridfilename = self["mesh"]["file"]
                         except KeyError:
-                            gridfilename = self["grid"]
-                        with DataFile(gridfilename) as gridfile:
+                            self.gridfilename = self["grid"]
+                        with DataFile(self.gridfilename) as gridfile:
                             self.nx = float(gridfile["nx"])
                             self.ny = float(gridfile["ny"])
                             try:

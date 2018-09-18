@@ -391,8 +391,19 @@ class BoutOptionsFile(BoutOptions):
                     except KeyError:
                         if nzfromfile is not None:
                             self.nz = nzfromfile
-            mxg = self._keys.get("MXG", 2)
-            myg = self._keys.get("MYG", 2)
+            # check in both mesh and root sections
+            if "mxg" in self["mesh"]:
+                mxg = self["mesh"]["mxg"]
+            elif "mxg" in self:
+                mxg = self["mxg"]
+            else:
+                mxg = 2
+            if "myg" in self["mesh"]:
+                myg = self["mesh"]["myg"]
+            elif "myg" in self:
+                myg = self["myg"]
+            else:
+                myg = 2
 
             # make self.x, self.y, self.z three dimensional now so
             # that expressions broadcast together properly.

@@ -15,7 +15,15 @@ When run as script:
       of the output file
 """
 
-# imports in function for fast bash completion
+from boutdata.data import BoutOutputs
+from boututils.datafile import DataFile
+from boututils.boutarray import BoutArray
+import numpy
+import os
+import gc
+import tempfile
+import shutil
+import glob
 
 def squashoutput(datadir=".", outputname="BOUT.dmp.nc", format="NETCDF4", tind=None,
                  xind=None, yind=None, zind=None, singleprecision=False, compress=False,
@@ -71,16 +79,6 @@ def squashoutput(datadir=".", outputname="BOUT.dmp.nc", format="NETCDF4", tind=N
     docontinue : bool
         Try to progress a previously interrupted squash
     """
-
-    from boutdata.data import BoutOutputs
-    from boututils.datafile import DataFile
-    from boututils.boutarray import BoutArray
-    from zoidberg import progress as bar
-    import numpy
-    import os
-    import tempfile
-    import shutil
-    import glob
 
     fullpath = os.path.join(datadir,outputname)
 

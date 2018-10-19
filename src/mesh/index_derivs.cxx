@@ -65,6 +65,7 @@
 
 #include <bout/mesh.hxx>
 
+#include <bout/deriv_methods.hxx>
 /*******************************************************************************
  * Limiters
  *******************************************************************************/
@@ -83,7 +84,7 @@ BoutReal SUPERBEE(BoutReal r) {
  * Hence convert cell centred values -> centred values, or left -> left
  *******************************************************************************/
 
-const BoutReal WENO_SMALL = 1.0e-8; // Small number for WENO schemes
+// const BoutReal WENO_SMALL = 1.0e-8; // Small number for WENO schemes
 
 ////////////////////// FIRST DERIVATIVES /////////////////////
 
@@ -895,6 +896,7 @@ void Mesh::applyDiffKernel(const T &var, Mesh::deriv_func func, T &result,
   }
   return;
 }
+
 /*******************************************************************************
  * First central derivatives
  *******************************************************************************/

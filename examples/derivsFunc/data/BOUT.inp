@@ -1,0 +1,23 @@
+
+NOUT = 1
+TIMESTEP = 0.2
+
+myg = 1
+mxg = 1
+MZ = 64
+
+TwistShift = false 
+
+[mesh]
+symmetricGlobalX = true
+nx = 66
+ny = 32
+
+[all]
+scale = 0.0
+function = 0.0
+bndry_all = none
+
+[a]
+scale = 1
+function = sin(x*2*pi)

@@ -1,6 +1,5 @@
 
 #include <bout/physicsmodel.hxx>
-#include <bout/deriv_methods.hxx>
 
 class WaveTest : public PhysicsModel {
 public:

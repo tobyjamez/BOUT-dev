@@ -30,6 +30,9 @@
 /// Size of real numbers
 typedef double BoutReal;
 
+
+const BoutReal WENO_SMALL = 1.0e-8; // Small number for WENO schemes
+
 /// Quiet NaN
 const BoutReal BoutNaN = std::numeric_limits<BoutReal>::quiet_NaN();
 

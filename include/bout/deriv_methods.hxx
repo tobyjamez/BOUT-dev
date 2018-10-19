@@ -26,10 +26,10 @@
  *
  **************************************************************************/
 
+#include <bout_types.hxx>
+
 #ifndef __DERIV_METHODS_H__
 #define __DERIV_METHODS_H__
-
-const BoutReal WENO_SMALL = 1.0e-8; // Small number for WENO schemes
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Non-staggered methods
@@ -292,54 +292,141 @@ BOUT_FDERIV(FDDX_C2, "C2", 2) { return 0.5 * (v.p * f.p - v.m * f.m);}
 BOUT_FDERIV(FDDX_C4, "C4", 2) { return (8. * v.p * f.p - 8. * v.m * f.m + v.mm * f.mm - v.pp * f.pp) / 12.;}
 
 
-// ////////////////////////////////////////////////////////////////////////////////
-// /// Non-staggered methods
-// ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+/// Staggered methods
+///
+/// Map Centre -> Low or Low -> Centre
+///
+/// These expect the output grid cell to be at a different location to the input
+/// 
+/// The stencil no longer has a value in 'C' (centre)
+/// instead, points are shifted as follows:
+///
+///  mm  -> -3/2 h
+///  m   -> -1/2 h
+///  p   -> +1/2 h
+///  pp  -? +3/2 h
+///
+/// NOTE: Cell widths (dx, dy, dz) are currently defined as centre->centre
+/// for the methods above. This is currently not taken account of, so large
+/// variations in cell size will cause issues.
+////////////////////////////////////////////////////////////////////////////////
 
-// #define BOUT_DERIV(name, key, nGuards, ...)				\
-//   class name {								\
-//   public:								\
-//   const int nGuardsRequired = nGuards;\
-//   const std::string shortName = key;\
-//   const BoutReal apply(const stencil &f) const;				\
-//   template<DIRECTION direction, typename T>					\
-//   void operator()(const T &var, T &result, const REGION region) const {	\
-//     BOUT_FOR(i, var.getRegion(region)) {				\
-//       result[i] = apply(populateStencil<direction, STAGGER::None, nGuards>(var, i));	\
-//     }									\
-//     return;								\
-//   }									\
-//   };\
-//   const BoutReal name::apply(const stencil &f) const 
+#define BOUT_STAGGERED_DERIV(name, key, nGuards, ...)				\
+  class name {								\
+  public:								\
+  const int nGuardsRequired = nGuards;					\
+  const std::string shortName = key;					\
+  const BoutReal apply(const stencil &f) const;				\
+  template<DIRECTION direction, STAGGER stagger, typename T>		\
+  void operator()(const T &var, T &result, const REGION region) const {	\
+    BOUT_FOR(i, var.getRegion(region)) {				\
+      result[i] = apply(populateStencil<direction, stagger, nGuards>(var, i)); \
+    }									\
+    return;								\
+  }									\
+  };									\
+  const BoutReal name::apply(const stencil &f) const 
+  
+#define BOUT_STAGGERED_VDERIV(name, key, nGuards, ...)			\
+  class name {								\
+  public:								\
+  const int nGuardsRequired = nGuards;					\
+  const std::string shortName = key;					\
+  const BoutReal apply(const stencil &v, const stencil &f) const;	\
+  template<DIRECTION direction, STAGGER stagger, typename T>		\
+  void operator()(const T& vel, const T &var, T &result, const REGION region) const { \
+    BOUT_FOR(i, var.getRegion(region)) {				\
+      result[i] = apply(						\
+			populateStencil<direction, stagger, nGuards>(vel, i), \
+			populateStencil<direction, STAGGER::None, nGuards>(var, i)); \
+    }									\
+    return;								\
+  }									\
+  };									\
+  const BoutReal name::apply(const stencil &v, const stencil &f) const 
+  
+#define BOUT_STAGGERED_FDERIV(name, key, nGuards, ...)			\
+  class name {								\
+  public:								\
+  const int nGuardsRequired = nGuards;					\
+  const std::string shortName = key;					\
+  const BoutReal apply(const stencil &v, const stencil &f) const;	\
+  template<DIRECTION direction, STAGGER stagger, typename T>		\
+  void operator()(const T& vel, const T &var, T &result, const REGION region) const { \
+    BOUT_FOR(i, var.getRegion(region)) {				\
+      result[i] = apply(						\
+			populateStencil<direction, stagger, nGuards>(vel, i), \
+			populateStencil<direction, STAGGER::None, nGuards>(var, i)); \
+    }									\
+    return;								\
+  }									\
+  };									\
+  const BoutReal name::apply(const stencil &v, const stencil &f) const 
 
-// #define BOUT_VDERIV(name, key, nGuards, ...)					\
-//   class name {								\
-//   public:								\
-//   const BoutReal apply(const BoutReal vc, const stencil &f) const;	\
-//   template<DIRECTION direction, typename T>					\
-//     void operator()(const T& vel, const T &var, T &result, const REGION region) const { \
-//       BOUT_FOR(i, var.getRegion(region)) {				\
-//       result[i] = apply(vel[i], populateStencil<direction, STAGGER::None, 1>(var, i)); \
-//     }									\
-//     return;								\
-//   }									\
-//   };\
-//   const BoutReal name::apply(const BoutReal vc, const stencil &f) const 
+////////////////////////////////////////////////////////////////////////////////
+/// Standard methods
+////////////////////////////////////////////////////////////////////////////////  
+BOUT_STAGGERED_DERIV(DDX_C2_stag, "C2", 1) { return f.p - f.m; }
 
-// #define BOUT_FDERIV(name, key, nGuards, ...)					\
-//   class name {								\
-//   public:								\
-//   const BoutReal apply(const stencil &v, const stencil &f) const;	\
-//   template<DIRECTION direction, typename T>					\
-//   void operator()(const T& vel, const T &var, T &result, const REGION region) const { \
-//     BOUT_FOR(i, var.getRegion(region)) {				\
-//       result[i] = apply(\
-// 			populateStencil<direction, STAGGER::None, 1>(vel, i),\
-// 			populateStencil<direction, STAGGER::None, 1>(var, i)); \
-//     }									\
-//     return;								\
-//   }									\
-//   };\
-//   const BoutReal name::apply(const stencil &v, const stencil &f) const 
+BOUT_STAGGERED_DERIV(DDX_C4_stag, "C4", 2) { return (27. * (f.p - f.m) - (f.pp - f.mm)) / 24.; }
 
+BOUT_STAGGERED_DERIV(D2DX2_C2_stag, "C2_2", 2) { return (f.pp + f.mm - f.p - f.m) / 2.; }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Upwind methods
+////////////////////////////////////////////////////////////////////////////////
+BOUT_STAGGERED_VDERIV(VDDX_U1_stag, "U1", 1) {
+  // Lower cell boundary
+  BoutReal result = (v.m >= 0) ? v.m * f.m : v.m * f.c;
+
+  // Upper cell boundary
+  result -= (v.p >= 0) ? v.p * f.c : v.p * f.p;
+  result *= -1;
+
+  // result is now d/dx(v*f), but want v*d/dx(f) so subtract f*d/dx(v)
+  result -= f.c * (v.p - v.m);
+  return result;
+}
+
+BOUT_STAGGERED_VDERIV(VDDX_U2_stag, "U2", 2) {
+  // Calculate d(v*f)/dx = (v*f)[i+1/2] - (v*f)[i-1/2]
+
+  // Upper cell boundary
+  BoutReal result = (v.p >= 0.) ? v.p * (1.5*f.c - 0.5*f.m) : v.p * (1.5*f.p - 0.5*f.pp);
+
+  // Lower cell boundary
+  result -= (v.m >= 0.) ? v.m * (1.5*f.m - 0.5*f.mm) : v.m * (1.5*f.c - 0.5*f.p);
+
+  // result is now d/dx(v*f), but want v*d/dx(f) so subtract f*d/dx(v)
+  result -= f.c * (v.p - v.m);
+
+  return result;
+}
+
+BOUT_STAGGERED_VDERIV(VDDX_C2_stag, "C2", 1) {
+  // Result is needed at location of f: interpolate v to f's location and take an
+  // unstaggered derivative of f
+  return 0.5 * (v.p + v.m) * 0.5 * (f.p - f.m);
+}
+
+BOUT_STAGGERED_VDERIV(VDDX_C4_stag, "C4", 2) {
+  // Result is needed at location of f: interpolate v to f's location and take an
+  // unstaggered derivative of f
+  return (9. * (v.m + v.p) - v.mm - v.pp) / 16. * (8. * f.p - 8. * f.m + f.mm - f.pp) /
+         12.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// Flux methods
+////////////////////////////////////////////////////////////////////////////////
+BOUT_STAGGERED_FDERIV(FDDX_U1_stag, "U1", 1) {
+  // Lower cell boundary
+  BoutReal result = (v.m >= 0) ? v.m * f.m : v.m * f.c;
+
+  // Upper cell boundary
+  result -= (v.p >= 0) ? v.p * f.c : v.p * f.p;
+
+  return - result;
+}
 #endif

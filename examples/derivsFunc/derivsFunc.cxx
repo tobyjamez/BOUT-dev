@@ -1,5 +1,6 @@
 
 #include <bout/physicsmodel.hxx>
+#include <bout/deriv_methods.hxx>
 
 class WaveTest : public PhysicsModel {
 public:
@@ -35,6 +36,21 @@ public:
     tester15.operator()<DIRECTION::X>(a, c, b, RGN_NOBNDRY);
     tester16.operator()<DIRECTION::X>(a, c, b, RGN_NOBNDRY);
     tester17.operator()<DIRECTION::X>(a, c, b, RGN_NOBNDRY);    
+
+    //Staggering
+    //Standard    
+    stagger1.operator()<DIRECTION::X, STAGGER::C2L>(a, b, RGN_NOBNDRY);
+    stagger2.operator()<DIRECTION::X, STAGGER::C2L>(a, b, RGN_NOBNDRY);
+    stagger3.operator()<DIRECTION::X, STAGGER::C2L>(a, b, RGN_NOBNDRY);
+
+    //Upwind
+    stagger4.operator()<DIRECTION::X, STAGGER::C2L>(a, c, b, RGN_NOBNDRY);
+    stagger5.operator()<DIRECTION::X, STAGGER::C2L>(a, c, b, RGN_NOBNDRY);
+    stagger6.operator()<DIRECTION::X, STAGGER::C2L>(a, c, b, RGN_NOBNDRY);
+    stagger7.operator()<DIRECTION::X, STAGGER::C2L>(a, c, b, RGN_NOBNDRY);
+
+    //Flux
+    stagger8.operator()<DIRECTION::X, STAGGER::C2L>(a, c, b, RGN_NOBNDRY);
     
     ddt(a) = 0.;
     ddt(b) = 0.;
@@ -63,6 +79,19 @@ private:
   const FDDX_U1 tester15{};
   const FDDX_C2 tester16{};
   const FDDX_C4 tester17{};  
+
+  //Staggered
+  //Standard
+  const DDX_C2_stag stagger1{};
+  const DDX_C4_stag stagger2{};
+  const D2DX2_C2_stag stagger3{};
+  //Upwind
+  const VDDX_C2_stag stagger4{};
+  const VDDX_C4_stag stagger5{};
+  const VDDX_U1_stag stagger6{};
+  const VDDX_U2_stag stagger7{};
+  //Flux
+  const FDDX_U1_stag stagger8{};
 };
 
 

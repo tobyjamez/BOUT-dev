@@ -4,7 +4,7 @@
 
 class WaveTest : public PhysicsModel {
 public:
-  int init(bool restarting) {
+  int init(bool UNUSED(restarting)) {
     a = 1.0;
     b = 2.0;
     c = 3.0;
@@ -13,16 +13,23 @@ public:
     return 0;
   }
   
-  int rhs(BoutReal time) {
+  int rhs(BoutReal UNUSED(time)) {
     //Standard
-    tester1.operator()<DIRECTION::X>(a, b, RGN_NOBNDRY);
-    tester2.operator()<DIRECTION::X>(a, b, RGN_NOBNDRY);
-    tester3.operator()<DIRECTION::X>(a, b, RGN_NOBNDRY);
-    tester4.operator()<DIRECTION::X>(a, b, RGN_NOBNDRY);
-    tester5.operator()<DIRECTION::X>(a, b, RGN_NOBNDRY);
-    tester6.operator()<DIRECTION::X>(a, b, RGN_NOBNDRY);
-    tester7.operator()<DIRECTION::X>(a, b, RGN_NOBNDRY);
-    tester8.operator()<DIRECTION::X>(a, b, RGN_NOBNDRY);        
+    tester1(a, b, RGN_NOBNDRY);
+
+    auto tester1_factory =
+        DerivativeFactory<DIRECTION::X, STAGGER::None, 1, Field3D>::getInstance().create(
+            "C2");
+
+    tester1_factory(a, b, RGN_NOBNDRY);
+
+    tester2(a, b, RGN_NOBNDRY);
+    tester3(a, b, RGN_NOBNDRY);
+    tester4(a, b, RGN_NOBNDRY);
+    tester5(a, b, RGN_NOBNDRY);
+    tester6(a, b, RGN_NOBNDRY);
+    tester7(a, b, RGN_NOBNDRY);
+    tester8(a, b, RGN_NOBNDRY);
       
     //Upwind
     tester9.operator()<DIRECTION::X>(a, c, b, RGN_NOBNDRY);
@@ -60,14 +67,14 @@ public:
 private:
   Field3D a, b, c;
   //Standard
-  const DDX_C2 tester1{};
-  const DDX_C4 tester2{};
-  const DDX_CWENO2 tester3{};
-  const DDX_S2 tester4{};
-  const D2DX2_C2 tester5{};
-  const D2DX2_C4 tester6{};
-  const DDX_CWENO3 tester7{};
-  const D4DX4_C2 tester8{};
+  const DDX_C2<DIRECTION::X, Field3D> tester1{};
+  const DDX_C4<DIRECTION::X, Field3D> tester2{};
+  const DDX_CWENO2<DIRECTION::X, Field3D> tester3{};
+  const DDX_S2<DIRECTION::X, Field3D> tester4{};
+  const D2DX2_C2<DIRECTION::X, Field3D> tester5{};
+  const D2DX2_C4<DIRECTION::X, Field3D> tester6{};
+  const DDX_CWENO3<DIRECTION::X, Field3D> tester7{};
+  const D4DX4_C2<DIRECTION::X, Field3D> tester8{};
   //Upwind
   const VDDX_C2 tester9{};
   const VDDX_C4 tester10{};

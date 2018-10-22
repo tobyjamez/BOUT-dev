@@ -31,17 +31,73 @@
 #ifndef __DERIV_METHODS_H__
 #define __DERIV_METHODS_H__
 
+#include <functional>
+#include <map>
+#include <string>
+
 ////////////////////////////////////////////////////////////////////////////////
 /// Non-staggered methods
 ////////////////////////////////////////////////////////////////////////////////
 
+template <DIRECTION direction, STAGGER stagger, int nGuard, typename FieldType>
+using Derivative = std::function<void(const FieldType &var, FieldType &result, const REGION region)>;
+
+template <DIRECTION direction, STAGGER stagger, int nGuard, typename FieldType>
+class DerivativeFactory {
+public:
+  using Derivative = ::Derivative<direction, stagger, nGuard, FieldType>;
+
+  bool add(const std::string &name, Derivative derivative) {
+    return derivative_map.emplace(name, derivative).second;
+  }
+  bool remove(const std::string &name) { return derivative_map.erase(name) == 1; }
+  Derivative create(const std::string &name) {
+    auto index = derivative_map.find(name);
+    if (index != std::end(derivative_map)) {
+      return index->second;
+    }
+    throw BoutException("Could not find %s", name.c_str());
+  }
+
+  std::vector<std::string> listAvailable() {
+    std::vector<std::string> available;
+    for (const auto &name : derivative_map) {
+      available.push_back(name.first);
+    }
+    return available;
+  }
+
+  static DerivativeFactory &getInstance() {
+    static DerivativeFactory instance;
+    return instance;
+  }
+
+protected:
+  std::map<std::string, Derivative> derivative_map;
+  DerivativeFactory() {}
+};
+
+template <DIRECTION direction, STAGGER stagger, int nGuard, typename FieldType,
+          template <DIRECTION, class> class T>
+class RegisterDerivative {
+public:
+  using Derivative = ::Derivative<direction, stagger, nGuard, FieldType>;
+  RegisterDerivative(const std::string &name) {
+    Derivative derivative = T<direction, FieldType>();
+    DerivativeFactory<direction, stagger, nGuard, FieldType>::getInstance().add(
+        name, derivative);
+  }
+};
+
+#define REGISTER_BOUT_DERIV_NAME(name) register_bout_deriv_##name
+
 #define BOUT_DERIV(name, key, nGuards, ...)				\
-  class name {								\
+  template<DIRECTION direction, typename T>					\
+  class name {                                        \
   public:								\
   const int nGuardsRequired = nGuards;\
   const std::string shortName = key;\
-  const BoutReal apply(const stencil &f) const;				\
-  template<DIRECTION direction, typename T>					\
+  BoutReal apply(const stencil &f) const;				\
   void operator()(const T &var, T &result, const REGION region) const {	\
     BOUT_FOR(i, var.getRegion(region)) {				\
       result[i] = apply(populateStencil<direction, STAGGER::None, nGuards>(var, i));	\
@@ -49,7 +105,11 @@
     return;								\
   }									\
   };\
-  const BoutReal name::apply(const stencil &f) const 
+  namespace { \
+    RegisterDerivative<DIRECTION::X, STAGGER::None, 1, Field3D, DDX_C2> REGISTER_BOUT_DERIV_NAME(name)(key); \
+  } \
+  template<DIRECTION direction, typename T>					\
+  BoutReal name<direction, T>::apply(const stencil &f) const
 
 #define BOUT_VDERIV(name, key, nGuards, ...)					\
   class name {								\

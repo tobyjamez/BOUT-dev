@@ -65,7 +65,6 @@ public:
     ystart = 1;
     yend = ny - 2;
 
-    StaggerGrids=true;
     // Unused variables
     periodicX = false;
     NXPE = 1;

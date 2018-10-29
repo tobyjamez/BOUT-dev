@@ -329,6 +329,7 @@ TEST_F(Field3DTest, GetLocalMesh) {
 TEST_F(Field3DTest, SetGetLocation) {
   Field3D field;
 
+  auto backup = field.getMesh()->StaggerGrids;
   field.getMesh()->StaggerGrids = true;
 
   field.setLocation(CELL_XLOW);
@@ -338,11 +339,13 @@ TEST_F(Field3DTest, SetGetLocation) {
   EXPECT_EQ(field.getLocation(), CELL_CENTRE);
 
   EXPECT_THROW(field.setLocation(CELL_VSHIFT), BoutException);
+
+  field.getMesh()->StaggerGrids = backup;
 }
 
 TEST_F(Field3DTest, SetGetLocationNonStaggered) {
   Field3D field;
-
+  auto backup = field.getMesh()->StaggerGrids;
   field.getMesh()->StaggerGrids = false;
 
 #if CHECK > 0
@@ -361,6 +364,8 @@ TEST_F(Field3DTest, SetGetLocationNonStaggered) {
   field.setLocation(CELL_VSHIFT);
   EXPECT_EQ(field.getLocation(), CELL_CENTRE);
 #endif
+
+  field.getMesh()->StaggerGrids = backup;
 }
 
 //-------------------- Iteration tests --------------------

@@ -2,6 +2,8 @@ timestep = 1.
 nout = 10
 
 MZ = 1
+MXG=1
+MYG=1
 
 [mesh]
 

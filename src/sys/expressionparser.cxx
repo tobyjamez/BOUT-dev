@@ -45,9 +45,9 @@ namespace { // These classes only visible in this file
     FieldGeneratorPtr clone(const list<FieldGeneratorPtr> UNUSED(args)) override {
       return std::make_shared<FieldX>();
     }
-    double generate(double x, double UNUSED(y), double UNUSED(z), double UNUSED(t),
-                    const DataIterator &UNUSED(i), Mesh *UNUSED(localmesh)) override{
-                return x;
+    double generate(double x, double UNUSED(y), double UNUSED(z),
+                    double UNUSED(t)) override {
+      return x;
     }
     const std::string str() override { return std::string("x"); }
   };
@@ -57,8 +57,8 @@ namespace { // These classes only visible in this file
     FieldGeneratorPtr clone(const list<FieldGeneratorPtr> UNUSED(args)) override {
       return std::make_shared<FieldY>();
     }
-    double generate(double UNUSED(x), double y, double UNUSED(z), double UNUSED(t),
-                    const DataIterator &UNUSED(i), Mesh *UNUSED(localmesh)) override {
+    double generate(double UNUSED(x), double y, double UNUSED(z),
+                    double UNUSED(t)) override {
       return y;
     }
     const std::string str() override { return std::string("y"); }
@@ -69,9 +69,9 @@ namespace { // These classes only visible in this file
     FieldGeneratorPtr clone(const list<FieldGeneratorPtr> UNUSED(args)) override {
       return std::make_shared<FieldZ>();
     }
-    double generate(double UNUSED(x), double UNUSED(y), double z, double UNUSED(t),
-                    const DataIterator &UNUSED(i), Mesh *UNUSED(localmesh)) override{
-        return z;
+    double generate(double UNUSED(x), double UNUSED(y), double z,
+                    double UNUSED(t)) override {
+      return z;
     }
     const std::string str() override { return std::string("z"); }
   };
@@ -81,8 +81,8 @@ namespace { // These classes only visible in this file
     FieldGeneratorPtr clone(const list<FieldGeneratorPtr> UNUSED(args)) override {
       return std::make_shared<FieldT>();
     }
-    double generate(double UNUSED(x), double UNUSED(y), double UNUSED(z), double t,
-                    const DataIterator &UNUSED(i), Mesh *UNUSED(localmesh)) override {
+    double generate(double UNUSED(x), double UNUSED(y), double UNUSED(z),
+                    double t) override {
       return t;
     }
     const std::string str() override { return std::string("t"); }
@@ -96,9 +96,9 @@ FieldGeneratorPtr FieldBinary::clone(const list<FieldGeneratorPtr> args) {
   return std::make_shared<FieldBinary>(args.front(), args.back(), op);
 }
 
-BoutReal FieldBinary::generate(double x, double y, double z, double t, const DataIterator &i, Mesh *localmesh) {
-  BoutReal lval = lhs->generate(x,y,z,t,i,localmesh);
-  BoutReal rval = rhs->generate(x,y,z,t,i,localmesh);
+BoutReal FieldBinary::generate(double x, double y, double z, double t) {
+  BoutReal lval = lhs->generate(x,y,z,t);
+  BoutReal rval = rhs->generate(x,y,z,t);
   switch(op) {
   case '+': return lval + rval;
   case '-': return lval - rval;

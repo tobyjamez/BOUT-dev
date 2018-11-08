@@ -37,8 +37,8 @@ public:
     return std::make_shared<IncrementGenerator>(args.front());
   }
 
-  BoutReal generate(BoutReal x, BoutReal y, BoutReal z, BoutReal t, const DataIterator &i, Mesh *localmesh) {
-    return gen->generate(x, y, z, t, i, localmesh) + 1;
+  BoutReal generate(BoutReal x, BoutReal y, BoutReal z, BoutReal t) {
+    return gen->generate(x, y, z, t) + 1;
   }
   const std::string str() { return std::string{"increment(" + gen->str() + ")"}; }
 
@@ -63,13 +63,10 @@ public:
   }
 
   BoutReal generate(BoutReal UNUSED(x), BoutReal UNUSED(y), BoutReal UNUSED(z),
-                    BoutReal UNUSED(t), const DataIterator &UNUSED(i), Mesh *UNUSED(localmesh)) {
+                    BoutReal UNUSED(t)) {
     return 4.0;
   }
 };
-
-DataIterator i{0,0,0,1,2,3};
-Mesh * localmesh=0;
 
 TEST_F(ExpressionParserTest, Parse2) {
   auto fieldgen = parser.parseString("2");
@@ -79,7 +76,7 @@ TEST_F(ExpressionParserTest, Parse2) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), 2);
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), 2);
         }
       }
     }
@@ -94,7 +91,7 @@ TEST_F(ExpressionParserTest, ParseX) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), x);
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), x);
         }
       }
     }
@@ -109,7 +106,7 @@ TEST_F(ExpressionParserTest, ParseY) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), y);
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), y);
         }
       }
     }
@@ -124,7 +121,7 @@ TEST_F(ExpressionParserTest, ParseZ) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), z);
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), z);
         }
       }
     }
@@ -139,7 +136,7 @@ TEST_F(ExpressionParserTest, ParseT) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), t);
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), t);
         }
       }
     }
@@ -153,7 +150,7 @@ TEST_F(ExpressionParserTest, ParseXPlus2) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), x + 2);
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), x + 2);
         }
       }
     }
@@ -167,7 +164,7 @@ TEST_F(ExpressionParserTest, ParseXTimesMinus4) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), x * (-4));
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), x * (-4));
         }
       }
     }
@@ -181,7 +178,7 @@ TEST_F(ExpressionParserTest, ParseXDividedBy3e8) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), x / 3.e8);
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), x / 3.e8);
         }
       }
     }
@@ -195,7 +192,7 @@ TEST_F(ExpressionParserTest, ParseXSquared) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), x * x);
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), x * x);
         }
       }
     }
@@ -250,7 +247,7 @@ TEST_F(ExpressionParserTest, AddGenerator) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), x + 1);
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), x + 1);
         }
       }
     }
@@ -270,7 +267,7 @@ TEST_F(ExpressionParserTest, AddFieldValue) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), 42.0);
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), 42.0);
         }
       }
     }
@@ -287,7 +284,7 @@ TEST_F(ExpressionParserTest, AddNullaryFunction) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), 4.0);
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), 4.0);
         }
       }
     }
@@ -308,8 +305,8 @@ TEST_F(ExpressionParserTest, CloneBinaryOp) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(actualFieldgen->generate(x, y, z, t, i, localmesh),
-                           clonedFieldgen->generate(x, y, z, t, i, localmesh));
+          EXPECT_DOUBLE_EQ(actualFieldgen->generate(x, y, z, t),
+                           clonedFieldgen->generate(x, y, z, t));
         }
       }
     }
@@ -340,7 +337,7 @@ TEST_F(ExpressionParserTest, AddBinaryOp) {
     for (auto y : y_array) {
       for (auto z : z_array) {
         for (auto t : t_array) {
-          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t, i, localmesh), 2 * (x + 3));
+          EXPECT_DOUBLE_EQ(fieldgen->generate(x, y, z, t), 2 * (x + 3));
         }
       }
     }

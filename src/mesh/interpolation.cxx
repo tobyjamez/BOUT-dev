@@ -38,14 +38,6 @@
 */
 BoutReal interp(const stencil &s) { return (9. * (s.m + s.p) - s.mm - s.pp) / 16.; }
 
-const Field3D static_interp_to(const Field3D &var, CELL_LOC loc, REGION region){
-  return interp_to(var, loc, region);
-}
-
-const Field2D static_interp_to(const Field2D &var, CELL_LOC loc, REGION region){
-  return interp_to(var, loc, region);
-}
-
 /*!
   Interpolate between different cell locations
 
@@ -64,11 +56,12 @@ const Field3D Mesh::interp_to(const Field3D &var, CELL_LOC loc, REGION region)
 {
   Mesh * fieldmesh = this;
   ASSERT2(var.getMesh() == this);
-  Field3D result(this);
+  Field3D result(fieldmesh);
+
   if ((loc != CELL_CENTRE && loc != CELL_DEFAULT) && (fieldmesh->StaggerGrids == false)) {
     throw BoutException("Asked to interpolate, but StaggerGrids is disabled!");
   }
-  if(StaggerGrids && (var.getLocation() != loc)) {
+  if (fieldmesh->StaggerGrids && (var.getLocation() != loc)) {
 
     // Staggered grids enabled, and need to perform interpolation
     TRACE("Interpolating %s -> %s", strLocation(var.getLocation()), strLocation(loc));

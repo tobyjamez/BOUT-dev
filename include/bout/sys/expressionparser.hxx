@@ -41,9 +41,6 @@ class ParseException;
 #include <memory>
 #include <exception>
 
-#include "bout/dataiterator.hxx"
-class Mesh;
-extern Mesh * mesh;
 using FieldGeneratorPtr = std::shared_ptr<FieldGenerator>;
 
 //////////////////////////////////////////////////////////
@@ -67,13 +64,7 @@ public:
 
   /// Generate a value at the given coordinates (x,y,z,t)
   /// This should be deterministic, always returning the same value given the same inputs
-  virtual double generate(double x, double y, double z, double t) {
-    DataIterator i{0,0,0,0,0,0};
-    return generate(x,y,z,t,i,mesh);
-  }
-
-  /// Some function require the current mesh
-  virtual double generate(double x, double y, double z, double t, const DataIterator & i,  Mesh * mesh) = 0;
+  virtual double generate(double x, double y, double z, double t) = 0;
 
   /// Create a string representation of the generator, for debugging output
   virtual const std::string str() {return std::string("?");}
@@ -165,8 +156,8 @@ public:
   FieldBinary(FieldGeneratorPtr l, FieldGeneratorPtr r, char o)
       : lhs(std::move(l)), rhs(std::move(r)), op(o) {}
   FieldGeneratorPtr clone(const std::list<FieldGeneratorPtr> args) override;
-  double generate(double x, double y, double z, double t, const DataIterator &i, Mesh *localmesh) override;
-  
+  double generate(double x, double y, double z, double t) override;
+
   const std::string str() override {
     return std::string("(") + lhs->str() + std::string(1, op) + rhs->str() +
            std::string(")");
@@ -187,7 +178,7 @@ public:
   }
 
   double generate(double UNUSED(x), double UNUSED(y), double UNUSED(z),
-                  double UNUSED(t), const DataIterator & UNUSED(i),  Mesh * UNUSED(mesh)) override {
+                  double UNUSED(t)) override {
     return value;
   }
   const std::string str() override {

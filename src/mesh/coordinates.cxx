@@ -155,22 +155,6 @@ Coordinates::Coordinates(Mesh *mesh)
     throw BoutException("Differential geometry failed\n");
   }
 
-  //////////////////////////////////////////////////////
-  /// Non-uniform meshes. Need to use DDX, DDY
-
-  OPTION(Options::getRoot(), non_uniform, false);
-
-  Field2D d2x(mesh), d2y(mesh); // d^2 x / d i^2
-  // Read correction for non-uniform meshes
-  if (mesh->get(d2x, "d2x")) {
-    output_warn.write("\tWARNING: differencing quantity 'd2x' not found. Calculating from dx\n");
-    Field2D tmp = mesh->indexDDX(1. / dx.get(CELL_DEFAULT)); // d/di(1/dx)
-    d1_dx = tmp;
-  } else {
-    d1_dx = -d2x / (dx * dx);
-  }
-
-
   if (mesh->get(ShiftTorsion, "ShiftTorsion")) {
     output_warn.write("\tWARNING: No Torsion specified for zShift. Derivatives may not be correct\n");
     ShiftTorsion = 0.0;

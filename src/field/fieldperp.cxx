@@ -492,13 +492,3 @@ void invalidateGuards(FieldPerp &var) {
 #endif
   return;
 }
-
-FieldPerp sqrt(const FieldPerp & f){
-  FieldPerp res;
-  res.allocate();
-  for (auto i:f){
-    res[i]=sqrt(f[i]);
-  }
-  //checkData(res);
-  return res;
-}

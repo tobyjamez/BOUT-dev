@@ -43,8 +43,6 @@ public:
                              ///  over every element from inside out (in
                              ///  X or Y first)
   virtual bool isDone() = 0; ///< Returns true if outside domain. Can use this with nested nextX, nextY
-protected:
-  Mesh * mesh;
 };
 
 /// Describes a region of the boundary, and a means of iterating over it

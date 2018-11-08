@@ -548,6 +548,7 @@ class DataFile_netCDF(DataFile):
             data = np.int32(data)
             t = data.dtype.str
 
+        tmpname=None
         try:
             # See if the variable already exists
             var = self.handle.variables[name]
@@ -634,6 +635,7 @@ class DataFile_netCDF(DataFile):
             i=0
             while tmpname in self.handle.variables:
                 tmpname=name+"_bout_temp_%d"%i
+                i+=1
             # Create the variable
             if library == "Scientific":
                 if t == 'int' or t == '<i4' or t == 'int32':

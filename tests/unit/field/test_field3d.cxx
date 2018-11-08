@@ -1,3 +1,7 @@
+// We know stuff might be deprecated, but we still want to test it
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 #include "gtest/gtest.h"
 
 #include "bout/constants.hxx"
@@ -109,17 +113,13 @@ TEST_F(Field3DTest, CreateOnGivenMesh) {
   int test_ny = Field3DTest::ny + 2;
   int test_nz = Field3DTest::nz + 2;
 
-  FakeMesh *fieldmesh = new FakeMesh(test_nx, test_ny, test_nz);
+  FakeMesh fieldmesh{test_nx, test_ny, test_nz};
 
-  Field3D field(fieldmesh);
-
-  field.allocate();
+  Field3D field{&fieldmesh};
 
   EXPECT_EQ(field.getNx(), test_nx);
   EXPECT_EQ(field.getNy(), test_ny);
   EXPECT_EQ(field.getNz(), test_nz);
-
-  delete fieldmesh;
 }
 
 TEST_F(Field3DTest, CopyCheckFieldmesh) {
@@ -127,17 +127,18 @@ TEST_F(Field3DTest, CopyCheckFieldmesh) {
   int test_ny = Field3DTest::ny + 2;
   int test_nz = Field3DTest::nz + 2;
 
-  FakeMesh *fieldmesh = new FakeMesh(test_nx, test_ny, test_nz);
+  FakeMesh fieldmesh{test_nx, test_ny, test_nz};
+  output_info.disable();
+  fieldmesh.createDefaultRegions();
+  output_info.enable();
 
-  Field3D field(0.0, fieldmesh);
+  Field3D field{0.0, &fieldmesh};
 
   Field3D field2{field};
 
   EXPECT_EQ(field2.getNx(), test_nx);
   EXPECT_EQ(field2.getNy(), test_ny);
   EXPECT_EQ(field2.getNz(), test_nz);
-
-  delete fieldmesh;
 }
 
 #if CHECK > 0
@@ -780,6 +781,30 @@ TEST_F(Field3DTest, ConstIndexingInd3D) {
   Ind3D ind{(2*ny + 2)*nz + 2};
 
   EXPECT_DOUBLE_EQ(field2[ind], 6);
+}
+
+TEST_F(Field3DTest, IndexingInd2D) {
+  Field3D field(0.0);
+  const BoutReal sentinel = 2.0;
+  int ix = 1, iy = 2, iz = 3;
+  field(ix, iy, iz) = sentinel;
+
+  Ind2D ind{iy + ny * ix, ny, 1};
+  EXPECT_DOUBLE_EQ(field(ind, iz), sentinel);
+  field(ind, iz) = -sentinel;
+  EXPECT_DOUBLE_EQ(field(ix, iy, iz), -sentinel);
+}
+
+TEST_F(Field3DTest, IndexingIndPerp) {
+  Field3D field(0.0);
+  const BoutReal sentinel = 2.0;
+  int ix = 1, iy = 2, iz = 3;
+  field(ix, iy, iz) = sentinel;
+
+  IndPerp ind{iz + nz * ix, 1, nz};
+  EXPECT_DOUBLE_EQ(field(ind, iy), sentinel);
+  field(ind, iy) = -sentinel;
+  EXPECT_DOUBLE_EQ(field(ix, iy, iz), -sentinel);
 }
 
 TEST_F(Field3DTest, IndexingToZPointer) {
@@ -1725,8 +1750,8 @@ TEST_F(Field3DTest, PowField3DBoutReal) {
 }
 
 TEST_F(Field3DTest, PowField3DFieldPerp) {
-  Field3D a, c;
-  FieldPerp b(mesh);
+  Field3D a{mesh};
+  FieldPerp b{mesh}, c{mesh};
   const int yindex = 2;
   b.setIndex(yindex);
 
@@ -1734,7 +1759,7 @@ TEST_F(Field3DTest, PowField3DFieldPerp) {
   b = 6.0;
   c = pow(a, b);
 
-  EXPECT_TRUE(IsField3DEqualBoutReal(c, 64.0));
+  EXPECT_TRUE(IsFieldPerpEqualBoutReal(c, 64.0));
 }
 
 TEST_F(Field3DTest, PowField3DField2D) {
@@ -1970,3 +1995,6 @@ TEST_F(Field3DTest, OpenMPIterator) {
   delete[] d3;
 }
 #endif
+
+// Restore compiler warnings
+#pragma GCC diagnostic pop

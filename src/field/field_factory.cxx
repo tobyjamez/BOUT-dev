@@ -53,7 +53,8 @@ FieldFactory::FieldFactory(Mesh * localmesh, Options *opt) : fieldmesh(localmesh
 
   // Useful values
   addGenerator("pi", std::make_shared<FieldValue>(PI));
-
+  addGenerator("π", std::make_shared<FieldValue>(PI));
+  
   // Some standard functions
   addGenerator("sin", std::make_shared<FieldSin>(nullptr));
   addGenerator("cos", std::make_shared<FieldCos>(nullptr));
@@ -74,6 +75,7 @@ FieldFactory::FieldFactory(Mesh * localmesh, Options *opt) : fieldmesh(localmesh
   addGenerator("sqrt", std::make_shared<FieldSqrt>(nullptr));
   addGenerator("h", std::make_shared<FieldHeaviside>(nullptr));
   addGenerator("erf", std::make_shared<FieldErf>(nullptr));
+  addGenerator("fmod", std::make_shared<FieldGenTwoArg<fmod>>(nullptr, nullptr));
 
   addGenerator("min", std::make_shared<FieldMin>());
   addGenerator("max", std::make_shared<FieldMax>());

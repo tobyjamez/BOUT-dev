@@ -32,7 +32,6 @@
 
 #include <field2d.hxx>
 
-#include <flexible.hxx>
 #include <utils.hxx>
 
 #include <boundary_op.hxx>
@@ -46,7 +45,7 @@
 
 #include <bout/assert.hxx>
 
-Field2D::Field2D(Mesh *localmesh) : Field(localmesh), location(CELL_CENTRE), deriv(nullptr) {
+Field2D::Field2D(Mesh *localmesh) : Field(localmesh), deriv(nullptr) {
 
   boundaryIsSet = false;
 
@@ -68,7 +67,6 @@ Field2D::Field2D(Mesh *localmesh) : Field(localmesh), location(CELL_CENTRE), der
 
 Field2D::Field2D(const Field2D& f) : Field(f.fieldmesh), // The mesh containing array sizes
                                      data(f.data), // This handles references to the data array
-				     location(f.location),
                                      deriv(nullptr) {
   TRACE("Field2D(Field2D&)");
 
@@ -94,7 +92,7 @@ Field2D::Field2D(const Field2D& f) : Field(f.fieldmesh), // The mesh containing 
   boundaryIsSet = false;
 }
 
-Field2D::Field2D(BoutReal val, Mesh *localmesh) : Field(localmesh), location(CELL_CENTRE), deriv(nullptr) {
+Field2D::Field2D(BoutReal val, Mesh *localmesh) : Field(localmesh), deriv(nullptr) {
   boundaryIsSet = false;
 
   nx = fieldmesh->LocalNx;
@@ -176,33 +174,6 @@ const IndexRange Field2D::region(REGION rgn) const {
   };
 }
 
-void Field2D::setLocation(CELL_LOC new_location) {
-  if (getMesh()->StaggerGrids) {
-    if (new_location == CELL_VSHIFT) {
-      throw BoutException(
-          "Field3D: CELL_VSHIFT cell location only makes sense for vectors");
-    }
-    if (new_location == CELL_DEFAULT) {
-      new_location = CELL_CENTRE;
-    }
-    location = new_location;
-  } else {
-#if CHECK > 0
-    if (new_location != CELL_CENTRE && new_location != CELL_DEFAULT) {
-      throw BoutException("Field2D: Trying to set off-centre location on "
-                          "non-staggered grid\n"
-                          "         Did you mean to enable staggerGrids?");
-    }
-#endif
-    location = CELL_CENTRE;
-  }
-}
-
-CELL_LOC Field2D::getLocation() const {
-  return location;
-}
-
-// Not in header because we need to access fieldmesh
 BoutReal& Field2D::operator[](const Ind3D &d) {
   return operator[](fieldmesh->map3Dto2D(d));
 }
@@ -234,9 +205,6 @@ Field2D &Field2D::operator=(const Field2D &rhs) {
   // Copy reference to data
   data = rhs.data;
 
-  // Copy location
-  location = rhs.location;
-
   return *this;
 }
 
@@ -256,22 +224,6 @@ Field2D &Field2D::operator=(const BoutReal rhs) {
     (*this)[i] = rhs;
 
   return *this;
-}
-
-Field2D & Field2D::operator+=(const Flexible<Field2D> &rhs) {
-  return *this += rhs.get(location);
-}
-
-Field2D & Field2D::operator-=(const Flexible<Field2D> &rhs) {
-  return *this -= rhs.get(location);
-}
-
-Field2D & Field2D::operator*=(const Flexible<Field2D> &rhs) {
-  return *this *= rhs.get(location);
-}
-
-Field2D & Field2D::operator/=(const Flexible<Field2D> &rhs) {
-  return *this /= rhs.get(location);
 }
 
 ///////////////////// BOUNDARY CONDITIONS //////////////////
@@ -486,7 +438,6 @@ bool finite(const Field2D &f, REGION rgn) {
     for (const auto &d : result.region(rgn)) {                                           \
       result[d] = func(f[d]);                                                            \
     }                                                                                    \
-    result.setLocation(f.getLocation());                                                 \
     checkData(result);                                                                   \
     return result;                                                                       \
   }
@@ -527,7 +478,6 @@ Field2D pow(const Field2D &lhs, const Field2D &rhs, REGION rgn) {
   // Check if the inputs are allocated
   ASSERT1(lhs.isAllocated());
   ASSERT1(rhs.isAllocated());
-  ASSERT1(lhs.getLocation() == rhs.getLocation());
 
   // Define and allocate the output result
   ASSERT1(lhs.getMesh() == rhs.getMesh());
@@ -538,8 +488,6 @@ Field2D pow(const Field2D &lhs, const Field2D &rhs, REGION rgn) {
   for(const auto& i: result.region(rgn)) {
     result[i] = ::pow(lhs[i], rhs[i]);
   }
-
-  result.setLocation(lhs.getLocation());
 
   checkData(result);
   return result;
@@ -559,8 +507,6 @@ Field2D pow(const Field2D &lhs, BoutReal rhs, REGION rgn) {
     result[i] = ::pow(lhs[i], rhs);
   }
 
-  result.setLocation(lhs.getLocation());
-
   checkData(result);
   return result;
 }
@@ -578,8 +524,6 @@ Field2D pow(BoutReal lhs, const Field2D &rhs, REGION rgn) {
   for(const auto& i: result.region(rgn)) {
     result[i] = ::pow(lhs, rhs[i]);
   }
-
-  result.setLocation(rhs.getLocation());
 
   checkData(result);
   return result;

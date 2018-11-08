@@ -30,7 +30,6 @@ class Mesh;  // #include "bout/mesh.hxx"
 #include "field.hxx"
 #include "field2d.hxx"
 #include "fieldperp.hxx"
-template <typename F> class Flexible;
 #include "stencils.hxx"
 #include "bout_types.hxx"
 
@@ -338,7 +337,7 @@ class Field3D : public Field, public FieldData {
   const BoutReal& operator[](const DataIterator &d) const {
     return operator()(d.x, d.y, d.z);
   }
-  BoutReal& operator[](const Indices &i) override {
+  BoutReal& operator[](const Indices &i) {
     return operator()(i.x, i.y, i.z);
   }
   const BoutReal& operator[](const Indices &i) const override {
@@ -441,10 +440,6 @@ class Field3D : public Field, public FieldData {
   ///@{
   Field3D & operator+=(const Field3D &rhs);
   Field3D & operator+=(const Field2D &rhs);
-  template <typename F>
-  Field3D & operator+=(const Flexible<F> &rhs) {
-    return *this += rhs.get(location);
-  };
   Field3D & operator+=(BoutReal rhs);
   ///@}
   
@@ -452,10 +447,6 @@ class Field3D : public Field, public FieldData {
   ///@{
   Field3D & operator-=(const Field3D &rhs);
   Field3D & operator-=(const Field2D &rhs);
-  template <typename F>
-  Field3D & operator-=(const Flexible<F> &rhs) {
-    return *this -= rhs.get(location);
-  };
   Field3D & operator-=(BoutReal rhs);
   ///@}
 
@@ -463,10 +454,6 @@ class Field3D : public Field, public FieldData {
   ///@{
   Field3D & operator*=(const Field3D &rhs);
   Field3D & operator*=(const Field2D &rhs);
-  template <typename F>
-  Field3D & operator*=(const Flexible<F> &rhs) {
-    return *this *= rhs.get(location);
-  };
   Field3D & operator*=(BoutReal rhs);
   ///@}
 
@@ -474,10 +461,6 @@ class Field3D : public Field, public FieldData {
   ///@{
   Field3D & operator/=(const Field3D &rhs);
   Field3D & operator/=(const Field2D &rhs);
-  template <typename F>
-  Field3D & operator/=(const Flexible<F> &rhs) {
-    return *this /= rhs.get(location);
-  };
   Field3D & operator/=(BoutReal rhs);
   ///@}
   

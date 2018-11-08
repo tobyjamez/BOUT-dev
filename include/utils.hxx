@@ -36,7 +36,6 @@
 #include "bout/array.hxx"
 #include "bout/assert.hxx"
 #include "bout/deprecated.hxx"
-#include "flexible.hxx"
 #include "msg_stack.hxx"
 #include "unused.hxx"
 
@@ -358,10 +357,6 @@ inline BoutReal randomu() {
 template <typename T>
 T SQ(const T &t){
   return t*t;
-}
-template <typename T>
-T SQ(Flexible<T> &t) {
-  return SQ(t.get(CELL_DEFAULT));
 }
 
 /*!

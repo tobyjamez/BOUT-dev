@@ -767,7 +767,7 @@ def print_interp_to_do_code_nonuniform(header=False):
     result.allocate();
 
     if (! stencil_{{direction}}_{{onoff}}.isSet) {
-            const Field2D & dy = coords->d{{direction}};
+            const Field2D & dy = const_cast<AiolosMesh*>(this)->getCoordinates()->d{{direction}};
        const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}} = Stencil<Field2D>(const_cast<AiolosMesh*>(this));
 {% for i in ["c1", "c2", "c3", "c4"] %}
           const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}.allocate();

@@ -274,7 +274,7 @@ const Field3D Mesh::interp_to(const Field3D &var, CELL_LOC loc, REGION region)
   return result;
 }
 
-const Field2D interp_to(const Field2D &var, CELL_LOC loc, REGION region) {
+const Field2D Mesh::interp_to(const Field2D &var, CELL_LOC loc, REGION region) {
 
   Mesh *fieldmesh = var.getMesh();
   Field2D result(fieldmesh);
@@ -421,11 +421,6 @@ const Field2D interp_to(const Field2D &var, CELL_LOC loc, REGION region) {
   // references to the var data whilst returning result doesn't
   result = var;
   return result;
-}
-
-const Field2D Mesh::interp_to(const Field2D &var, CELL_LOC UNUSED(loc), REGION UNUSED(region)) {
-  // Currently do nothing
-  return var;
 }
 
 void printLocation(const Field3D &var) { output.write(strLocation(var.getLocation())); }

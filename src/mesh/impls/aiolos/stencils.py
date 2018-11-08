@@ -540,7 +540,8 @@ def float_to_string_with_sign(val):
             val *= -1
             ret += "-"
         if staticCastFloat:
-            ret += "static_cast<const BoutReal>"
+            #ret += "static_cast<const BoutReal>"
+            pass
         ret += "("
         ret += "%d." % val.numerator
         ret += "/%d." % val.denominator
@@ -659,12 +660,12 @@ def print_interp_to_do():
             print("    case CELL_%sLOW:"%d.upper())
             if not d == 'z':
                 with braces("      if (is_%s_uniform == 2)"%d):
-                    print("        const_cast<AiolosMesh*>(this)->is_%s_uniform = min(localmesh->coordinates()->d%s,false,RGN_ALL) == max(localmesh->coordinates()->d%s,false,RGN_ALL);"%(d,d,d))
+                    print("        const_cast<AiolosMesh*>(this)->is_%s_uniform = min(localmesh->getCoordinates()->d%s,false,RGN_ALL) == max(localmesh->getCoordinates()->d%s,false,RGN_ALL);"%(d,d,d))
             with braces("      if (is_%s_uniform)"%d):
                 print("  Field3D result(localmesh);")
                 print("  result.allocate();")
                 if not use_field_operator:
-                    print("  Indices i0{0,0,0};")
+                    print("  Ind3D i0{0,0,0};")
                 with braces("  if (f.getLocation() != CELL_CENTRE)"):
                     print("    // we first need to go back to centre before we can go anywhere else")
                     if use_field_operator:
@@ -749,9 +750,9 @@ def print_interp_to_do_code_nonuniform(header=False):
                     nz = '0'
 
                 if direction == 'x':
-                    return "{%s, %s - 1, 0,  LocalNy - 1, 0, %s}"%(start,end,nz)
+                    return " Region<Ind3D>(%s, %s - 1, 0,  LocalNy - 1, 0, %s,LocalNy,LocalNz, maxregionblocksize)"%(start,end,nz)
                 else:
-                    return "{0, LocalNx - 1, %s,  %s - 1, 0, %s}"%(start,end,nz)
+                    return " Region<Ind3D>(0, LocalNx - 1, %s,  %s - 1, 0, %s,LocalNy,LocalNz, maxregionblocksize)"%(start,end,nz)
 
             kwargs['d02']=dataiterator(direction, 0, 1)
             kwargs['d12']=dataiterator(direction, 1, 2)
@@ -773,7 +774,8 @@ def print_interp_to_do_code_nonuniform(header=False):
           const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}.allocate();
 {% endfor %}
 {% if onoff == 'CtoL' %}
-    for (DataIterator di {{d02}};! di.done() ; di ++) {
+    BOUT_FOR (di,  {{d02}}) {
+    //for (auto di, {{d02}};! di.done() ; di ++) {
         auto a = 0.5 * dy[di];
         auto b = dy[di] + 0.5 * dy[di.{{direction}}p()];
         auto c = dy[di] + dy[di.{{direction}}p()] + 0.5 * dy[di.{{direction}}pp()];
@@ -783,7 +785,7 @@ def print_interp_to_do_code_nonuniform(header=False):
         const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}[di]=sten.{{i}};
 {% endfor %}
     }
-    for (DataIterator di {{d12}};! di.done() ; di ++) {
+    BOUT_FOR(di,{{d12}}){
         auto a = -0.5 * dy[di.{{direction}}m()];
         auto b = 0.5 * dy[di];
         auto c = dy[di] + 0.5 * dy[di.{{direction}}p()];
@@ -793,7 +795,7 @@ def print_interp_to_do_code_nonuniform(header=False):
         const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}[di]=sten.{{i}};
 {% endfor %}
     }
-    for (DataIterator di {{dm12}};! di.done() ; di ++) {
+    BOUT_FOR(di,{{dm12}}){
         auto a = -0.5 * dy[di.{{direction}}m(3)] - dy[di.{{direction}}m(2)] - dy[di.{{direction}}m()];
         auto b = -0.5 * dy[di.{{direction}}mm()] - dy[di.{{direction}}m()];
         auto c = -0.5 * dy[di.{{direction}}m()];
@@ -804,7 +806,7 @@ def print_interp_to_do_code_nonuniform(header=False):
 {% endfor %}
     }
 {% else %} //////////////////////// L -> C
-    for (DataIterator di {{d02}};! di.done() ; di ++) {
+    BOUT_FOR(di,{{d02}}){
         auto b = 0.5 * dy[di];
         auto a = -b;
         auto c = b + dy[di.{{direction}}p()];
@@ -814,7 +816,7 @@ def print_interp_to_do_code_nonuniform(header=False):
           const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}[di]=sten.{{i}};
 {% endfor %}
     }
-    for (DataIterator di {{dm22}};! di.done() ; di ++) {
+    BOUT_FOR(di,{{dm22}}){
         auto d = 0.5 * dy[di];
         auto c = -d;
         auto b = c - dy[di.{{direction}}m()];
@@ -824,7 +826,7 @@ def print_interp_to_do_code_nonuniform(header=False):
         const_cast<AiolosMesh*>(this)->stencil_{{direction}}_{{onoff}}.{{i}}[di]=sten.{{i}};
 {% endfor %}
     }
-    for (DataIterator di {{dm12}};! di.done() ; di ++) {
+    BOUT_FOR(di,{{dm12}}) {
         auto d = -0.5 * dy[di];
         auto c = d - dy[di.{{direction}}m()];
         auto b = c - dy[di.{{direction}}m(2)];
@@ -835,7 +837,7 @@ def print_interp_to_do_code_nonuniform(header=False):
 {% endfor %}
     }
 {% endif %}
-    for (DataIterator di {{dn2}} ; ! di.done(); ++di) {
+    BOUT_FOR(di,{{dn2}} ) {
 {% if onoff == 'CtoL' %}
         auto a = -0.5 * dy[di.{{direction}}mm()] - dy[di.{{direction}}m()];
         auto b = -0.5 * dy[di.{{direction}}m()];
@@ -853,9 +855,9 @@ def print_interp_to_do_code_nonuniform(header=False):
 {% endfor %}
       }
     }
-    for (DataIterator di{{d03}} ;!di.done();++di) {
-        Indices c1,c2,c3,c4 {di.x,di.y,di.z};
-        c1=c2=c3=c4;
+    BOUT_FOR(di, {{d03}} ) {
+        Indices c4 {di};
+        Indices c1{c4}, c2{c4}, c3{c4};
         c1.{{direction}} = 0;
         c2.{{direction}} = 1;
         c3.{{direction}} = 2;
@@ -865,16 +867,16 @@ def print_interp_to_do_code_nonuniform(header=False):
             + stencil_{{direction}}_{{onoff}}.{{c}}[di] * in[{{c}}]
 {% endfor %}
     ;  }
-    for (DataIterator di{{dn3}};!di.done();++di) {
+    BOUT_FOR(di, {{dn3}}) {
       result[di] = 
 {% for c,i in [["c1",i1], ["c2",i2], ["c3",i3], ["c4",i4]] %}
             + stencil_{{direction}}_{{onoff}}.{{c}}[di] * in[di{{i}}]
 {% endfor %}
     ;
     }
-    for (DataIterator di{{dm3}} ;!di.done();++di) {
-        Indices c1,c2,c3,c4 {di.x,di.y,di.z};
-        c1=c2=c3=c4;
+    BOUT_FOR(di, {{dm3}}) {
+        Indices c4 {di};
+        Indices c1{c4}, c2{c4}, c3{c4};
         c1.{{direction}} = LocalN{{direction}} - 4;
         c2.{{direction}} = LocalN{{direction}} - 3;
         c3.{{direction}} = LocalN{{direction}} - 2;

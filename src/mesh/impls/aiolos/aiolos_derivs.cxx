@@ -24,7 +24,7 @@
 #include "aiolosmesh.hxx"
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDX_norm(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexDDX_norm(const Field3D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_First][0];
@@ -55,7 +55,7 @@ const Field3D AiolosMesh::indexDDX_norm(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDY_norm(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexDDY_norm(const Field3D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_First][1];
@@ -86,7 +86,7 @@ const Field3D AiolosMesh::indexDDY_norm(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDZ_norm(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexDDZ_norm(const Field3D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_First][2];
@@ -117,7 +117,7 @@ const Field3D AiolosMesh::indexDDZ_norm(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexDDX_norm(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexDDX_norm(const Field2D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_First][0];
@@ -148,7 +148,7 @@ const Field2D AiolosMesh::indexDDX_norm(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexDDY_norm(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexDDY_norm(const Field2D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_First][1];
@@ -179,7 +179,7 @@ const Field2D AiolosMesh::indexDDY_norm(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DX2_norm(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DX2_norm(const Field3D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Second][0];
@@ -202,7 +202,7 @@ const Field3D AiolosMesh::indexD2DX2_norm(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DY2_norm(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DY2_norm(const Field3D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Second][1];
@@ -225,7 +225,7 @@ const Field3D AiolosMesh::indexD2DY2_norm(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DZ2_norm(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DZ2_norm(const Field3D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Second][2];
@@ -248,7 +248,7 @@ const Field3D AiolosMesh::indexD2DZ2_norm(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexD2DX2_norm(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexD2DX2_norm(const Field2D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Second][0];
@@ -271,7 +271,7 @@ const Field2D AiolosMesh::indexD2DX2_norm(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexD2DY2_norm(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexD2DY2_norm(const Field2D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Second][1];
@@ -294,7 +294,7 @@ const Field2D AiolosMesh::indexD2DY2_norm(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDX_norm(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexVDDX_norm(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Upwind][0];
@@ -329,7 +329,7 @@ const Field3D AiolosMesh::indexVDDX_norm(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDY_norm(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexVDDY_norm(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Upwind][1];
@@ -364,7 +364,7 @@ const Field3D AiolosMesh::indexVDDY_norm(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDZ_norm(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexVDDZ_norm(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Upwind][2];
@@ -399,7 +399,7 @@ const Field3D AiolosMesh::indexVDDZ_norm(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexVDDX_norm(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexVDDX_norm(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Upwind][0];
@@ -434,7 +434,7 @@ const Field2D AiolosMesh::indexVDDX_norm(const Field2D &v, const Field2D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexVDDY_norm(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexVDDY_norm(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Upwind][1];
@@ -469,7 +469,7 @@ const Field2D AiolosMesh::indexVDDY_norm(const Field2D &v, const Field2D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDX_norm(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexFDDX_norm(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Flux][0];
@@ -496,7 +496,7 @@ const Field3D AiolosMesh::indexFDDX_norm(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDY_norm(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexFDDY_norm(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Flux][1];
@@ -523,7 +523,7 @@ const Field3D AiolosMesh::indexFDDY_norm(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDZ_norm(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexFDDZ_norm(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Flux][2];
@@ -550,7 +550,7 @@ const Field3D AiolosMesh::indexFDDZ_norm(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexFDDX_norm(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexFDDX_norm(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Flux][0];
@@ -577,7 +577,7 @@ const Field2D AiolosMesh::indexFDDX_norm(const Field2D &v, const Field2D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexFDDY_norm(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexFDDY_norm(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_Flux][1];
@@ -604,7 +604,7 @@ const Field2D AiolosMesh::indexFDDY_norm(const Field2D &v, const Field2D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDX_CtoL(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexDDX_CtoL(const Field3D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FirstStag][0];
@@ -627,7 +627,7 @@ const Field3D AiolosMesh::indexDDX_CtoL(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDX_LtoC(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexDDX_LtoC(const Field3D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FirstStag][0];
@@ -650,7 +650,7 @@ const Field3D AiolosMesh::indexDDX_LtoC(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDY_CtoL(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexDDY_CtoL(const Field3D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FirstStag][1];
@@ -673,7 +673,7 @@ const Field3D AiolosMesh::indexDDY_CtoL(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDY_LtoC(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexDDY_LtoC(const Field3D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FirstStag][1];
@@ -696,7 +696,7 @@ const Field3D AiolosMesh::indexDDY_LtoC(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDZ_CtoL(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexDDZ_CtoL(const Field3D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FirstStag][2];
@@ -719,7 +719,7 @@ const Field3D AiolosMesh::indexDDZ_CtoL(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDZ_LtoC(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexDDZ_LtoC(const Field3D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FirstStag][2];
@@ -742,7 +742,7 @@ const Field3D AiolosMesh::indexDDZ_LtoC(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexDDX_CtoL(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexDDX_CtoL(const Field2D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FirstStag][0];
@@ -765,7 +765,7 @@ const Field2D AiolosMesh::indexDDX_CtoL(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexDDX_LtoC(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexDDX_LtoC(const Field2D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FirstStag][0];
@@ -788,7 +788,7 @@ const Field2D AiolosMesh::indexDDX_LtoC(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexDDY_CtoL(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexDDY_CtoL(const Field2D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FirstStag][1];
@@ -811,7 +811,7 @@ const Field2D AiolosMesh::indexDDY_CtoL(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexDDY_LtoC(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexDDY_LtoC(const Field2D& f, CELL_LOC outloc,
                                         DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FirstStag][1];
@@ -834,7 +834,7 @@ const Field2D AiolosMesh::indexDDY_LtoC(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DX2_CtoL(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DX2_CtoL(const Field3D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_SecondStag][0];
@@ -853,7 +853,7 @@ const Field3D AiolosMesh::indexD2DX2_CtoL(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DX2_LtoC(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DX2_LtoC(const Field3D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_SecondStag][0];
@@ -872,7 +872,7 @@ const Field3D AiolosMesh::indexD2DX2_LtoC(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DY2_CtoL(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DY2_CtoL(const Field3D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_SecondStag][1];
@@ -891,7 +891,7 @@ const Field3D AiolosMesh::indexD2DY2_CtoL(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DY2_LtoC(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DY2_LtoC(const Field3D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_SecondStag][1];
@@ -910,7 +910,7 @@ const Field3D AiolosMesh::indexD2DY2_LtoC(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DZ2_CtoL(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DZ2_CtoL(const Field3D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_SecondStag][2];
@@ -929,7 +929,7 @@ const Field3D AiolosMesh::indexD2DZ2_CtoL(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DZ2_LtoC(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DZ2_LtoC(const Field3D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_SecondStag][2];
@@ -948,7 +948,7 @@ const Field3D AiolosMesh::indexD2DZ2_LtoC(const Field3D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexD2DX2_CtoL(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexD2DX2_CtoL(const Field2D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_SecondStag][0];
@@ -967,7 +967,7 @@ const Field2D AiolosMesh::indexD2DX2_CtoL(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexD2DX2_LtoC(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexD2DX2_LtoC(const Field2D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_SecondStag][0];
@@ -986,7 +986,7 @@ const Field2D AiolosMesh::indexD2DX2_LtoC(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexD2DY2_CtoL(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexD2DY2_CtoL(const Field2D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_SecondStag][1];
@@ -1005,7 +1005,7 @@ const Field2D AiolosMesh::indexD2DY2_CtoL(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexD2DY2_LtoC(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexD2DY2_LtoC(const Field2D& f, CELL_LOC outloc,
                                           DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_SecondStag][1];
@@ -1024,7 +1024,7 @@ const Field2D AiolosMesh::indexD2DY2_LtoC(const Field2D &f, CELL_LOC outloc,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDX_CtoL(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexVDDX_CtoL(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_UpwindStag][0];
@@ -1055,7 +1055,7 @@ const Field3D AiolosMesh::indexVDDX_CtoL(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDX_LtoC(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexVDDX_LtoC(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_UpwindStag][0];
@@ -1086,7 +1086,7 @@ const Field3D AiolosMesh::indexVDDX_LtoC(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDY_CtoL(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexVDDY_CtoL(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_UpwindStag][1];
@@ -1117,7 +1117,7 @@ const Field3D AiolosMesh::indexVDDY_CtoL(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDY_LtoC(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexVDDY_LtoC(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_UpwindStag][1];
@@ -1148,7 +1148,7 @@ const Field3D AiolosMesh::indexVDDY_LtoC(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDZ_CtoL(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexVDDZ_CtoL(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_UpwindStag][2];
@@ -1179,7 +1179,7 @@ const Field3D AiolosMesh::indexVDDZ_CtoL(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDZ_LtoC(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexVDDZ_LtoC(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_UpwindStag][2];
@@ -1210,7 +1210,7 @@ const Field3D AiolosMesh::indexVDDZ_LtoC(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexVDDX_CtoL(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexVDDX_CtoL(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_UpwindStag][0];
@@ -1241,7 +1241,7 @@ const Field2D AiolosMesh::indexVDDX_CtoL(const Field2D &v, const Field2D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexVDDX_LtoC(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexVDDX_LtoC(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_UpwindStag][0];
@@ -1272,7 +1272,7 @@ const Field2D AiolosMesh::indexVDDX_LtoC(const Field2D &v, const Field2D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexVDDY_CtoL(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexVDDY_CtoL(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_UpwindStag][1];
@@ -1303,7 +1303,7 @@ const Field2D AiolosMesh::indexVDDY_CtoL(const Field2D &v, const Field2D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexVDDY_LtoC(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexVDDY_LtoC(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_UpwindStag][1];
@@ -1334,7 +1334,7 @@ const Field2D AiolosMesh::indexVDDY_LtoC(const Field2D &v, const Field2D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDX_CtoL(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexFDDX_CtoL(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FluxStag][0];
@@ -1353,7 +1353,7 @@ const Field3D AiolosMesh::indexFDDX_CtoL(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDX_LtoC(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexFDDX_LtoC(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FluxStag][0];
@@ -1372,7 +1372,7 @@ const Field3D AiolosMesh::indexFDDX_LtoC(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDY_CtoL(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexFDDY_CtoL(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FluxStag][1];
@@ -1391,7 +1391,7 @@ const Field3D AiolosMesh::indexFDDY_CtoL(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDY_LtoC(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexFDDY_LtoC(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FluxStag][1];
@@ -1410,7 +1410,7 @@ const Field3D AiolosMesh::indexFDDY_LtoC(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDZ_CtoL(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexFDDZ_CtoL(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FluxStag][2];
@@ -1429,7 +1429,7 @@ const Field3D AiolosMesh::indexFDDZ_CtoL(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDZ_LtoC(const Field3D &v, const Field3D &f,
+const Field3D AiolosMesh::indexFDDZ_LtoC(const Field3D& v, const Field3D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FluxStag][2];
@@ -1448,7 +1448,7 @@ const Field3D AiolosMesh::indexFDDZ_LtoC(const Field3D &v, const Field3D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexFDDX_CtoL(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexFDDX_CtoL(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FluxStag][0];
@@ -1467,7 +1467,7 @@ const Field2D AiolosMesh::indexFDDX_CtoL(const Field2D &v, const Field2D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexFDDX_LtoC(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexFDDX_LtoC(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FluxStag][0];
@@ -1486,7 +1486,7 @@ const Field2D AiolosMesh::indexFDDX_LtoC(const Field2D &v, const Field2D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexFDDY_CtoL(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexFDDY_CtoL(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FluxStag][1];
@@ -1505,7 +1505,7 @@ const Field2D AiolosMesh::indexFDDY_CtoL(const Field2D &v, const Field2D &f,
 }
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexFDDY_LtoC(const Field2D &v, const Field2D &f,
+const Field2D AiolosMesh::indexFDDY_LtoC(const Field2D& v, const Field2D& f,
                                          CELL_LOC outloc, DIFF_METHOD method) const {
   if (method == DIFF_DEFAULT) {
     method = default_stencil[AIOLOS_FluxStag][1];
@@ -1527,7 +1527,7 @@ const Field2D AiolosMesh::indexFDDY_LtoC(const Field2D &v, const Field2D &f,
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDX(const Field3D &f, CELL_LOC outloc, DIFF_METHOD method,
+const Field3D AiolosMesh::indexDDX(const Field3D& f, CELL_LOC outloc, DIFF_METHOD method,
                                    REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1555,7 +1555,7 @@ const Field3D AiolosMesh::indexDDX(const Field3D &f, CELL_LOC outloc, DIFF_METHO
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDY(const Field3D &f, CELL_LOC outloc, DIFF_METHOD method,
+const Field3D AiolosMesh::indexDDY(const Field3D& f, CELL_LOC outloc, DIFF_METHOD method,
                                    REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1583,7 +1583,7 @@ const Field3D AiolosMesh::indexDDY(const Field3D &f, CELL_LOC outloc, DIFF_METHO
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexDDZ(const Field3D &f, CELL_LOC outloc, DIFF_METHOD method,
+const Field3D AiolosMesh::indexDDZ(const Field3D& f, CELL_LOC outloc, DIFF_METHOD method,
                                    REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1611,7 +1611,7 @@ const Field3D AiolosMesh::indexDDZ(const Field3D &f, CELL_LOC outloc, DIFF_METHO
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexDDX(const Field2D &f, CELL_LOC outloc, DIFF_METHOD method,
+const Field2D AiolosMesh::indexDDX(const Field2D& f, CELL_LOC outloc, DIFF_METHOD method,
                                    REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1639,7 +1639,7 @@ const Field2D AiolosMesh::indexDDX(const Field2D &f, CELL_LOC outloc, DIFF_METHO
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexDDY(const Field2D &f, CELL_LOC outloc, DIFF_METHOD method,
+const Field2D AiolosMesh::indexDDY(const Field2D& f, CELL_LOC outloc, DIFF_METHOD method,
                                    REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1667,7 +1667,7 @@ const Field2D AiolosMesh::indexDDY(const Field2D &f, CELL_LOC outloc, DIFF_METHO
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DX2(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DX2(const Field3D& f, CELL_LOC outloc,
                                      DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1695,7 +1695,7 @@ const Field3D AiolosMesh::indexD2DX2(const Field3D &f, CELL_LOC outloc,
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DY2(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DY2(const Field3D& f, CELL_LOC outloc,
                                      DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1723,7 +1723,7 @@ const Field3D AiolosMesh::indexD2DY2(const Field3D &f, CELL_LOC outloc,
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexD2DZ2(const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexD2DZ2(const Field3D& f, CELL_LOC outloc,
                                      DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1751,7 +1751,7 @@ const Field3D AiolosMesh::indexD2DZ2(const Field3D &f, CELL_LOC outloc,
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexD2DX2(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexD2DX2(const Field2D& f, CELL_LOC outloc,
                                      DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1779,7 +1779,7 @@ const Field2D AiolosMesh::indexD2DX2(const Field2D &f, CELL_LOC outloc,
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexD2DY2(const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexD2DY2(const Field2D& f, CELL_LOC outloc,
                                      DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1807,7 +1807,7 @@ const Field2D AiolosMesh::indexD2DY2(const Field2D &f, CELL_LOC outloc,
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDX(const Field3D &v, const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexVDDX(const Field3D& v, const Field3D& f, CELL_LOC outloc,
                                     DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1839,7 +1839,7 @@ const Field3D AiolosMesh::indexVDDX(const Field3D &v, const Field3D &f, CELL_LOC
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDY(const Field3D &v, const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexVDDY(const Field3D& v, const Field3D& f, CELL_LOC outloc,
                                     DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1871,7 +1871,7 @@ const Field3D AiolosMesh::indexVDDY(const Field3D &v, const Field3D &f, CELL_LOC
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexVDDZ(const Field3D &v, const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexVDDZ(const Field3D& v, const Field3D& f, CELL_LOC outloc,
                                     DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1903,7 +1903,7 @@ const Field3D AiolosMesh::indexVDDZ(const Field3D &v, const Field3D &f, CELL_LOC
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexVDDX(const Field2D &v, const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexVDDX(const Field2D& v, const Field2D& f, CELL_LOC outloc,
                                     DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1935,7 +1935,7 @@ const Field2D AiolosMesh::indexVDDX(const Field2D &v, const Field2D &f, CELL_LOC
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexVDDY(const Field2D &v, const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexVDDY(const Field2D& v, const Field2D& f, CELL_LOC outloc,
                                     DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1967,7 +1967,7 @@ const Field2D AiolosMesh::indexVDDY(const Field2D &v, const Field2D &f, CELL_LOC
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDX(const Field3D &v, const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexFDDX(const Field3D& v, const Field3D& f, CELL_LOC outloc,
                                     DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -1999,7 +1999,7 @@ const Field3D AiolosMesh::indexFDDX(const Field3D &v, const Field3D &f, CELL_LOC
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDY(const Field3D &v, const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexFDDY(const Field3D& v, const Field3D& f, CELL_LOC outloc,
                                     DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -2031,7 +2031,7 @@ const Field3D AiolosMesh::indexFDDY(const Field3D &v, const Field3D &f, CELL_LOC
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field3D AiolosMesh::indexFDDZ(const Field3D &v, const Field3D &f, CELL_LOC outloc,
+const Field3D AiolosMesh::indexFDDZ(const Field3D& v, const Field3D& f, CELL_LOC outloc,
                                     DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -2063,7 +2063,7 @@ const Field3D AiolosMesh::indexFDDZ(const Field3D &v, const Field3D &f, CELL_LOC
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexFDDX(const Field2D &v, const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexFDDX(const Field2D& v, const Field2D& f, CELL_LOC outloc,
                                     DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();
@@ -2095,7 +2095,7 @@ const Field2D AiolosMesh::indexFDDX(const Field2D &v, const Field2D &f, CELL_LOC
 // staggered derivative or a non-staaggered derivative
 
 // This file is auto-generated - do not edit!
-const Field2D AiolosMesh::indexFDDY(const Field2D &v, const Field2D &f, CELL_LOC outloc,
+const Field2D AiolosMesh::indexFDDY(const Field2D& v, const Field2D& f, CELL_LOC outloc,
                                     DIFF_METHOD method, REGION ignored) {
   if (outloc == CELL_DEFAULT) {
     outloc = f.getLocation();

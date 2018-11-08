@@ -22,6 +22,7 @@
 
 #include "aiolos_init.hxx"
 #include "aiolosmesh.hxx"
+
 #include <output.hxx>
 #include <strings.h>
 
@@ -29,24 +30,24 @@
 DIFF_METHOD default_stencil[8][3];
 
 struct available_stencils {
-  const char *key;
-  const char *desc;
+  const char* key;
+  const char* desc;
   DIFF_METHOD method;
 };
 
 struct stencils_to_check {
   int id;
-  const char *desc;
-  const char *default_;
+  const char* desc;
+  const char* default_;
   std::vector<available_stencils> available;
-  const char *error;
-  std::vector<const char *> option_names;
+  const char* error;
+  std::vector<const char*> option_names;
 };
 
-void AiolosMesh::derivs_init(Options *option) {
+void AiolosMesh::derivs_init(Options* option) {
   std::string name;
-  Options *dirOption;
-  Options *defOption = option->getSection("diff");
+  Options* dirOption;
+  Options* defOption = option->getSection("diff");
   for (int di : {0, 1, 2}) {
     const char *dds, *d_str;
     bool found;
@@ -226,12 +227,12 @@ void AiolosMesh::derivs_init(Options *option) {
     };
 
     // This file is auto-generated - do not edit!
-    for (const auto &diff_type : diff_types) {
+    for (const auto& diff_type : diff_types) {
       output_debug.write("Setting derivative for %s and %s", dds, diff_type.desc);
       name = diff_type.default_;
       found = false;
       for (auto opt : {dirOption, defOption}) {
-        for (const auto &strf : diff_type.option_names) {
+        for (const auto& strf : diff_type.option_names) {
           if (opt->isSet(strf)) {
             opt->get(strf, name, diff_type.default_);
             found = true;
@@ -242,7 +243,7 @@ void AiolosMesh::derivs_init(Options *option) {
           break;
       }
       found = false;
-      for (const auto &stencil : diff_type.available) {
+      for (const auto& stencil : diff_type.available) {
         if (!found) {
           if (strcasecmp(name.c_str(), stencil.key) == 0) {
             default_stencil[diff_type.id][di] = stencil.method;

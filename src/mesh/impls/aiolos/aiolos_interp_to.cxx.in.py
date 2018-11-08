@@ -5,6 +5,7 @@ import stencils
 print("""
 #include "aiolosmesh.hxx"
 #include <interpolation.hxx>
+#include "bout/region.hxx"
 """)
 
 from common import license

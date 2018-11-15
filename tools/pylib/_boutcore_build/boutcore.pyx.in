@@ -761,6 +761,9 @@ cdef class Coordinates:
     cdef c.Coordinates * cobj
     cdef public Field2D dx, dy
     cdef public double dz
+    """
+    The grid spacing in z direction
+    """
     cdef public Field2D J
     cdef public Field2D Bxy
     cdef public Field2D g11, g22, g33, g12, g13, g23

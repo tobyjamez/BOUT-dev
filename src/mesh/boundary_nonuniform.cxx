@@ -1,7 +1,4 @@
-#include "boundary_nonuniform.hxx"
-
 #include <bout/constants.hxx>
-
 #include <boundary_standard.hxx>
 #include <boutexception.hxx>
 #include <derivs.hxx>
@@ -11,6 +8,8 @@
 #include <msg_stack.hxx>
 #include <output.hxx>
 #include <utils.hxx>
+
+#include "boundary_nonuniform.hxx"
 
 void BoundaryDirichletNonUniform_O1::apply(Field3D& f, BoutReal t) {
   bndry->first();
@@ -108,7 +107,7 @@ void BoundaryDirichletNonUniform_O1::apply(Field3D& f, BoutReal t) {
 }
 
 BoundaryOp* BoundaryDirichletNonUniform_O1::clone(BoundaryRegion* region,
-                                                  const list<string>& args) {
+                                                  const std::list<std::string>& args) {
   // verifyNumPoints(region, 3);
 
   std::shared_ptr<FieldGenerator> newgen;
@@ -220,7 +219,7 @@ void BoundaryFreeNonUniform_O1::apply(Field3D& f, BoutReal t) {
 }
 
 BoundaryOp* BoundaryFreeNonUniform_O1::clone(BoundaryRegion* region,
-                                             const list<string>& args) {
+                                             const std::list<std::string>& args) {
   // verifyNumPoints(region, 3);
 
   std::shared_ptr<FieldGenerator> newgen;
@@ -346,7 +345,7 @@ void BoundaryDirichletNonUniform_O2::apply(Field3D& f, BoutReal t) {
 }
 
 BoundaryOp* BoundaryDirichletNonUniform_O2::clone(BoundaryRegion* region,
-                                                  const list<string>& args) {
+                                                  const std::list<std::string>& args) {
   // verifyNumPoints(region, 3);
 
   std::shared_ptr<FieldGenerator> newgen;
@@ -470,7 +469,7 @@ void BoundaryNeumannNonUniform_O2::apply(Field3D& f, BoutReal t) {
 }
 
 BoundaryOp* BoundaryNeumannNonUniform_O2::clone(BoundaryRegion* region,
-                                                const list<string>& args) {
+                                                const std::list<std::string>& args) {
   // verifyNumPoints(region, 3);
 
   std::shared_ptr<FieldGenerator> newgen;
@@ -596,7 +595,7 @@ void BoundaryFreeNonUniform_O2::apply(Field3D& f, BoutReal t) {
 }
 
 BoundaryOp* BoundaryFreeNonUniform_O2::clone(BoundaryRegion* region,
-                                             const list<string>& args) {
+                                             const std::list<std::string>& args) {
   // verifyNumPoints(region, 3);
 
   std::shared_ptr<FieldGenerator> newgen;
@@ -737,7 +736,7 @@ void BoundaryDirichletNonUniform_O3::apply(Field3D& f, BoutReal t) {
 }
 
 BoundaryOp* BoundaryDirichletNonUniform_O3::clone(BoundaryRegion* region,
-                                                  const list<string>& args) {
+                                                  const std::list<std::string>& args) {
   // verifyNumPoints(region, 3);
 
   std::shared_ptr<FieldGenerator> newgen;
@@ -875,7 +874,7 @@ void BoundaryNeumannNonUniform_O3::apply(Field3D& f, BoutReal t) {
 }
 
 BoundaryOp* BoundaryNeumannNonUniform_O3::clone(BoundaryRegion* region,
-                                                const list<string>& args) {
+                                                const std::list<std::string>& args) {
   // verifyNumPoints(region, 3);
 
   std::shared_ptr<FieldGenerator> newgen;
@@ -1015,7 +1014,7 @@ void BoundaryFreeNonUniform_O3::apply(Field3D& f, BoutReal t) {
 }
 
 BoundaryOp* BoundaryFreeNonUniform_O3::clone(BoundaryRegion* region,
-                                             const list<string>& args) {
+                                             const std::list<std::string>& args) {
   // verifyNumPoints(region, 3);
 
   std::shared_ptr<FieldGenerator> newgen;
@@ -1171,7 +1170,7 @@ void BoundaryDirichletNonUniform_O4::apply(Field3D& f, BoutReal t) {
 }
 
 BoundaryOp* BoundaryDirichletNonUniform_O4::clone(BoundaryRegion* region,
-                                                  const list<string>& args) {
+                                                  const std::list<std::string>& args) {
   // verifyNumPoints(region, 3);
 
   std::shared_ptr<FieldGenerator> newgen;
@@ -1321,7 +1320,7 @@ void BoundaryNeumannNonUniform_O4::apply(Field3D& f, BoutReal t) {
 }
 
 BoundaryOp* BoundaryNeumannNonUniform_O4::clone(BoundaryRegion* region,
-                                                const list<string>& args) {
+                                                const std::list<std::string>& args) {
   // verifyNumPoints(region, 3);
 
   std::shared_ptr<FieldGenerator> newgen;
@@ -1486,7 +1485,7 @@ void BoundaryFreeNonUniform_O4::apply(Field3D& f, BoutReal t) {
 }
 
 BoundaryOp* BoundaryFreeNonUniform_O4::clone(BoundaryRegion* region,
-                                             const list<string>& args) {
+                                             const std::list<std::string>& args) {
   // verifyNumPoints(region, 3);
 
   std::shared_ptr<FieldGenerator> newgen;

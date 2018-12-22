@@ -6583,8 +6583,6 @@ else
         # nc-config might not *say* it has C++ support, but we can try anyway
         { $as_echo "$as_me:${as_lineno-$LINENO}: checking if we can compile NetCDF with C++" >&5
 $as_echo_n "checking if we can compile NetCDF with C++... " >&6; }
-        # Note netcdf_c++ needed
-        NCLIB=`$NCCONF --libs | sed s/-lnetcdf/-lnetcdf_c++\ -lnetcdf/`
 
         save_LIBS=$LIBS
         save_LDFLAGS=$LDFLAGS
@@ -6595,9 +6593,11 @@ ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-        LIBS="$save_LIBS $NCLIB"
-        LDFLAGS="$save_LDFLAGS $NCLIB"
         CXXFLAGS="$save_CXXFLAGS $NCINC"
+        # Note netcdf_c++ needed
+        NCLIB=`$NCCONF --libs | sed s/-lnetcdf/-lnetcdf_c++4\ -lnetcdf/`
+        LDFLAGS="$save_LDFLAGS $NCLIB"
+        LIBS="$save_LIBS $NCLIB"
 
         # Try "new" C++ interface
         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -6623,6 +6623,11 @@ else
   # Failed, so try legacy interface
           cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
+
+            # Note netcdf_c++ needed
+            NCLIB=`$NCCONF --libs | sed s/-lnetcdf/-lnetcdf_c++\ -lnetcdf/`
+            LDFLAGS="$save_LDFLAGS $NCLIB"
+            LIBS="$save_LIBS $NCLIB"
 
                #include <netcdfcpp.h>
 

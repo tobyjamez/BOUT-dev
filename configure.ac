@@ -464,17 +464,17 @@ AS_IF([test "x$with_netcdf" != "xno"],
        ], [
         # nc-config might not *say* it has C++ support, but we can try anyway
         AC_MSG_CHECKING([if we can compile NetCDF with C++])
-        # Note netcdf_c++ needed
-        NCLIB=`$NCCONF --libs | sed s/-lnetcdf/-lnetcdf_c++\ -lnetcdf/`
 
         save_LIBS=$LIBS
         save_LDFLAGS=$LDFLAGS
         save_CXXFLAGS=$CXXFLAGS
         AC_LANG_PUSH([C++])
-        LIBS="$save_LIBS $NCLIB"
-        LDFLAGS="$save_LDFLAGS $NCLIB"
         CXXFLAGS="$save_CXXFLAGS $NCINC"
-
+        # Note netcdf_c++ needed
+        NCLIB=`$NCCONF --libs | sed s/-lnetcdf/-lnetcdf_c++4\ -lnetcdf/`
+        LDFLAGS="$save_LDFLAGS $NCLIB"
+        LIBS="$save_LIBS $NCLIB"
+        
         # Try "new" C++ interface
         AC_LINK_IFELSE(
           [AC_LANG_PROGRAM([
@@ -487,7 +487,12 @@ AS_IF([test "x$with_netcdf" != "xno"],
            
           # Failed, so try legacy interface
           [AC_LINK_IFELSE(
-            [AC_LANG_PROGRAM([
+            [
+            # Note netcdf_c++ needed
+            NCLIB=`$NCCONF --libs | sed s/-lnetcdf/-lnetcdf_c++\ -lnetcdf/`
+            LDFLAGS="$save_LDFLAGS $NCLIB"
+            LIBS="$save_LIBS $NCLIB"
+            AC_LANG_PROGRAM([
                #include <netcdfcpp.h>
                ], [NcFile file("foo.nc");])],
                

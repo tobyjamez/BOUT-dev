@@ -474,18 +474,34 @@ AS_IF([test "x$with_netcdf" != "xno"],
         LIBS="$save_LIBS $NCLIB"
         LDFLAGS="$save_LDFLAGS $NCLIB"
         CXXFLAGS="$save_CXXFLAGS $NCINC"
+
+        # Try "new" C++ interface
         AC_LINK_IFELSE(
           [AC_LANG_PROGRAM([
-             #include <netcdfcpp.h>
-             ], [NcFile file("foo.nc");])],
+             #include <netcdf>
+             ], [netCDF::NcFile file("foo.nc");])],
+             
           [AC_MSG_RESULT([yes])
-           AC_MSG_NOTICE([ -> Legacy NetCDF support enabled])],
-          [AC_MSG_RESULT([no])
-           AC_MSG_FAILURE([*** Could not compile NetCDF C++ program!])])
+           AC_MSG_NOTICE([ -> NetCDF support enabled])
+           save_CXXFLAGS="$save_CXXFLAGS -DNCDF4"],
+           
+          # Failed, so try legacy interface
+          [AC_LINK_IFELSE(
+            [AC_LANG_PROGRAM([
+               #include <netcdfcpp.h>
+               ], [NcFile file("foo.nc");])],
+               
+            [AC_MSG_RESULT([yes])
+             AC_MSG_NOTICE([ -> Legacy NetCDF support enabled])
+             save_CXXFLAGS="$save_CXXFLAGS -DNCDF"],
+
+            # Legacy interface also failed
+            [AC_MSG_RESULT([no])
+             AC_MSG_FAILURE([*** Could not compile NetCDF C++ program!])])])
         AC_LANG_POP([C++])
         LIBS=$save_LIBS
         LDFLAGS=$save_LDFLAGS
-        CXXFLAGS="$save_CXXFLAGS -DNCDF"
+        CXXFLAGS=$save_CXXFLAGS
        ])
       EXTRA_LIBS="$EXTRA_LIBS $NCLIB"
 
@@ -503,10 +519,33 @@ AS_IF([test "x$with_netcdf" != "xno"],
 
       AS_IF([test "x$NCFOUND" = "xyes"],
         [
+        # Try "new" C++ interface
+        AC_LINK_IFELSE(
+          [AC_LANG_PROGRAM([
+             #include <netcdf>
+             ], [netCDF::NcFile file("foo.nc");])],
+             
+          [AC_MSG_RESULT([yes])
+           AC_MSG_NOTICE([ -> NetCDF support enabled])
+           CXXFLAGS="$CXXFLAGS -DNCDF4"],
+           
+          # Failed, so try legacy interface
+          [AC_LINK_IFELSE(
+            [AC_LANG_PROGRAM([
+               #include <netcdfcpp.h>
+               ], [NcFile file("foo.nc");])],
+               
+            [AC_MSG_RESULT([yes])
+             AC_MSG_NOTICE([ -> Legacy NetCDF support enabled])
+             CXXFLAGS="$CXXFLAGS -DNCDF"],
+
+            # Legacy interface also failed
+            [AC_MSG_RESULT([no])
+             AC_MSG_FAILURE([*** Could not compile NetCDF C++ program!])])])
+             
          file_formats="$file_formats netCDF"
          AC_MSG_NOTICE([ -> Legacy NetCDF support enabled])
          NCPATH="found"
-         CXXFLAGS="$CXXFLAGS -DNCDF"
         ], [])
   ])
 

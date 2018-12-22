@@ -6598,10 +6598,33 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
         LIBS="$save_LIBS $NCLIB"
         LDFLAGS="$save_LDFLAGS $NCLIB"
         CXXFLAGS="$save_CXXFLAGS $NCINC"
+
+        # Try "new" C++ interface
         cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-             #include <netcdfcpp.h>
+             #include <netcdf>
+
+int
+main ()
+{
+netCDF::NcFile file("foo.nc");
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+           { $as_echo "$as_me:${as_lineno-$LINENO}:  -> NetCDF support enabled" >&5
+$as_echo "$as_me:  -> NetCDF support enabled" >&6;}
+           save_CXXFLAGS="$save_CXXFLAGS -DNCDF4"
+else
+  # Failed, so try legacy interface
+          cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+               #include <netcdfcpp.h>
 
 int
 main ()
@@ -6614,15 +6637,20 @@ _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-           { $as_echo "$as_me:${as_lineno-$LINENO}:  -> Legacy NetCDF support enabled" >&5
+             { $as_echo "$as_me:${as_lineno-$LINENO}:  -> Legacy NetCDF support enabled" >&5
 $as_echo "$as_me:  -> Legacy NetCDF support enabled" >&6;}
+             save_CXXFLAGS="$save_CXXFLAGS -DNCDF"
 else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+  # Legacy interface also failed
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-           { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+             { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error $? "*** Could not compile NetCDF C++ program!
 See \`config.log' for more details" "$LINENO" 5; }
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
@@ -6634,7 +6662,7 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
         LIBS=$save_LIBS
         LDFLAGS=$save_LDFLAGS
-        CXXFLAGS="$save_CXXFLAGS -DNCDF"
+        CXXFLAGS=$save_CXXFLAGS
 
 fi
       EXTRA_LIBS="$EXTRA_LIBS $NCLIB"
@@ -7039,11 +7067,66 @@ fi
 
       if test "x$NCFOUND" = "xyes"; then :
 
+        # Try "new" C++ interface
+        cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+             #include <netcdf>
+
+int
+main ()
+{
+netCDF::NcFile file("foo.nc");
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+           { $as_echo "$as_me:${as_lineno-$LINENO}:  -> NetCDF support enabled" >&5
+$as_echo "$as_me:  -> NetCDF support enabled" >&6;}
+           CXXFLAGS="$CXXFLAGS -DNCDF4"
+else
+  # Failed, so try legacy interface
+          cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+               #include <netcdfcpp.h>
+
+int
+main ()
+{
+NcFile file("foo.nc");
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+             { $as_echo "$as_me:${as_lineno-$LINENO}:  -> Legacy NetCDF support enabled" >&5
+$as_echo "$as_me:  -> Legacy NetCDF support enabled" >&6;}
+             CXXFLAGS="$CXXFLAGS -DNCDF"
+else
+  # Legacy interface also failed
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+             { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "*** Could not compile NetCDF C++ program!
+See \`config.log' for more details" "$LINENO" 5; }
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+
          file_formats="$file_formats netCDF"
          { $as_echo "$as_me:${as_lineno-$LINENO}:  -> Legacy NetCDF support enabled" >&5
 $as_echo "$as_me:  -> Legacy NetCDF support enabled" >&6;}
          NCPATH="found"
-         CXXFLAGS="$CXXFLAGS -DNCDF"
 
 fi
 

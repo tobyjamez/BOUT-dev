@@ -50,7 +50,7 @@ matrix:
       - CONFIGURE_OPTIONS='--enable-checks=no --enable-optimize=3 --disable-signal --disable-track --disable-backtrace --with-petsc --with-slepc'
       - SCRIPT_FLAGS='-uim'
       - PIP_PACKAGES='cython==0.29.6 netcdf4==1.4.2 sympy==1.3'
-      - LDFLAGS='-fuse-ld=gold -Wl,--copy-dt-needed-entries -Wl,--no-as-needed'
+      - LDFLAGS='-fuse-ld=gold -Wl,--allow-shlib-undefined'
       - *petsc_vars
   - addons:
       apt:

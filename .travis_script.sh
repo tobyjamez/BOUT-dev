@@ -45,6 +45,27 @@ do
     esac
 done
 
+if [[ ! -d $HOME/local ]]; then
+    echo "****************************************"
+    echo "Building SUNDIALS"
+    echo "****************************************"
+    wget https://computation.llnl.gov/projects/sundials/download/sundials-4.1.0.tar.gz
+    tar xvf sundials-4.1.0.tar.gz
+    mkdir -p sundials-4.1.0/build && cd sundials-4.1.0/build
+    cmake -DCMAKE_INSTALL_PREFIX=$HOME/local \
+          -DMPI_ENABLE=on \
+          -DOPENMP_ENABLE=on \
+          -DMPI_C_COMPILER=$(which mpicc) \
+          -DMPI_CXX_COMPILER=$(which mpicxx) \
+          -DMPIEXEC_EXECUTABLE=$(which mpiexec) \
+          ..
+    make && make install
+    export LD_LIBRARY_FLAGS=$HOME/local/lib
+    echo "****************************************"
+    echo "Finished building SUNDIALS"
+    echo "****************************************"
+fi
+
 export MAKEFLAGS="-j 2 -k"
 echo "Configuring with $CONFIGURE_OPTIONS"
 conf=0

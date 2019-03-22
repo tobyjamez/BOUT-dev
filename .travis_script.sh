@@ -46,8 +46,8 @@ do
 done
 
 echo "****************************************"
-if [[ -d $HOME/local]]; then
-    ls -Alh -$HOME/local
+if [[ -d $HOME/local ]]; then
+    ls -Alh $HOME/local
     if [[ -d $HOME/local/include ]]; then
         ls -Alh $HOME/local/include
     fi

@@ -66,6 +66,7 @@ if [[ ! -d $HOME/local/include/sundials ]]; then
     tar xvf sundials-${sundials_ver}.tar.gz
     mkdir -p sundials-${sundials_ver}/build && cd sundials-${sundials_ver}/build
     cmake -DCMAKE_INSTALL_PREFIX="$HOME/local" \
+          -DEXAMPLES_INSTALL=off \
           -DMPI_ENABLE=on \
           -DOPENMP_ENABLE=on \
           -DMPI_C_COMPILER="$(command -v mpicc)" \

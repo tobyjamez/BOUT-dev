@@ -45,7 +45,19 @@ do
     esac
 done
 
-if [[ ! -d $HOME/local ]]; then
+echo "****************************************"
+if [[ -d $HOME/local]]; then
+    ls -Alh -$HOME/local
+    if [[ -d $HOME/local/include ]]; then
+        ls -Alh $HOME/local/include
+    fi
+    if [[ -d $HOME/local/lib ]]; then
+        ls -Alh $HOME/local/lib
+    fi
+fi
+echo "****************************************"
+
+if [[ ! -d $HOME/local/include/sundials ]]; then
     echo "****************************************"
     echo "Building SUNDIALS"
     echo "****************************************"
@@ -56,7 +68,7 @@ if [[ ! -d $HOME/local ]]; then
           -DMPI_ENABLE=on \
           -DOPENMP_ENABLE=on \
           -DMPI_C_COMPILER=$(which mpicc) \
-          -DMPI_CXX_COMPILER=$(which mpicxx) \
+          -DMPI_CXX_COMPILER=$(which mpic++) \
           -DMPIEXEC_EXECUTABLE=$(which mpiexec) \
           ..
     make && make install
@@ -64,10 +76,16 @@ if [[ ! -d $HOME/local ]]; then
     echo "****************************************"
     echo "Finished building SUNDIALS"
     echo "****************************************"
+else
+    echo "****************************************"
+    echo "SUNDIALS already installed"
+    echo "****************************************"
 fi
 
 export MAKEFLAGS="-j 2 -k"
+echo "****************************************"
 echo "Configuring with $CONFIGURE_OPTIONS"
+echo "****************************************"
 conf=0
 time ./configure $CONFIGURE_OPTIONS MAKEFLAGS="$MAKEFLAGS" || conf=$?
 if test $conf -gt 0

@@ -68,7 +68,11 @@ if [[ ! -d $HOME/local/include/sundials ]]; then
     cmake -DCMAKE_INSTALL_PREFIX="$HOME/local" \
           -DEXAMPLES_INSTALL=off \
           -DMPI_ENABLE=on \
-          -DOPENMP_ENABLE=on \
+          -DOPENMP_ENABLE=off \
+          -DBUILD_CVODES=off \
+          -DBUILD_IDAS=off \
+          -DBUILD_KINSOL=off \
+          -DBUILD_TESTING=off \
           -DMPI_C_COMPILER="$(command -v mpicc)" \
           -DMPI_CXX_COMPILER="$(command -v mpic++)" \
           -DMPIEXEC_EXECUTABLE="$(command -v mpiexec)" \

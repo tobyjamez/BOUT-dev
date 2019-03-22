@@ -61,18 +61,19 @@ if [[ ! -d $HOME/local/include/sundials ]]; then
     echo "****************************************"
     echo "Building SUNDIALS"
     echo "****************************************"
-    wget https://computation.llnl.gov/projects/sundials/download/sundials-4.1.0.tar.gz
-    tar xvf sundials-4.1.0.tar.gz
-    mkdir -p sundials-4.1.0/build && cd sundials-4.1.0/build
-    cmake -DCMAKE_INSTALL_PREFIX=$HOME/local \
+    sundials_ver=4.1.0
+    wget https://computation.llnl.gov/projects/sundials/download/sundials-${sundials_ver}.tar.gz
+    tar xvf sundials-${sundials_ver}.tar.gz
+    mkdir -p sundials-${sundials_ver}/build && cd sundials-${sundials_ver}/build
+    cmake -DCMAKE_INSTALL_PREFIX="$HOME/local" \
           -DMPI_ENABLE=on \
           -DOPENMP_ENABLE=on \
-          -DMPI_C_COMPILER=$(which mpicc) \
-          -DMPI_CXX_COMPILER=$(which mpic++) \
-          -DMPIEXEC_EXECUTABLE=$(which mpiexec) \
+          -DMPI_C_COMPILER="$(command -v mpicc)" \
+          -DMPI_CXX_COMPILER="$(command -v mpic++)" \
+          -DMPIEXEC_EXECUTABLE="$(command -v mpiexec)" \
           ..
     make && make install
-    export LD_LIBRARY_FLAGS=$HOME/local/lib
+    cd "${TRAVIS_BUILD_DIR}"
     echo "****************************************"
     echo "Finished building SUNDIALS"
     echo "****************************************"

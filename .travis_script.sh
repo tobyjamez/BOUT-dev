@@ -38,7 +38,7 @@ do
     t) ### Set target to build
         MAIN_TARGET+=("$OPTARG")
         ;;
-    a) RUNCMD="LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/5/libasan.so ./runtest"
+    a) RUNCMD="(LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libasan.so.2 ./runtest)"
        ;;
 	*) ### Show usage message
 	    usage
@@ -95,25 +95,25 @@ done
 echo locate libasan
 locate libasan
 
-boutcore_dir=${TRAVIS_BUILD_DIR}/tests/integrated/test-boutcore/setup
+boutcore_dir=${TRAVIS_BUILD_DIR}/tests/integrated/test-boutcore
 pwd
 
 echo "**************************************************"
 cd ${boutcore_dir}/setup
 pwd
-$RUNCMD
+$RUNCMD || ./runtest
 
 echo "**************************************************"
 cd ${boutcore_dir}/setup_importstar
 pwd
-$RUNCMD
+$RUNCMD || ./runtest
 
 echo "**************************************************"
 cd ${boutcore_dir}/collect
 pwd
-$RUNCMD
+$RUNCMD || ./runtest
 
 echo "**************************************************"
 cd ${boutcore_dir}/legacy-model
 pwd
-$RUNCMD
+$RUNCMD || ./runtest

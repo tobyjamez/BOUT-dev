@@ -17,7 +17,7 @@ usage() {
 }
 
 #Handle input flags
-while getopts "cuimt:" arg;
+while getopts "cuimat:" arg;
 do
     case $arg in
 	c) ### Run the coverage-post job tasks
@@ -92,27 +92,28 @@ do
     fi
 done
 
+echo locate libasan
 locate libasan
 
-cd tests/integrated/test-boutcore/
+boutcore_dir=${TRAVIS_BUILD_DIR}/tests/integrated/test-boutcore/setup
 pwd
 
 echo "**************************************************"
-cd ../setup
-pwd
-$RUNCMD
-
-echo "**************************************************"
-cd ../setup_importstar
+cd ${boutcore_dir}/setup
 pwd
 $RUNCMD
 
 echo "**************************************************"
-cd ../collect
+cd ${boutcore_dir}/setup_importstar
 pwd
 $RUNCMD
 
 echo "**************************************************"
-cd ../legacy-model
+cd ${boutcore_dir}/collect
+pwd
+$RUNCMD
+
+echo "**************************************************"
+cd ${boutcore_dir}/legacy-model
 pwd
 $RUNCMD

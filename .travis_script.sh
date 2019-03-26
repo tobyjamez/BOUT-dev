@@ -7,6 +7,7 @@ INTEGRATED=0
 MMS=0
 TESTS=0
 MAIN_TARGET=
+RUNCMD=./runtest
 
 usage() {
     echo "$0 options are: "
@@ -37,6 +38,8 @@ do
     t) ### Set target to build
         MAIN_TARGET+=("$OPTARG")
         ;;
+    a) RUNCMD="LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/5/libasan.so ./runtest"
+       ;;
 	*) ### Show usage message
 	    usage
 	    ;;
@@ -89,18 +92,27 @@ do
     fi
 done
 
-echo "**************************************************"
-cd tests/integrated/test-boutcore/collect
-LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/5/libasan.so ./runtest
+locate libasan
 
-echo "**************************************************"
-cd ../legacy-model
-LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/5/libasan.so ./runtest
+cd tests/integrated/test-boutcore/
+pwd
 
 echo "**************************************************"
 cd ../setup
-LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/5/libasan.so ./runtest
+pwd
+$RUNCMD
 
 echo "**************************************************"
 cd ../setup_importstar
-LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/5/libasan.so ./runtest
+pwd
+$RUNCMD
+
+echo "**************************************************"
+cd ../collect
+pwd
+$RUNCMD
+
+echo "**************************************************"
+cd ../legacy-model
+pwd
+$RUNCMD

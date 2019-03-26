@@ -33,13 +33,17 @@ matrix:
   fast_finish: true
   include:
   - env:
-      - SCRIPT_FLAGS='-uim'
+      - PIP_PACKAGES='cython==0.29.6 netcdf4==1.4.2 sympy==1.3'
+      - LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
+      - CONFIGURE_OPTIONS="--enable-shared --enable-debug"
+      - SCRIPT_FLAGS="-uima -t python -t shared"
+      - CXXFLAGS="-fsanitize=address -fno-omit-frame-pointer"
+      - LDFLAGS="-fsanitize=address"
+  - env:
       - PIP_PACKAGES='cython==0.29.6 netcdf4==1.4.2 sympy==1.3'
       - LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
       - CONFIGURE_OPTIONS="--enable-shared --enable-debug"
       - SCRIPT_FLAGS="-uim -t python -t shared"
-      - CXXFLAGS="-fsanitize=address"
-      - LDFLAGS="-fsanitize=address"
 
 before_install:
   ##################################################

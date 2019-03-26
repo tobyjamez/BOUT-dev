@@ -45,37 +45,6 @@ do
     esac
 done
 
-if [[ ! -d $HOME/local/include/sundials ]]; then
-    echo "****************************************"
-    echo "Building SUNDIALS"
-    echo "****************************************"
-    sundials_ver=4.1.0
-    wget https://computation.llnl.gov/projects/sundials/download/sundials-${sundials_ver}.tar.gz
-    tar xvf sundials-${sundials_ver}.tar.gz
-    mkdir -p sundials-${sundials_ver}/build && cd sundials-${sundials_ver}/build
-    cmake -DCMAKE_INSTALL_PREFIX="$HOME/local" \
-          -DEXAMPLES_INSTALL=off \
-          -DMPI_ENABLE=on \
-          -DOPENMP_ENABLE=off \
-          -DBUILD_CVODES=off \
-          -DBUILD_IDAS=off \
-          -DBUILD_KINSOL=off \
-          -DBUILD_TESTING=off \
-          -DMPI_C_COMPILER="$(command -v mpicc)" \
-          -DMPI_CXX_COMPILER="$(command -v mpic++)" \
-          -DMPIEXEC_EXECUTABLE="$(command -v mpiexec)" \
-          ..
-    make && make install
-    cd "${TRAVIS_BUILD_DIR}"
-    echo "****************************************"
-    echo "Finished building SUNDIALS"
-    echo "****************************************"
-else
-    echo "****************************************"
-    echo "SUNDIALS already installed"
-    echo "****************************************"
-fi
-
 export MAKEFLAGS="-j 2 -k"
 echo "****************************************"
 echo "Configuring with $CONFIGURE_OPTIONS"
@@ -122,38 +91,13 @@ do
     fi
 done
 
-if [[ ${TESTS} == 1 ]]
-then
-    time make build-check
-fi
-
 if [[ ${UNIT} == 1 ]]
 then
     time make check-unit-tests
 fi
 
-if [[ ${INTEGRATED} == 1 ]]
-then
-    time make check-integrated-tests
-    time py.test-3 tools/pylib/
-fi
+cd tests/integrated/test-boutcore/collect
+valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./runtest
 
-if [[ ${MMS} == 1 ]]
-then
-   time make check-mms-tests
-fi
-
-if [[ ${COVERAGE} == 1 ]]
-then
-    # Ensure that there is a corresponding .gcda file for every .gcno file
-    # This is to try and make the coverage report slightly more accurate
-    # It still won't include, e.g. any solvers we don't build with though
-    find . -name "*.gcno" -exec sh -c 'touch -a "${1%.gcno}.gcda"' _ {} \;
-
-    # Use lcov to generate a report, upload it to codecov.io
-    make code-coverage-capture
-    bash <(curl -s https://codecov.io/bash) -f bout-coverage.info
-
-    #For codacy
-    bash ./.codacy_coverage.sh
-fi
+cd ../legacy-model
+valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./runtest

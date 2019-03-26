@@ -1068,6 +1068,7 @@ class PhysicsModel(PhysicsModelBase):
 
 cdef extern from "bout.hxx":
     int BoutInitialise(int&, char **&) except +raise_bout_py_error
+    void BoutFinalise(c.bool write_settings)
     void BoutFinalise()
 
 cdef extern from "boutcore_openmpi_compat.hxx":
@@ -1114,19 +1115,19 @@ def init(args=[]):
     ret=BoutInitialise(fuu,string_buf)
     free(string_buf)
     if ret:
-        BoutFinalise()
+        BoutFinalise(True)
         raise RuntimeError("Failed to initialise the BOUT++ Library (Error code %d)"%ret)
     else:
         _isInit=True
     #atexit.register(finalise)
 
-def finalise():
+def finalise(write_settings=True):
     """
     Finalize BOUT++ and also MPI.
     After this most objects and functions are not valid anymore.
     """
     checkInit()
-    BoutFinalise()
+    BoutFinalise(<c.bool> write_settings)
     global _isInit
     _isInit=False
 

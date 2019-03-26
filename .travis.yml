@@ -23,6 +23,7 @@ addons:
     - openmpi-bin
     - libopenmpi-dev
     - valgrind
+    - libasan2
 
 cache:
   directories:
@@ -37,6 +38,8 @@ matrix:
       - LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
       - CONFIGURE_OPTIONS="--enable-shared --enable-debug"
       - SCRIPT_FLAGS="-uim -t python -t shared"
+      - CXXFLAGS="-fsanitize=address"
+      - LDFLAGS="-fsanitize=address"
 
 before_install:
   ##################################################

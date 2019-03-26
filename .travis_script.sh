@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 #Default flags
 COVERAGE=0
 UNIT=0
@@ -91,8 +89,18 @@ do
     fi
 done
 
+echo "**************************************************"
 cd tests/integrated/test-boutcore/collect
-valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./runtest
+LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/5/libasan.so ./runtest
 
+echo "**************************************************"
 cd ../legacy-model
-valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./runtest
+LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/5/libasan.so ./runtest
+
+echo "**************************************************"
+cd ../setup
+LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/5/libasan.so ./runtest
+
+echo "**************************************************"
+cd ../setup_importstar
+LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/5/libasan.so ./runtest

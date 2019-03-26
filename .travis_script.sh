@@ -91,11 +91,6 @@ do
     fi
 done
 
-if [[ ${UNIT} == 1 ]]
-then
-    time make check-unit-tests
-fi
-
 cd tests/integrated/test-boutcore/collect
 valgrind --tool=memcheck --leak-check=full --track-origins=yes --show-leak-kinds=all ./runtest
 

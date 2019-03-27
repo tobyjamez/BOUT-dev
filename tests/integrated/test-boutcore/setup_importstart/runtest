@@ -2,3 +2,4 @@
 from boutcore import *
 
 init("-d data")
+finalise(False)

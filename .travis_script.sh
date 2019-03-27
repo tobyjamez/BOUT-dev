@@ -7,7 +7,7 @@ INTEGRATED=0
 MMS=0
 TESTS=0
 MAIN_TARGET=
-RUNCMD=./runtest
+USE_ASAN=0
 
 usage() {
     echo "$0 options are: "
@@ -38,7 +38,7 @@ do
     t) ### Set target to build
         MAIN_TARGET+=("$OPTARG")
         ;;
-    a) RUNCMD="(LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libasan.so.2 ./runtest)"
+    a) USE_ASAN=1
        ;;
 	*) ### Show usage message
 	    usage
@@ -101,19 +101,35 @@ pwd
 echo "**************************************************"
 cd ${boutcore_dir}/setup
 pwd
-$RUNCMD || ./runtest
+if [[ ${USE_ASAN} -gt 0 ]]; then
+  LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libasan.so.2 ./runtest
+else
+  ./runtest
+fi
 
 echo "**************************************************"
 cd ${boutcore_dir}/setup_importstar
 pwd
-$RUNCMD || ./runtest
+if [[ ${USE_ASAN} -gt 0 ]]; then
+  LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libasan.so.2 ./runtest
+else
+  ./runtest
+fi
 
 echo "**************************************************"
 cd ${boutcore_dir}/collect
 pwd
-$RUNCMD || ./runtest
+if [[ ${USE_ASAN} -gt 0 ]]; then
+  LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libasan.so.2 ./runtest
+else
+  ./runtest
+fi
 
 echo "**************************************************"
 cd ${boutcore_dir}/legacy-model
 pwd
-$RUNCMD || ./runtest
+if [[ ${USE_ASAN} -gt 0 ]]; then
+  LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libasan.so.2 ./runtest
+else
+  ./runtest
+fi

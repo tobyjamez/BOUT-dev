@@ -73,11 +73,7 @@ matrix:
   - env:
       - *default_env
       - CONFIGURE_OPTIONS="--enable-shared --with-petsc --with-slepc --with-sundials=$HOME/local"
-      - SCRIPT_FLAGS="-uim -t python -t shared"
-  - env:
-      - *default_env
-      - CONFIGURE_OPTIONS="--enable-shared --with-petsc --with-slepc --with-sundials=$HOME/local"
-      - SCRIPT_FLAGS="-uim5t python"
+      - SCRIPT_FLAGS="-uim5t python -t shared"
   - env:
       - *default_env
       - CONFIGURE_OPTIONS="--enable-openmp --with-petsc --with-slepc --with-sundials=$HOME/local"

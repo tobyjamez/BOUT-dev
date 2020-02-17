@@ -178,7 +178,7 @@ const Vector3D cross(const Vector2D & lhs, const Vector3D &rhs);
  */
 const Coordinates::metric_field_type
 abs(const Vector2D& v, const std::string& region = "RGN_ALL");
-[[gnu::deprecated("Please use Vector2D abs(const Vector2D& f, "
+[[deprecated("Please use Vector2D abs(const Vector2D& f, "
     "const std::string& region = \"RGN_ALL\") instead")]]
 inline const Coordinates::metric_field_type abs(const Vector2D &v, REGION region) {
   return abs(v, toString(region));

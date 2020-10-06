@@ -78,7 +78,7 @@ jobs:
     script:
       - mkdir build && cd build
       - cmake ..
-      - cmake --build . --target test-io -j 2
+      - cmake --build . --target test_io -j 2
       - cd tests/integrated/test-io && ./runtest && ./runtest && ./runtest && ./runtest && ./runtest
 #CLANG
   - name: "Clang"

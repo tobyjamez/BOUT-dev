@@ -63,6 +63,7 @@ jobs:
       - *default_env
       - CONFIGURE_OPTIONS="--enable-shared --with-petsc --with-slepc --with-sundials=$HOME/local"
       - SCRIPT_FLAGS="-uim -t python -t shared"
+      - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$TRAVIS_BUILD_DIR/lib
   - name: "OpenMP"
     env:
       - *default_env
@@ -75,10 +76,9 @@ jobs:
       - OMP_NUM_THREADS=2
       - PYTHONPATH="${TRAVIS_BUILD_DIR}/tools/pylib:$PYTHONPATH"
     script:
-      - pip install ninja
       - mkdir build && cd build
-      - cmake .. -G Ninja
-      - cmake --build .
+      - cmake ..
+      - cmake --build . --target test-io -j 2
       - cd tests/integrated/test-io && ./runtest && ./runtest && ./runtest && ./runtest && ./runtest
 #CLANG
   - name: "Clang"

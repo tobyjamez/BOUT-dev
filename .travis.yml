@@ -58,29 +58,11 @@ jobs:
       - PIP_PACKAGES='cython~=0.29 netcdf4~=1.5 sympy~=1.5'
       - LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
       - *petsc_vars
-  - name: "GCC 7"
-    addons:
-      apt:
-        sources:
-          - ubuntu-toolchain-r-test
-        packages:
-          - g++-7
-          - *standard_packages
-    env:
-      - *default_env
-      - CONFIGURE_OPTIONS="--enable-sigfpe --enable-debug --with-petsc --with-slepc --with-sundials=$HOME/local"
-      - CC=gcc-7 CXX=g++-7
-      - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
   - name: "Shared library + Python"
     env:
       - *default_env
       - CONFIGURE_OPTIONS="--enable-shared --with-petsc --with-slepc --with-sundials=$HOME/local"
       - SCRIPT_FLAGS="-uim -t python -t shared"
-  - name: "4to5 test"
-    env:
-      - *default_env
-      - CONFIGURE_OPTIONS="--enable-shared --with-petsc --with-slepc --with-sundials=$HOME/local"
-      - SCRIPT_FLAGS="-uim5t python"
   - name: "OpenMP"
     env:
       - *default_env
@@ -93,11 +75,10 @@ jobs:
       - OMP_NUM_THREADS=2
       - PYTHONPATH="${TRAVIS_BUILD_DIR}/tools/pylib:$PYTHONPATH"
     script:
-      - ./.build_sundials_for_travis.sh
       - mkdir build && cd build
-      - cmake .. -DUSE_PETSC=ON -DUSE_SLEPC=ON -DUSE_SUNDIALS=ON -DSUNDIALS_ROOT="$HOME/local" -DENABLE_OPENMP=ON
+      - cmake ..
       - cmake --build .
-      - ctest --output-on-failure
+      - cd build/tests/integrated/test-io && ./runtest
 #CLANG
   - name: "Clang"
     env:
@@ -106,44 +87,6 @@ jobs:
       - MPICH_CC=clang MPICH_CXX=clang++
       - OMPI_CC=clang OMPI_CXX=clang++
     compiler: clang
-#COVERAGE
-  - name: "Coverage (full)"
-    if: branch IN (master, next) OR commit_message =~ /build coverage/
-    addons:
-      apt:
-        packages:
-          - *standard_packages
-          - jq
-    env:
-      - CONFIGURE_OPTIONS="--enable-code-coverage --enable-debug --enable-track --enable-checks=3 --with-petsc --with-lapack --with-slepc --enable-openmp --with-sundials=$HOME/local"
-      - OMP_NUM_THREADS=2
-      - LD_LIBRARY_PATH=$HOME/local/lib:$LD_LIBRARY_PATH
-      - *coverage_vars
-      - *petsc_vars
-      - *codecov_secure
-  - name: "Coverage (minimal)"
-    if: branch IN (master, next) OR commit_message =~ /build coverage/
-    addons:
-      apt:
-        packages:
-          - *standard_packages
-          - jq
-    env:
-      - CONFIGURE_OPTIONS="--enable-code-coverage --disable-debug --disable-checks"
-      - *coverage_vars
-      - *codecov_secure
-
-  - stage: Finalise Coverage
-    if: branch IN (master, next) OR commit_message =~ /build coverage/
-    addons:
-      apt:
-        packages:
-          - *standard_packages
-          - jq
-    env:
-      - *coverage_vars
-      - *codecov_secure
-    script: wget -q -O ~/codacy-coverage-reporter-assembly-latest.jar https://oss.sonatype.org/service/local/repositories/releases/content/com/codacy/codacy-coverage-reporter/4.0.5/codacy-coverage-reporter-4.0.5-assembly.jar ; java -jar ~/codacy-coverage-reporter-assembly-latest.jar final
 
 before_install:
   ##################################################

@@ -51,21 +51,6 @@ done
 
 ./.build_sundials_for_travis.sh
 
-if test $UPDATE_SCRIPT -gt 0
-then
-    # Make sure the header list is up to date
-    if ! diff bin/bout_4to5_header_file_list <(cd include/;ls *xx|grep -v ^bout.hxx|sort)
-    then
-	echo "Some header files changed."
-	echo "Please update the list by running:"
-	echo "(cd include/;ls *xx|grep -v ^bout.hxx|sort) > bin/bout_4to5_header_file_list"
-	echo "And commit the updated file."
-	exit 1
-    fi
-
-    bin/bout_4to5 -f
-fi
-
 export MAKEFLAGS="-j 2 -k"
 echo "****************************************"
 echo "Configuring with $CONFIGURE_OPTIONS"
@@ -112,12 +97,10 @@ do
     fi
 done
 
-if [[ ${INTEGRATED} == 1 ]]
-then
-    cd tests/integrated/test-io/
-    time ./runtest
-    time ./runtest
-    time ./runtest
-    time ./runtest
-    time ./runtest
-fi
+make
+cd tests/integrated/test-io/
+time ./runtest
+time ./runtest
+time ./runtest
+time ./runtest
+time ./runtest

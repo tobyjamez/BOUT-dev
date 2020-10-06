@@ -75,10 +75,11 @@ jobs:
       - OMP_NUM_THREADS=2
       - PYTHONPATH="${TRAVIS_BUILD_DIR}/tools/pylib:$PYTHONPATH"
     script:
+      - pip install ninja
       - mkdir build && cd build
-      - cmake ..
+      - cmake .. -G Ninja
       - cmake --build .
-      - cd build/tests/integrated/test-io && ./runtest
+      - cd tests/integrated/test-io && ./runtest && ./runtest && ./runtest && ./runtest && ./runtest
 #CLANG
   - name: "Clang"
     env:

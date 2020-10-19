@@ -147,7 +147,7 @@ if failed:
     print("======= FAILURES ========")
     for test, output in failed:
         # Note: need Unicode string in case output contains unicode
-        print(u"\n----- {0} -----\n{1}".format(test, output))
+        print(u"\n----- {0} -----\n{1}".format(test, output), flush=True)
 
     print("======= {0} failed in {1:.2f} seconds ========".format(
         len(failed), elapsed_time))

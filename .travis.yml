@@ -164,13 +164,8 @@ script:
   - "./.travis_script.sh ${SCRIPT_FLAGS}"
 
 # sleep a little bit after the build finishes to try and make sure stdout gets flushed
-after_failure:
-  - echo "Build failed!"
+after_script:
   - sleep 5
-
-after_success:
-  - echo "Build passed!"
-  - sleep 1
 
 notifications:
   # Send a notification to the BOUT++ Slack team
